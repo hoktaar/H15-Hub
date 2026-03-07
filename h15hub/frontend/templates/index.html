@@ -3,55 +3,84 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>H15-Hub – Hebewerk Makerspace</title>
+  <title>H15-Hub</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: system-ui, sans-serif; background: #1a1a2e; color: #eee; min-height: 100vh; }
-    header { background: #16213e; padding: 1rem 2rem; display: flex; align-items: center; gap: 1rem; border-bottom: 2px solid #0f3460; }
-    header h1 { font-size: 1.5rem; color: #e94560; }
-    header span { color: #aaa; font-size: 0.9rem; }
-    #ws-status { margin-left: auto; font-size: 0.8rem; padding: 0.3rem 0.7rem; border-radius: 99px; background: #333; }
-    #ws-status.connected { background: #1a5c2a; color: #4caf50; }
-    main { padding: 2rem; }
-    h2 { margin-bottom: 1.5rem; color: #ccc; font-size: 1rem; text-transform: uppercase; letter-spacing: 0.1em; }
-    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 1.5rem; }
-    .card { background: #16213e; border-radius: 12px; padding: 1.5rem; border: 1px solid #0f3460; cursor: pointer; transition: border-color 0.2s; }
-    .card:hover { border-color: #e94560; }
-    .card-header { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1rem; }
-    .status-dot { width: 14px; height: 14px; border-radius: 50%; flex-shrink: 0; }
-    .status-dot.free { background: #4caf50; box-shadow: 0 0 8px #4caf5088; }
-    .status-dot.in_use { background: #ff9800; box-shadow: 0 0 8px #ff980088; }
-    .status-dot.offline { background: #555; }
-    .status-dot.error { background: #f44336; box-shadow: 0 0 8px #f4433688; }
-    .card-title { font-weight: 600; font-size: 1.05rem; }
-    .card-type { font-size: 0.75rem; color: #888; text-transform: uppercase; letter-spacing: 0.05em; }
-    .card-status { font-size: 0.85rem; margin-top: 0.5rem; }
-    .card-status.free { color: #4caf50; }
-    .card-status.in_use { color: #ff9800; }
-    .card-status.offline { color: #777; }
-    .card-status.error { color: #f44336; }
-    .progress-bar { margin-top: 0.75rem; background: #0f3460; border-radius: 99px; height: 6px; overflow: hidden; }
-    .progress-fill { height: 100%; background: #e94560; border-radius: 99px; transition: width 0.5s; }
-    .progress-text { font-size: 0.75rem; color: #aaa; margin-top: 0.25rem; }
-    .card-user { margin-top: 0.5rem; font-size: 0.8rem; color: #888; }
-    nav a { color: #aaa; text-decoration: none; margin-right: 1.5rem; }
-    nav a:hover { color: #e94560; }
-    nav { margin-bottom: 1.5rem; }
-    .empty { color: #555; text-align: center; padding: 3rem; }
+    body { font-family: system-ui, sans-serif; background: #1a1a2e; color: #e8e8e8; min-height: 100vh; }
+
+    header {
+      background: #16213e;
+      padding: 0.75rem 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+      border-bottom: 1px solid #1e3460;
+    }
+    header h1 { font-size: 1rem; font-weight: 600; color: #e8e8e8; }
+    header .site-name { font-size: 0.875rem; color: #7a7a9a; }
+
+    #ws-status {
+      margin-left: auto;
+      font-size: 0.8rem;
+      color: #7a7a9a;
+    }
+    #ws-status.connected { color: #4caf50; }
+
+    nav { display: flex; gap: 1.5rem; padding: 0.75rem 1.5rem; border-bottom: 1px solid #1e3460; }
+    nav a { font-size: 0.875rem; color: #7a7a9a; text-decoration: none; }
+    nav a:hover { color: #e8e8e8; }
+    nav a.active { color: #e8e8e8; }
+
+    main { padding: 1.5rem; }
+
+    .section-label { font-size: 0.875rem; font-weight: 500; color: #7a7a9a; margin-bottom: 1rem; }
+
+    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 1px; background: #1e3460; border: 1px solid #1e3460; }
+    .card {
+      background: #16213e;
+      padding: 1.25rem;
+      cursor: pointer;
+      transition: background 150ms ease;
+    }
+    .card:hover { background: #1c2850; }
+
+    .card-header { display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.75rem; }
+    .status-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+    .status-dot.free    { background: #4caf50; }
+    .status-dot.in_use  { background: #ff9800; }
+    .status-dot.offline { background: #4a4a5a; }
+    .status-dot.error   { background: #f44336; }
+
+    .card-title { font-size: 0.9rem; font-weight: 500; }
+    .card-type  { font-size: 0.75rem; color: #7a7a9a; margin-top: 0.2rem; }
+
+    .card-status { font-size: 0.8rem; margin-top: 0.5rem; }
+    .card-status.free    { color: #4caf50; }
+    .card-status.in_use  { color: #ff9800; }
+    .card-status.offline { color: #4a4a5a; }
+    .card-status.error   { color: #f44336; }
+
+    .card-user { margin-top: 0.4rem; font-size: 0.75rem; color: #7a7a9a; }
+
+    .progress-bar { margin-top: 0.75rem; background: #0f1f40; height: 4px; }
+    .progress-fill { height: 100%; background: #e94560; transition: width 500ms ease; }
+    .progress-text { font-size: 0.75rem; color: #7a7a9a; margin-top: 0.3rem; }
+
+    .empty { color: #4a4a5a; text-align: center; padding: 3rem; }
   </style>
 </head>
 <body>
   <header>
     <h1>H15-Hub</h1>
-    <span>Hebewerk e.V. Makerspace</span>
+    <span class="site-name">Hebewerk e.V.</span>
     <span id="ws-status">Verbinde…</span>
   </header>
+  <nav>
+    <a href="/" class="active">Dashboard</a>
+    <a href="/bookings">Buchungen</a>
+  </nav>
   <main>
-    <nav>
-      <a href="/">Dashboard</a>
-      <a href="/bookings">Buchungen</a>
-    </nav>
-    <h2>Geräte-Status</h2>
+    <div class="section-label">Geräte-Status</div>
     <div class="grid" id="device-grid">
       <div class="empty">Lade Geräte…</div>
     </div>
@@ -74,7 +103,7 @@
             </div>
           </div>
           <div class="card-status ${d.status}">${statusLabel[d.status] || d.status}</div>
-          ${d.current_user ? `<div class="card-user">Genutzt von: ${d.current_user}</div>` : ''}
+          ${d.current_user ? `<div class="card-user">${d.current_user}</div>` : ''}
           ${d.progress !== null && d.progress !== undefined ? `
             <div class="progress-bar"><div class="progress-fill" style="width:${d.progress}%"></div></div>
             <div class="progress-text">${d.progress}%${d.eta_minutes ? ` · noch ca. ${d.eta_minutes} Min.` : ''}</div>
@@ -98,7 +127,6 @@
           const d = devices.find(x => x.id === msg.device_id);
           if (d) Object.assign(d, msg.device);
           renderDevices(devices);
-          // Browser-Notification wenn Gerät frei wird
           if (msg.new_status === 'free' && Notification.permission === 'granted') {
             new Notification(`${msg.device.name} ist jetzt frei!`);
           }
@@ -111,7 +139,6 @@
       };
     }
 
-    // Browser-Notifications anfragen
     if ('Notification' in window && Notification.permission === 'default') {
       Notification.requestPermission();
     }

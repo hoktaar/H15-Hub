@@ -6,52 +6,114 @@
   <title>{{ device.name }} – H15-Hub</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: system-ui, sans-serif; background: #1a1a2e; color: #eee; min-height: 100vh; }
-    header { background: #16213e; padding: 1rem 2rem; display: flex; align-items: center; gap: 1rem; border-bottom: 2px solid #0f3460; }
-    header h1 { font-size: 1.5rem; color: #e94560; }
+    body { font-family: system-ui, sans-serif; background: #1a1a2e; color: #e8e8e8; min-height: 100vh; }
+
+    header {
+      background: #16213e;
+      padding: 0.75rem 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+      border-bottom: 1px solid #1e3460;
+    }
+    header h1 { font-size: 1rem; font-weight: 600; }
     a { color: #e94560; text-decoration: none; }
-    main { padding: 2rem; max-width: 700px; }
-    .back { margin-bottom: 1.5rem; display: inline-block; color: #aaa; }
-    .status-badge { display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.4rem 1rem; border-radius: 99px; font-weight: 600; }
-    .status-badge.free { background: #1a5c2a; color: #4caf50; }
-    .status-badge.in_use { background: #5c3a1a; color: #ff9800; }
-    .status-badge.offline { background: #333; color: #888; }
-    .status-badge.error { background: #5c1a1a; color: #f44336; }
-    .dot { width: 10px; height: 10px; border-radius: 50%; background: currentColor; }
-    .card { background: #16213e; border-radius: 12px; padding: 1.5rem; border: 1px solid #0f3460; margin-top: 1.5rem; }
-    .card h2 { margin-bottom: 1rem; font-size: 1rem; color: #ccc; text-transform: uppercase; letter-spacing: 0.05em; }
-    .info-row { display: flex; justify-content: space-between; padding: 0.5rem 0; border-bottom: 1px solid #0f3460; font-size: 0.9rem; }
+
+    main { padding: 1.5rem; max-width: 680px; }
+
+    .back { font-size: 0.875rem; color: #7a7a9a; display: inline-block; margin-bottom: 1.25rem; }
+    .back:hover { color: #e8e8e8; }
+
+    .device-title { font-size: 1.25rem; font-weight: 600; margin-bottom: 0.75rem; }
+
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.25rem 0.6rem;
+      border-radius: 4px;
+      font-size: 0.8rem;
+      font-weight: 500;
+    }
+    .status-badge.free    { background: #0d2e14; color: #4caf50; border: 1px solid #1a5c2a; }
+    .status-badge.in_use  { background: #2e1a0d; color: #ff9800; border: 1px solid #5c3a1a; }
+    .status-badge.offline { background: #1e1e2e; color: #7a7a9a; border: 1px solid #2a2a3a; }
+    .status-badge.error   { background: #2e0d0d; color: #f44336; border: 1px solid #5c1a1a; }
+    .dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+
+    .card {
+      background: #16213e;
+      border: 1px solid #1e3460;
+      border-radius: 6px;
+      padding: 1.25rem;
+      margin-top: 1.25rem;
+    }
+    .card-label { font-size: 0.8rem; font-weight: 500; color: #7a7a9a; margin-bottom: 0.875rem; }
+
+    .info-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 0.5rem 0;
+      border-bottom: 1px solid #1e3460;
+      font-size: 0.875rem;
+    }
     .info-row:last-child { border-bottom: none; }
-    .info-row .label { color: #888; }
-    .progress-bar { background: #0f3460; border-radius: 99px; height: 8px; overflow: hidden; margin-top: 0.5rem; }
-    .progress-fill { height: 100%; background: #e94560; border-radius: 99px; }
-    .btn-group { display: flex; gap: 0.75rem; flex-wrap: wrap; margin-top: 0.5rem; }
-    button { padding: 0.6rem 1.4rem; border: none; border-radius: 8px; font-size: 0.9rem; cursor: pointer; font-weight: 600; }
-    .btn-primary { background: #e94560; color: white; }
-    .btn-secondary { background: #0f3460; color: #ccc; }
-    .btn-danger { background: #7a1c1c; color: #f44336; }
+    .info-row .label { color: #7a7a9a; }
+
+    .progress-bar { background: #0f1f40; height: 4px; margin-top: 0.5rem; }
+    .progress-fill { height: 100%; background: #e94560; }
+
+    .btn-group { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-top: 0.75rem; }
+    button {
+      padding: 0.5rem 1rem;
+      border: 1px solid transparent;
+      border-radius: 6px;
+      font-size: 0.875rem;
+      cursor: pointer;
+      font-weight: 500;
+      transition: opacity 150ms ease;
+    }
     button:hover { opacity: 0.85; }
     button:disabled { opacity: 0.4; cursor: not-allowed; }
-    .result { margin-top: 1rem; padding: 0.75rem 1rem; border-radius: 8px; font-size: 0.9rem; }
-    .result.ok { background: #1a5c2a; color: #4caf50; }
-    .result.err { background: #5c1a1a; color: #f44336; }
-    label { display: block; color: #888; font-size: 0.85rem; margin-bottom: 0.3rem; }
-    input, textarea { width: 100%; background: #0f3460; border: 1px solid #1e3a6e; color: #eee; padding: 0.6rem; border-radius: 8px; font-size: 0.9rem; }
+    .btn-primary   { background: #e94560; color: #fff; border-color: #e94560; }
+    .btn-secondary { background: transparent; color: #7a7a9a; border-color: #1e3460; }
+    .btn-danger    { background: transparent; color: #f44336; border-color: #5c1a1a; }
+
+    .result {
+      margin-top: 0.75rem;
+      padding: 0.6rem 0.875rem;
+      border-radius: 4px;
+      font-size: 0.875rem;
+    }
+    .result.ok  { background: #0d2e14; color: #4caf50; border: 1px solid #1a5c2a; }
+    .result.err { background: #2e0d0d; color: #f44336; border: 1px solid #5c1a1a; }
+
+    label { display: block; font-size: 0.8rem; color: #7a7a9a; margin-bottom: 0.3rem; }
+    input {
+      width: 100%;
+      background: #0f1f40;
+      border: 1px solid #1e3460;
+      color: #e8e8e8;
+      padding: 0.5rem 0.75rem;
+      border-radius: 4px;
+      font-size: 0.875rem;
+    }
+    input:focus { outline: none; border-color: #e94560; }
   </style>
 </head>
 <body>
   <header><h1>H15-Hub</h1></header>
   <main>
-    <a class="back" href="/">← Zurück zum Dashboard</a>
+    <a class="back" href="/">← Dashboard</a>
 
-    <h1 style="margin-bottom:1rem">{{ device.name }}</h1>
+    <div class="device-title">{{ device.name }}</div>
     <span class="status-badge {{ device.status }}" id="status-badge">
       <span class="dot"></span>
       <span id="status-text">{{ {'free':'Frei','in_use':'In Benutzung','offline':'Offline','error':'Fehler'}[device.status] }}</span>
     </span>
 
     <div class="card">
-      <h2>Informationen</h2>
+      <div class="card-label">Informationen</div>
       <div class="info-row"><span class="label">Typ</span><span>{{ device.type }}</span></div>
       <div class="info-row"><span class="label">Genutzt von</span><span id="current-user">{{ device.current_user or '–' }}</span></div>
       {% if device.progress is not none %}
@@ -68,7 +130,7 @@
 
     {% if device.capabilities %}
     <div class="card">
-      <h2>Steuerung</h2>
+      <div class="card-label">Steuerung</div>
       <div class="btn-group">
         {% if 'start' in device.capabilities %}<button class="btn-primary" onclick="action('start')">Starten</button>{% endif %}
         {% if 'pause' in device.capabilities %}<button class="btn-secondary" onclick="action('pause')">Pausieren</button>{% endif %}
@@ -82,7 +144,7 @@
 
     {% if 'print' in device.capabilities %}
     <div class="card">
-      <h2>Label drucken</h2>
+      <div class="card-label">Label drucken</div>
       <label>Text</label>
       <input type="text" id="label-text" placeholder="z.B. Hebewerk e.V. – Max Mustermann">
       <div class="btn-group" style="margin-top:0.75rem">
@@ -95,6 +157,7 @@
 
   <script>
     const deviceId = "{{ device.id }}";
+    const statusLabels = { free: 'Frei', in_use: 'In Benutzung', offline: 'Offline', error: 'Fehler' };
 
     async function action(act) {
       const res = await fetch(`/api/devices/${deviceId}/action`, {
@@ -121,8 +184,6 @@
       el.textContent = data.message;
     }
 
-    // Echtzeit-Updates via WebSocket
-    const statusLabels = { free: 'Frei', in_use: 'In Benutzung', offline: 'Offline', error: 'Fehler' };
     const ws = new WebSocket(`ws://${location.host}/ws/status`);
     ws.onmessage = (e) => {
       const msg = JSON.parse(e.data);
