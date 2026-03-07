@@ -1,0 +1,39 @@
+app:
+  title: "H15-Hub"
+  description: "Hebewerk e.V. Makerspace Integration Hub"
+  poll_interval_seconds: 5
+
+devices:
+  bambu:
+    adapter: bambuddy
+    url: http://bambuddy:8080
+    printers:
+      - id: bambu-p1s-1
+        name: "Bambu P1S #1"
+      - id: bambu-p1s-2
+        name: "Bambu P1S #2"
+
+  homeassistant:
+    adapter: homeassistant
+    url: http://homeassistant:8123
+    token: "YOUR_LONG_LIVED_TOKEN"
+    entities:
+      - entity_id: switch.lasercutter_power
+        name: Lasercutter
+        type: lasercutter
+      - entity_id: binary_sensor.werkstatt_besetzt
+        name: Offene Werkstatt
+        type: sensor
+
+  labelprinter:
+    adapter: labelprinter
+    model: QL-800
+    device: /dev/usb/lp0
+    name: "Labeldrucker"
+
+  laserprinter:
+    adapter: laserprinter
+    url: ipp://192.168.1.50/ipp/print
+    name: "Büro Laserdrucker"
+
+automations: []

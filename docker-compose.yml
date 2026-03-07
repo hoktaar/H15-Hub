@@ -1,0 +1,22 @@
+services:
+  h15hub:
+    build: .
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./config.yaml:/app/config.yaml:ro
+      - h15hub-data:/app/data
+    environment:
+      - H15HUB_CONFIG=/app/config.yaml
+      - H15HUB_DB_URL=sqlite+aiosqlite:////app/data/h15hub.db
+    restart: unless-stopped
+    devices:
+      # Labeldrucker USB-Zugriff (anpassen falls nötig)
+      - /dev/usb/lp0:/dev/usb/lp0
+    extra_hosts:
+      # Lokale Dienste im Heimnetz erreichbar machen
+      - "homeassistant:192.168.1.10"
+      - "bambuddy:192.168.1.20"
+
+volumes:
+  h15hub-data:
