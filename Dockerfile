@@ -3,7 +3,11 @@ FROM python:3.11-slim
 WORKDIR /app
 
 COPY pyproject.toml .
-RUN pip install --no-cache-dir -e .
+# Stub-Package erstellen damit hatchling die Dependencies auflösen kann
+# (echte Sourcen werden danach kopiert – Docker-Layer-Cache bleibt erhalten)
+RUN mkdir h15hub && touch h15hub/__init__.py \
+    && pip install --no-cache-dir -e . \
+    && rm -rf h15hub
 
 COPY . .
 
