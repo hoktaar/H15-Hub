@@ -6,39 +6,114 @@
   <title>Buchungen – H15-Hub</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: system-ui, sans-serif; background: #1a1a2e; color: #eee; min-height: 100vh; }
-    header { background: #16213e; padding: 1rem 2rem; border-bottom: 2px solid #0f3460; }
-    header h1 { color: #e94560; font-size: 1.5rem; }
-    main { padding: 2rem; max-width: 900px; }
-    nav { margin-bottom: 1.5rem; }
-    nav a { color: #aaa; text-decoration: none; margin-right: 1.5rem; }
-    nav a:hover { color: #e94560; }
-    h2 { margin-bottom: 1rem; color: #ccc; font-size: 1rem; text-transform: uppercase; letter-spacing: 0.1em; }
-    .card { background: #16213e; border-radius: 12px; padding: 1.5rem; border: 1px solid #0f3460; margin-bottom: 1.5rem; }
+    body { font-family: system-ui, sans-serif; background: #1a1a2e; color: #e8e8e8; min-height: 100vh; }
+
+    header {
+      background: #16213e;
+      padding: 0.75rem 1.5rem;
+      display: flex;
+      align-items: center;
+      border-bottom: 1px solid #1e3460;
+    }
+    header h1 { font-size: 1rem; font-weight: 600; }
+
+    nav { display: flex; gap: 1.5rem; padding: 0.75rem 1.5rem; border-bottom: 1px solid #1e3460; }
+    nav a { font-size: 0.875rem; color: #7a7a9a; text-decoration: none; }
+    nav a:hover { color: #e8e8e8; }
+    nav a.active { color: #e8e8e8; }
+
+    main { padding: 1.5rem; max-width: 900px; }
+
+    .section-label { font-size: 0.875rem; font-weight: 500; color: #7a7a9a; margin-bottom: 1rem; }
+
+    .card {
+      background: #16213e;
+      border: 1px solid #1e3460;
+      border-radius: 6px;
+      padding: 1.25rem;
+      margin-bottom: 1.25rem;
+    }
+
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.875rem; }
+    label { display: block; font-size: 0.8rem; color: #7a7a9a; margin-bottom: 0.3rem; }
+    input, select {
+      width: 100%;
+      background: #0f1f40;
+      border: 1px solid #1e3460;
+      color: #e8e8e8;
+      padding: 0.5rem 0.75rem;
+      border-radius: 4px;
+      font-size: 0.875rem;
+    }
+    input:focus, select:focus { outline: none; border-color: #e94560; }
+
+    .btn-primary {
+      background: #e94560;
+      color: #fff;
+      border: none;
+      padding: 0.5rem 1.25rem;
+      border-radius: 6px;
+      font-size: 0.875rem;
+      font-weight: 500;
+      cursor: pointer;
+      margin-top: 0.875rem;
+      transition: opacity 150ms ease;
+    }
+    .btn-primary:hover { opacity: 0.85; }
+
+    .error   { color: #f44336; margin-top: 0.5rem; font-size: 0.8rem; }
+    .success { color: #4caf50; margin-top: 0.5rem; font-size: 0.8rem; }
+    .empty   { color: #4a4a5a; font-size: 0.875rem; padding: 0.5rem 0; }
+
     table { width: 100%; border-collapse: collapse; }
-    th { text-align: left; padding: 0.6rem; color: #888; font-size: 0.8rem; text-transform: uppercase; border-bottom: 1px solid #0f3460; }
-    td { padding: 0.7rem 0.6rem; border-bottom: 1px solid #0f346055; font-size: 0.9rem; }
-    .badge { display: inline-block; padding: 0.2rem 0.6rem; border-radius: 99px; font-size: 0.75rem; }
-    .badge.confirmed { background: #1a5c2a; color: #4caf50; }
-    .badge.cancelled { background: #333; color: #888; }
-    .badge.done { background: #1a3a5c; color: #64b5f6; }
-    button.cancel-btn { background: #7a1c1c; color: #f44336; border: none; padding: 0.3rem 0.8rem; border-radius: 6px; cursor: pointer; font-size: 0.8rem; }
-    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
-    label { display: block; color: #888; font-size: 0.85rem; margin-bottom: 0.3rem; }
-    input, select { width: 100%; background: #0f3460; border: 1px solid #1e3a6e; color: #eee; padding: 0.6rem; border-radius: 8px; font-size: 0.9rem; }
-    .btn-primary { background: #e94560; color: white; border: none; padding: 0.7rem 1.5rem; border-radius: 8px; font-size: 0.9rem; font-weight: 600; cursor: pointer; margin-top: 1rem; }
-    .error { color: #f44336; margin-top: 0.5rem; font-size: 0.85rem; }
-    .success { color: #4caf50; margin-top: 0.5rem; font-size: 0.85rem; }
-    .empty { color: #555; padding: 1rem 0; }
+    th {
+      text-align: left;
+      padding: 0.5rem 0.75rem;
+      font-size: 0.75rem;
+      color: #7a7a9a;
+      font-weight: 500;
+      border-bottom: 1px solid #1e3460;
+    }
+    td {
+      padding: 0.6rem 0.75rem;
+      border-bottom: 1px solid #1a2a50;
+      font-size: 0.875rem;
+    }
+    tr:last-child td { border-bottom: none; }
+
+    .badge {
+      display: inline-block;
+      padding: 0.15rem 0.5rem;
+      border-radius: 3px;
+      font-size: 0.75rem;
+      font-weight: 500;
+    }
+    .badge.confirmed { background: #0d2e14; color: #4caf50; border: 1px solid #1a5c2a; }
+    .badge.cancelled { background: #1e1e2e; color: #4a4a5a; border: 1px solid #2a2a3a; }
+    .badge.done      { background: #0d1a2e; color: #64b5f6; border: 1px solid #1a3a5c; }
+
+    button.cancel-btn {
+      background: transparent;
+      color: #f44336;
+      border: 1px solid #5c1a1a;
+      padding: 0.25rem 0.6rem;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 0.75rem;
+      transition: opacity 150ms ease;
+    }
+    button.cancel-btn:hover { opacity: 0.75; }
   </style>
 </head>
 <body>
   <header><h1>H15-Hub</h1></header>
+  <nav>
+    <a href="/">Dashboard</a>
+    <a href="/bookings" class="active">Buchungen</a>
+  </nav>
   <main>
-    <nav><a href="/">Dashboard</a><a href="/bookings">Buchungen</a></nav>
-
     <div class="card">
-      <h2>Neue Buchung</h2>
+      <div class="section-label">Neue Buchung</div>
       <div class="form-grid">
         <div>
           <label>Gerät</label>
@@ -49,7 +124,7 @@
           </select>
         </div>
         <div>
-          <label>Dein Name</label>
+          <label>Name</label>
           <input type="text" id="member-name" placeholder="Max Mustermann">
         </div>
         <div>
@@ -69,12 +144,21 @@
       <div id="form-result"></div>
     </div>
 
+    <div class="section-label">Buchungsübersicht</div>
     <div class="card">
-      <h2>Buchungsübersicht</h2>
       <div id="booking-table-container">
         {% if bookings %}
         <table>
-          <thead><tr><th>Gerät</th><th>Mitglied</th><th>Von</th><th>Bis</th><th>Status</th><th></th></tr></thead>
+          <thead>
+            <tr>
+              <th>Gerät</th>
+              <th>Mitglied</th>
+              <th>Von</th>
+              <th>Bis</th>
+              <th>Status</th>
+              <th></th>
+            </tr>
+          </thead>
           <tbody>
           {% for b in bookings %}
           <tr id="row-{{ b.id }}">
@@ -113,7 +197,7 @@
         body: JSON.stringify(payload),
       });
       if (res.ok) {
-        result.className = 'success'; result.textContent = 'Buchung erfolgreich! Seite wird neu geladen…';
+        result.className = 'success'; result.textContent = 'Buchung erfolgreich.';
         setTimeout(() => location.reload(), 1500);
       } else {
         const err = await res.json();

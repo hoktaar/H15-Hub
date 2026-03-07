@@ -11,8 +11,10 @@ RUN mkdir h15hub && touch h15hub/__init__.py \
 
 COPY . .
 
-RUN mkdir -p /app/config /app/data
+RUN mkdir -p /app/config /app/data \
+    && chmod +x /app/docker-entrypoint.sh
 
 EXPOSE 8000
 
+ENTRYPOINT ["/app/docker-entrypoint.sh"]
 CMD ["uvicorn", "h15hub.main:app", "--host", "0.0.0.0", "--port", "8000"]
