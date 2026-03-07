@@ -38,36 +38,21 @@ open http://localhost:8000
 1. Unraid → **Apps** → Suchfeld: `H15-Hub`
 2. Template auswählen, **Install** klicken
 3. Felder ausfüllen:
-   - **AppData**: `/mnt/user/appdata/h15hub/` (Standard)
    - **Home Assistant IP**: z.B. `192.168.1.10`
    - **Bambuddy IP**: z.B. `192.168.1.20`
-4. **Apply** klicken
+4. **Apply** klicken – Container startet automatisch
 
-> **Wichtig:** Vorher `config.yaml` nach `/mnt/user/appdata/h15hub/config.yaml` kopieren und anpassen!
-
-### Via docker-compose auf Unraid
-
-```bash
-# AppData anlegen
-mkdir -p /mnt/user/appdata/h15hub/data
-
-# Config platzieren
-cp config.yaml /mnt/user/appdata/h15hub/config.yaml
-nano /mnt/user/appdata/h15hub/config.yaml
-
-# Starten
-docker-compose -f docker-compose.unraid.yml up -d
-```
+> Der Container legt beim ersten Start eine Beispiel-`config.yaml` unter `/mnt/user/appdata/h15hub/config/config.yaml` an.
+> Passe sie dort an deine Umgebung an und starte den Container neu.
 
 ### Via Unraid Docker UI (manuell)
 
 | Feld | Wert |
 |---|---|
 | Image | `ghcr.io/hoktaar/h15-hub:latest` |
-| Port | `8000` → `8000` |
-| Volume | `/mnt/user/appdata/h15hub/config.yaml` → `/app/config.yaml` (ro) |
+| Port | `8031` → `8000` |
+| Volume | `/mnt/user/appdata/h15hub/config` → `/app/config` (ro) |
 | Volume | `/mnt/user/appdata/h15hub/data` → `/app/data` |
-| Extra Args | `--add-host homeassistant:192.168.1.10 --add-host bambuddy:192.168.1.20` |
 
 ---
 

@@ -11,7 +11,7 @@
   <Project>https://github.com/hoktaar/H15-Hub</Project>
   <Overview>Lokaler Integrations-Hub für den Hebewerk e.V. Makerspace. Verbindet Home Assistant, Bambu 3D-Drucker, Lasercutter, Labeldrucker und Netzwerkdrucker in einem einheitlichen Echtzeit-Dashboard.</Overview>
   <Category>HomeAutomation: Tools:</Category>
-  <WebUI>http://[IP]:[PORT:8000]/</WebUI>
+  <WebUI>http://[IP]:[PORT:8031]/</WebUI>
   <TemplateURL>https://raw.githubusercontent.com/hoktaar/H15-Hub/main/unraid/h15hub.xml</TemplateURL>
   <Icon>https://raw.githubusercontent.com/hoktaar/H15-Hub/main/unraid/icon.png</Icon>
   <ExtraParams></ExtraParams>
@@ -28,7 +28,7 @@
   <Config Name="Config Dir" Target="/app/config" Default="/mnt/user/appdata/h15hub/config" Mode="ro" Description="Verzeichnis mit config.yaml (Geräte-IPs und API-Keys)" Type="Path" Display="always" Required="true" Mask="false">/mnt/user/appdata/h15hub/config</Config>
 
   <!-- Port -->
-  <Config Name="WebUI Port" Target="8000" Default="8000" Mode="tcp" Description="Port für das Web-Dashboard" Type="Port" Display="always" Required="true" Mask="false">8000</Config>
+  <Config Name="WebUI Port" Target="8000" Default="8031" Mode="tcp" Description="Port für das Web-Dashboard" Type="Port" Display="always" Required="true" Mask="false">8031</Config>
 
   <!-- Umgebungsvariablen -->
   <Config Name="Config Path" Target="H15HUB_CONFIG" Default="/app/config/config.yaml" Description="Pfad zur config.yaml im Container (nicht ändern)" Type="Variable" Display="advanced" Required="true" Mask="false">/app/config/config.yaml</Config>
