@@ -30,6 +30,41 @@ docker-compose up
 open http://localhost:8000
 ```
 
+## Installation auf Unraid
+
+### Option A: Community Applications Template
+
+1. In Unraid → **Apps** → Suchfeld: `H15-Hub`
+2. Template installieren
+3. Pfade und IPs anpassen, Container starten
+
+### Option B: Manuell via docker-compose
+
+```bash
+# AppData-Verzeichnis anlegen
+mkdir -p /mnt/user/appdata/h15hub/data
+
+# Konfiguration hineinkopieren und anpassen
+cp config.yaml /mnt/user/appdata/h15hub/config.yaml
+nano /mnt/user/appdata/h15hub/config.yaml
+
+# Starten
+docker-compose -f docker-compose.unraid.yml up -d
+
+# Dashboard
+open http://UNRAID-IP:8000
+```
+
+### Option C: Unraid Docker UI (ohne compose)
+
+```
+Image:    ghcr.io/hoktaar/h15-hub:latest
+Port:     8000 → 8000
+Volume:   /mnt/user/appdata/h15hub/config.yaml → /app/config.yaml (ro)
+Volume:   /mnt/user/appdata/h15hub/data        → /app/data
+Extra:    --add-host homeassistant:192.168.1.10 --add-host bambuddy:192.168.1.20
+```
+
 ## Entwicklung
 
 ```bash

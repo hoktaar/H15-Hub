@@ -1,0 +1,44 @@
+<?xml version="1.0"?>
+<Container version="2">
+  <Name>H15-Hub</Name>
+  <Repository>ghcr.io/hoktaar/h15-hub:latest</Repository>
+  <Registry>https://github.com/hoktaar/H15-Hub/pkgs/container/h15-hub</Registry>
+  <Network>bridge</Network>
+  <MyIP/>
+  <Shell>bash</Shell>
+  <Privileged>false</Privileged>
+  <Support>https://github.com/hoktaar/H15-Hub</Support>
+  <Project>https://github.com/hoktaar/H15-Hub</Project>
+  <Overview>Lokaler Integrations-Hub für den Hebewerk e.V. Makerspace. Verbindet Home Assistant, Bambu 3D-Drucker, Lasercutter, Labeldrucker und Netzwerkdrucker in einem einheitlichen Echtzeit-Dashboard.</Overview>
+  <Category>HomeAutomation: Tools:</Category>
+  <WebUI>http://[IP]:[PORT:8000]/</WebUI>
+  <TemplateURL>https://raw.githubusercontent.com/hoktaar/H15-Hub/main/unraid/h15hub.xml</TemplateURL>
+  <Icon>https://raw.githubusercontent.com/hoktaar/H15-Hub/main/unraid/icon.png</Icon>
+  <ExtraParams>--restart=unless-stopped</ExtraParams>
+  <PostArgs/>
+  <CPUset/>
+  <DonateText/>
+  <DonateLink/>
+  <Requires/>
+
+  <!-- Daten-Verzeichnis -->
+  <Config Name="AppData" Target="/app/data" Default="/mnt/user/appdata/h15hub/data" Mode="rw" Description="Persistente Daten (SQLite-Datenbank)" Type="Path" Display="always" Required="true" Mask="false">/mnt/user/appdata/h15hub/data</Config>
+
+  <!-- Konfigurationsdatei -->
+  <Config Name="Config File" Target="/app/config.yaml" Default="/mnt/user/appdata/h15hub/config.yaml" Mode="ro" Description="Konfigurationsdatei mit Geräte-IPs und API-Keys" Type="Path" Display="always" Required="true" Mask="false">/mnt/user/appdata/h15hub/config.yaml</Config>
+
+  <!-- Port -->
+  <Config Name="WebUI Port" Target="8000" Default="8000" Mode="tcp" Description="Port für das Web-Dashboard" Type="Port" Display="always" Required="true" Mask="false">8000</Config>
+
+  <!-- Umgebungsvariablen -->
+  <Config Name="Config Path" Target="H15HUB_CONFIG" Default="/app/config.yaml" Description="Pfad zur config.yaml im Container (nicht ändern)" Type="Variable" Display="advanced" Required="true" Mask="false">/app/config.yaml</Config>
+
+  <Config Name="Database URL" Target="H15HUB_DB_URL" Default="sqlite+aiosqlite:////app/data/h15hub.db" Description="SQLite Datenbankpfad" Type="Variable" Display="advanced" Required="false" Mask="false">sqlite+aiosqlite:////app/data/h15hub.db</Config>
+
+  <Config Name="Log Level" Target="LOG_LEVEL" Default="INFO" Description="Log-Level: DEBUG, INFO, WARNING, ERROR" Type="Variable" Display="advanced" Required="false" Mask="false">INFO</Config>
+
+  <!-- Extra-Hosts für lokale Dienste im Heimnetz -->
+  <Config Name="Home Assistant IP" Target="homeassistant" Default="192.168.1.10" Description="IP-Adresse von Home Assistant im lokalen Netzwerk" Type="Variable" Display="always" Required="false" Mask="false">192.168.1.10</Config>
+
+  <Config Name="Bambuddy IP" Target="bambuddy" Default="192.168.1.20" Description="IP-Adresse des Bambuddy-Dienstes (Raspberry Pi)" Type="Variable" Display="always" Required="false" Mask="false">192.168.1.20</Config>
+</Container>
