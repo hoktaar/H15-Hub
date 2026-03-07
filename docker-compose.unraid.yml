@@ -1,0 +1,35 @@
+# docker-compose für Unraid
+# Pfade nutzen /mnt/user/appdata/ wie auf Unraid üblich.
+#
+# Vor dem Start:
+#   1. config.yaml nach /mnt/user/appdata/h15hub/config.yaml kopieren und anpassen
+#   2. mkdir -p /mnt/user/appdata/h15hub/data
+#   3. docker-compose -f docker-compose.unraid.yml up -d
+
+services:
+  h15hub:
+    image: ghcr.io/hoktaar/h15-hub:latest
+    # Alternativ lokal bauen:
+    # build: .
+    container_name: h15hub
+    ports:
+      - "8000:8000"
+    volumes:
+      - /mnt/user/appdata/h15hub/config.yaml:/app/config.yaml:ro
+      - /mnt/user/appdata/h15hub/data:/app/data
+    environment:
+      - H15HUB_CONFIG=/app/config.yaml
+      - H15HUB_DB_URL=sqlite+aiosqlite:////app/data/h15hub.db
+      - LOG_LEVEL=INFO
+    extra_hosts:
+      # IPs der lokalen Dienste anpassen:
+      - "homeassistant:192.168.1.10"
+      - "bambuddy:192.168.1.20"
+    # USB-Labeldrucker (Pfad ggf. anpassen – in Unraid unter /dev/usb/ prüfen)
+    # devices:
+    #   - /dev/usb/lp0:/dev/usb/lp0
+    restart: unless-stopped
+    labels:
+      - "net.unraid.docker.managed=dockerman"
+      - "net.unraid.docker.webui=http://[IP]:[PORT:8000]/"
+      - "net.unraid.docker.icon=https://raw.githubusercontent.com/hoktaar/H15-Hub/main/unraid/icon.png"
