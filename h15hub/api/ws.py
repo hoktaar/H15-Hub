@@ -3,7 +3,6 @@ import asyncio
 import json
 import logging
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect
-from h15hub.engine.device_registry import DeviceRegistry
 
 logger = logging.getLogger(__name__)
 router = APIRouter()
@@ -18,7 +17,8 @@ class ConnectionManager:
         self._active.append(ws)
 
     def disconnect(self, ws: WebSocket) -> None:
-        self._active.remove(ws)
+        if ws in self._active:
+            self._active.remove(ws)
 
     async def broadcast(self, data: dict) -> None:
         dead = []
@@ -28,16 +28,17 @@ class ConnectionManager:
             except Exception:
                 dead.append(ws)
         for ws in dead:
-            self._active.remove(ws)
+            self.disconnect(ws)
 
 
 manager = ConnectionManager()
 
 
-def make_ws_router(registry: DeviceRegistry) -> APIRouter:
+def make_ws_router(_registry=None) -> APIRouter:
     @router.websocket("/ws/status")
     async def websocket_status(ws: WebSocket) -> None:
         await manager.connect(ws)
+        registry = ws.app.state.registry
         try:
             # Initiales Status-Update sofort senden
             devices = registry.get_all()
@@ -46,7 +47,7 @@ def make_ws_router(registry: DeviceRegistry) -> APIRouter:
                 "devices": [d.model_dump() for d in devices],
             }))
 
-            # Verbindung offen halten, regelmäßig pingen
+            # Verbindung offen halten, regelmäßig aktuellen Status senden
             while True:
                 await asyncio.sleep(5)
                 devices = registry.get_all()

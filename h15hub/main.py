@@ -6,6 +6,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI, Request
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
+from sqlalchemy import select
 
 from h15hub.database import init_db, get_db
 from h15hub.engine.device_registry import build_registry_from_config
@@ -19,7 +20,6 @@ logger = logging.getLogger(__name__)
 
 CONFIG_PATH = os.getenv("H15HUB_CONFIG", "config.yaml")
 
-# Templates
 templates = Jinja2Templates(
     directory=os.path.join(os.path.dirname(__file__), "frontend", "templates")
 )
@@ -34,10 +34,8 @@ def load_config() -> dict:
 async def lifespan(app: FastAPI):
     config = load_config()
 
-    # DB initialisieren
     await init_db()
 
-    # Automations validieren (Tarjan's SCC)
     automations = config.get("automations", [])
     try:
         app.state.automations = AutomationEngine(automations)
@@ -45,14 +43,16 @@ async def lifespan(app: FastAPI):
         logger.error("Konfigurationsfehler: %s", e)
         raise
 
-    # Device Registry aufbauen und starten
     registry = build_registry_from_config(config)
     registry.on_status_change(notify_status_change)
     registry.on_status_change(app.state.automations.on_status_change)
     await registry.start()
     app.state.registry = registry
 
-    logger.info("H15-Hub gestartet. Geräte: %d Adapter registriert.", len(config.get("devices", {})))
+    logger.info(
+        "H15-Hub gestartet. %d Adapter registriert.",
+        len(config.get("devices", {})),
+    )
     yield
 
     await registry.stop()
@@ -66,18 +66,9 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
-# API-Router
-app.include_router(make_device_router(None))  # registry wird via app.state injiziert
+app.include_router(make_device_router())
 app.include_router(booking_router)
-app.include_router(make_ws_router(None))
-
-
-# Registry via app.state in die Device-Routes einfügen
-@app.middleware("http")
-async def inject_registry(request: Request, call_next):
-    # Macht registry für API-Router zugänglich
-    request.state.registry = getattr(request.app.state, "registry", None)
-    return await call_next(request)
+app.include_router(make_ws_router())
 
 
 # Frontend-Routen
@@ -97,14 +88,14 @@ async def device_detail(request: Request, device_id: str) -> HTMLResponse:
 
 @app.get("/bookings", response_class=HTMLResponse)
 async def bookings_page(request: Request) -> HTMLResponse:
-    from sqlalchemy import select
     from h15hub.models.booking import Booking, BookingStatus
     registry = request.app.state.registry
     devices = registry.get_all()
 
     async for db in get_db():
         result = await db.execute(
-            select(Booking).where(Booking.status != BookingStatus.CANCELLED)
+            select(Booking)
+            .where(Booking.status != BookingStatus.CANCELLED)
             .order_by(Booking.start_time)
         )
         bookings = list(result.scalars().all())
