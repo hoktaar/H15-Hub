@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin – H15-Hub</title>
+  <style>
+    :root { color-scheme: dark; --bg:#19191d; --surface:#232329; --surface-alt:#1d1d22; --border:#36363f; --text:#ececf1; --muted:#a2a2ad; --accent:#e94560; --danger:#ff9aa8; --success:#83d39a; }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: var(--bg); color: var(--text); font-family: "SF Pro Text", "Helvetica Neue", Helvetica, sans-serif; }
+    header { display:flex; justify-content:space-between; align-items:center; gap:16px; padding:16px 24px; border-bottom:1px solid var(--border); background:var(--surface); }
+    nav { display:flex; gap:18px; padding:12px 24px; border-bottom:1px solid var(--border); }
+    nav a, nav button { color:var(--muted); background:none; border:none; cursor:pointer; text-decoration:none; font-size:14px; }
+    nav a.active, nav a:hover, nav button:hover { color:var(--text); }
+    main { max-width:1200px; margin:0 auto; padding:24px; display:grid; gap:18px; }
+    .grid { display:grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap:18px; }
+    .panel { background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:18px; }
+    h1, h2 { font-size:18px; }
+    p, .muted { color:var(--muted); font-size:14px; }
+    label { display:block; margin:12px 0 6px; font-size:13px; color:var(--muted); }
+    input, select { width:100%; padding:10px 12px; border-radius:8px; border:1px solid var(--border); background:var(--surface-alt); color:var(--text); }
+    .row { display:grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap:12px; }
+    .actions { display:flex; gap:10px; align-items:center; flex-wrap:wrap; margin-top:14px; }
+    button.primary, button.secondary, button.danger { border-radius:8px; padding:10px 14px; cursor:pointer; }
+    button.primary { border:1px solid var(--accent); background:var(--accent); color:#fff; }
+    button.secondary { border:1px solid var(--border); background:var(--surface-alt); color:var(--text); }
+    button.danger { border:1px solid #6a3b45; background:transparent; color:var(--danger); }
+    .message { min-height:20px; margin-top:12px; font-size:14px; }
+    .message.error { color:var(--danger); }
+    .message.success { color:var(--success); }
+    .list { display:grid; gap:12px; margin-top:14px; }
+    .card { border:1px solid var(--border); border-radius:10px; padding:14px; background:var(--surface-alt); }
+    .card-head { display:flex; justify-content:space-between; gap:12px; margin-bottom:10px; }
+    .badge { border:1px solid var(--border); border-radius:999px; padding:3px 8px; font-size:12px; color:var(--muted); }
+    .checkbox { display:flex; align-items:center; gap:8px; margin-top:12px; }
+    .checkbox input { width:auto; }
+    @media (max-width: 900px) { .grid, .row { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <header>
+    <div>
+      <h1>Administration</h1>
+      <p>{{ current_user.display_name }} · {{ current_user.username }}</p>
+    </div>
+    <span class="badge">{{ current_user.role.value }}</span>
+  </header>
+  <nav>
+    <a href="/">Dashboard</a>
+    <a href="/bookings">Buchungen</a>
+    <a href="/boards">Boards</a>
+    <a href="/admin" class="active">Admin</a>
+    <button type="button" onclick="logout()">Abmelden</button>
+  </nav>
+  <main>
+    <section class="panel">
+      <h2>Übersicht</h2>
+      <div class="actions muted">
+        <span id="current-user-summary">Lade aktuelle Benutzerdaten…</span>
+      </div>
+    </section>
+    <div class="grid">
+      <section class="panel">
+        <h2>Benutzer anlegen</h2>
+        <div class="row">
+          <div><label for="new-display-name">Anzeigename</label><input id="new-display-name"></div>
+          <div><label for="new-username">Benutzername</label><input id="new-username"></div>
+        </div>
+        <div class="row">
+          <div><label for="new-password">Passwort</label><input id="new-password" type="password"></div>
+          <div><label for="new-role">Rolle</label><select id="new-role"><option value="member">Member</option><option value="admin">Admin</option></select></div>
+        </div>
+        <label class="checkbox"><input id="new-active" type="checkbox" checked> Konto aktiv</label>
+        <div class="actions"><button class="primary" type="button" onclick="createUser()">Benutzer anlegen</button></div>
+        <div id="user-create-message" class="message"></div>
+      </section>
+      <section class="panel">
+        <h2>Gruppe anlegen</h2>
+        <label for="new-group-name">Name</label>
+        <input id="new-group-name" placeholder="z. B. Lasercutter-Team">
+        <div class="actions"><button class="primary" type="button" onclick="createGroup()">Gruppe anlegen</button></div>
+        <div id="group-create-message" class="message"></div>
+      </section>
+    </div>
+    <div class="grid">
+      <section class="panel">
+        <h2>Benutzer verwalten</h2>
+        <div id="users-list" class="list"><p class="muted">Lade Benutzer…</p></div>
+      </section>
+      <section class="panel">
+        <h2>Gruppen verwalten</h2>
+        <div id="groups-list" class="list"><p class="muted">Lade Gruppen…</p></div>
+      </section>
+    </div>
+  </main>
+  <script>
+    let users = [];
+    let groups = [];
+
+    function escapeHtml(value) {
+      return String(value ?? '').replace(/[&<>"']/g, (char) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[char]));
+    }
+
+    function setMessage(id, text, type = '') {
+      const el = document.getElementById(id);
+      el.className = `message ${type}`.trim();
+      el.textContent = text || '';
+    }
+
+    function renderUsers() {
+      const root = document.getElementById('users-list');
+      if (!users.length) { root.innerHTML = '<p class="muted">Keine Benutzer vorhanden.</p>'; return; }
+      root.innerHTML = users.map((user) => `
+        <div class="card">
+          <div class="card-head"><strong>${escapeHtml(user.display_name)}</strong><span class="badge">${escapeHtml(user.role)}</span></div>
+          <div class="row">
+            <div><label>Anzeigename</label><input id="user-display-${user.id}" value="${escapeHtml(user.display_name)}"></div>
+            <div><label>Benutzername</label><input id="user-name-${user.id}" value="${escapeHtml(user.username)}"></div>
+          </div>
+          <div class="row">
+            <div><label>Rolle</label><select id="user-role-${user.id}"><option value="member" ${user.role === 'member' ? 'selected' : ''}>Member</option><option value="admin" ${user.role === 'admin' ? 'selected' : ''}>Admin</option></select></div>
+            <div><label>Neues Passwort</label><input id="user-password-${user.id}" type="password" placeholder="Unverändert lassen"></div>
+          </div>
+          <label class="checkbox"><input id="user-active-${user.id}" type="checkbox" ${user.is_active ? 'checked' : ''}> Konto aktiv</label>
+          <div class="actions"><button class="secondary" type="button" onclick="saveUser(${user.id})">Speichern</button></div>
+        </div>`).join('');
+    }
+
+    function renderGroups() {
+      const root = document.getElementById('groups-list');
+      if (!groups.length) { root.innerHTML = '<p class="muted">Keine Gruppen vorhanden.</p>'; return; }
+      root.innerHTML = groups.map((group) => `
+        <div class="card">
+          <div class="card-head"><strong>${escapeHtml(group.name)}</strong><span class="badge">#${group.id}</span></div>
+          <label>Name</label>
+          <input id="group-name-${group.id}" value="${escapeHtml(group.name)}">
+          <div class="actions"><button class="secondary" type="button" onclick="saveGroup(${group.id})">Umbenennen</button><button class="danger" type="button" onclick="deleteGroup(${group.id})">Löschen</button></div>
+        </div>`).join('');
+    }
+
+    async function loadMe() {
+      const res = await fetch('/api/auth/me');
+      const data = await res.json();
+      document.getElementById('current-user-summary').textContent = `${data.display_name} ist angemeldet. Rechte: ${data.permissions.join(', ')}`;
+    }
+
+    async function loadUsers() {
+      const res = await fetch('/api/admin/users');
+      users = res.ok ? await res.json() : [];
+      renderUsers();
+    }
+
+    async function loadGroups() {
+      const res = await fetch('/api/admin/groups');
+      groups = res.ok ? await res.json() : [];
+      renderGroups();
+    }
+
+    async function createUser() {
+      const res = await fetch('/api/admin/users', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          display_name: document.getElementById('new-display-name').value,
+          username: document.getElementById('new-username').value,
+          password: document.getElementById('new-password').value,
+          role: document.getElementById('new-role').value,
+          is_active: document.getElementById('new-active').checked,
+        }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) { setMessage('user-create-message', data.detail || 'Benutzer konnte nicht angelegt werden.', 'error'); return; }
+      document.getElementById('new-display-name').value = '';
+      document.getElementById('new-username').value = '';
+      document.getElementById('new-password').value = '';
+      document.getElementById('new-role').value = 'member';
+      document.getElementById('new-active').checked = true;
+      setMessage('user-create-message', 'Benutzer angelegt.', 'success');
+      await loadUsers();
+    }
+
+    async function saveUser(userId) {
+      const payload = {
+        display_name: document.getElementById(`user-display-${userId}`).value,
+        username: document.getElementById(`user-name-${userId}`).value,
+        role: document.getElementById(`user-role-${userId}`).value,
+        is_active: document.getElementById(`user-active-${userId}`).checked,
+      };
+      const password = document.getElementById(`user-password-${userId}`).value;
+      if (password) payload.password = password;
+      const res = await fetch(`/api/admin/users/${userId}`, {
+        method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) { alert(data.detail || 'Benutzer konnte nicht gespeichert werden.'); return; }
+      await loadUsers();
+    }
+
+    async function createGroup() {
+      const res = await fetch('/api/admin/groups', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name: document.getElementById('new-group-name').value }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) { setMessage('group-create-message', data.detail || 'Gruppe konnte nicht angelegt werden.', 'error'); return; }
+      document.getElementById('new-group-name').value = '';
+      setMessage('group-create-message', 'Gruppe angelegt.', 'success');
+      await loadGroups();
+    }
+
+    async function saveGroup(groupId) {
+      const res = await fetch(`/api/admin/groups/${groupId}`, {
+        method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name: document.getElementById(`group-name-${groupId}`).value }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) { alert(data.detail || 'Gruppe konnte nicht gespeichert werden.'); return; }
+      await loadGroups();
+    }
+
+    async function deleteGroup(groupId) {
+      if (!confirm('Gruppe inklusive Karten wirklich löschen?')) return;
+      const res = await fetch(`/api/admin/groups/${groupId}`, { method: 'DELETE' });
+      if (!res.ok) { alert('Gruppe konnte nicht gelöscht werden.'); return; }
+      await loadGroups();
+    }
+
+    async function logout() {
+      await fetch('/api/auth/logout', { method: 'POST' });
+      location.href = '/login';
+    }
+
+    Promise.all([loadMe(), loadUsers(), loadGroups()]);
+  </script>
+</body>
+</html>

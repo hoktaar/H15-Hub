@@ -5,10 +5,15 @@ from pydantic import BaseModel
 from sqlalchemy import select, and_
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from h15hub.auth import require_authenticated_user
 from h15hub.database import get_db
 from h15hub.models.booking import Booking, BookingStatus
 
-router = APIRouter(prefix="/api/bookings", tags=["bookings"])
+router = APIRouter(
+    prefix="/api/bookings",
+    tags=["bookings"],
+    dependencies=[Depends(require_authenticated_user)],
+)
 
 
 class BookingCreate(BaseModel):

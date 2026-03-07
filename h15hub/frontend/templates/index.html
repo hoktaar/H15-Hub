@@ -5,82 +5,195 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>H15-Hub</title>
   <style>
+    :root {
+      color-scheme: dark;
+      --bg: #19191d;
+      --surface: #232329;
+      --surface-alt: #1d1d22;
+      --border: #36363f;
+      --border-strong: #4a4a55;
+      --text: #ececf1;
+      --muted: #a2a2ad;
+      --accent: #e94560;
+      --danger: #ff9aa8;
+      --success: #83d39a;
+      --warning: #e4b35d;
+    }
+
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: system-ui, sans-serif; background: #1a1a2e; color: #e8e8e8; min-height: 100vh; }
+
+    body {
+      font-family: "SF Pro Text", "Helvetica Neue", Helvetica, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+    }
 
     header {
-      background: #16213e;
-      padding: 0.75rem 1.5rem;
-      display: flex;
-      align-items: center;
-      gap: 1.5rem;
-      border-bottom: 1px solid #1e3460;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 14px 24px;
     }
-    header h1 { font-size: 1rem; font-weight: 600; color: #e8e8e8; }
-    header .site-name { font-size: 0.875rem; color: #7a7a9a; }
+
+    header h1 { font-size: 16px; font-weight: 600; }
+
+    nav {
+      display: flex;
+      gap: 20px;
+      padding: 12px 24px;
+      border-bottom: 1px solid var(--border);
+      background: var(--bg);
+    }
+
+    nav a {
+      font-size: 14px;
+      color: var(--muted);
+      text-decoration: none;
+    }
+
+    nav a:hover,
+    nav a.active { color: var(--text); }
+
+    main {
+      max-width: 1380px;
+      margin: 0 auto;
+      padding: 24px;
+    }
+
+    .page-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+
+    .page-header h2 {
+      font-size: 16px;
+      font-weight: 600;
+    }
 
     #ws-status {
-      margin-left: auto;
-      font-size: 0.8rem;
-      color: #7a7a9a;
+      font-size: 13px;
+      color: var(--muted);
     }
-    #ws-status.connected { color: #4caf50; }
 
-    nav { display: flex; gap: 1.5rem; padding: 0.75rem 1.5rem; border-bottom: 1px solid #1e3460; }
-    nav a { font-size: 0.875rem; color: #7a7a9a; text-decoration: none; }
-    nav a:hover { color: #e8e8e8; }
-    nav a.active { color: #e8e8e8; }
+    #ws-status.connected { color: var(--success); }
 
-    main { padding: 1.5rem; }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 16px;
+    }
 
-    .section-label { font-size: 0.875rem; font-weight: 500; color: #7a7a9a; margin-bottom: 1rem; }
-
-    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 1px; background: #1e3460; border: 1px solid #1e3460; }
     .card {
-      background: #16213e;
-      padding: 1.25rem;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 16px;
       cursor: pointer;
-      transition: background 150ms ease;
+      transition: background-color 150ms ease, border-color 150ms ease;
     }
-    .card:hover { background: #1c2850; }
 
-    .card-header { display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.75rem; }
-    .status-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
-    .status-dot.free    { background: #4caf50; }
-    .status-dot.in_use  { background: #ff9800; }
-    .status-dot.offline { background: #4a4a5a; }
-    .status-dot.error   { background: #f44336; }
+    .card:hover {
+      background: #27272e;
+      border-color: var(--border-strong);
+    }
 
-    .card-title { font-size: 0.9rem; font-weight: 500; }
-    .card-type  { font-size: 0.75rem; color: #7a7a9a; margin-top: 0.2rem; }
+    .card-header {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
 
-    .card-status { font-size: 0.8rem; margin-top: 0.5rem; }
-    .card-status.free    { color: #4caf50; }
-    .card-status.in_use  { color: #ff9800; }
-    .card-status.offline { color: #4a4a5a; }
-    .card-status.error   { color: #f44336; }
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      flex-shrink: 0;
+      margin-top: 5px;
+    }
 
-    .card-user { margin-top: 0.4rem; font-size: 0.75rem; color: #7a7a9a; }
+    .status-dot.free { background: var(--success); }
+    .status-dot.in_use { background: var(--warning); }
+    .status-dot.offline { background: #686873; }
+    .status-dot.error { background: var(--danger); }
 
-    .progress-bar { margin-top: 0.75rem; background: #0f1f40; height: 4px; }
-    .progress-fill { height: 100%; background: #e94560; transition: width 500ms ease; }
-    .progress-text { font-size: 0.75rem; color: #7a7a9a; margin-top: 0.3rem; }
+    .card-title {
+      font-size: 14px;
+      font-weight: 600;
+      line-height: 1.4;
+    }
 
-    .empty { color: #4a4a5a; text-align: center; padding: 3rem; }
+    .card-type {
+      margin-top: 2px;
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .card-status {
+      font-size: 13px;
+      margin-top: 6px;
+    }
+
+    .card-status.free { color: var(--success); }
+    .card-status.in_use { color: var(--warning); }
+    .card-status.offline { color: #8d8d97; }
+    .card-status.error { color: var(--danger); }
+
+    .card-user,
+    .progress-text {
+      margin-top: 8px;
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .progress-bar {
+      margin-top: 10px;
+      height: 6px;
+      background: var(--surface-alt);
+      border-radius: 999px;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: var(--accent);
+      transition: width 500ms ease;
+    }
+
+    .empty {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--muted);
+      text-align: center;
+      padding: 24px;
+      font-size: 14px;
+    }
+
+    @media (max-width: 760px) {
+      main { padding: 16px; }
+      .page-header { align-items: flex-start; flex-direction: column; }
+    }
   </style>
 </head>
 <body>
-  <header>
-    <h1>H15-Hub</h1>
-    <span class="site-name">Hebewerk e.V.</span>
-    <span id="ws-status">Verbinde…</span>
-  </header>
+  <header><h1>H15-Hub</h1></header>
   <nav>
     <a href="/" class="active">Dashboard</a>
     <a href="/bookings">Buchungen</a>
+    <a href="/boards">Boards</a>
+    {% if current_user and current_user.role.value == 'admin' %}
+    <a href="/admin">Admin</a>
+    {% endif %}
   </nav>
   <main>
-    <div class="section-label">Geräte-Status</div>
+    <div class="page-header">
+      <h2>Geräte</h2>
+      <span id="ws-status">Verbinde…</span>
+    </div>
     <div class="grid" id="device-grid">
       <div class="empty">Lade Geräte…</div>
     </div>

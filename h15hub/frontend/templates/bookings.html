@@ -5,104 +5,205 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Buchungen – H15-Hub</title>
   <style>
+    :root {
+      color-scheme: dark;
+      --bg: #19191d;
+      --surface: #232329;
+      --surface-alt: #1d1d22;
+      --border: #36363f;
+      --border-strong: #4a4a55;
+      --text: #ececf1;
+      --muted: #a2a2ad;
+      --accent: #e94560;
+      --danger: #ff9aa8;
+      --success: #83d39a;
+      --warning: #e4b35d;
+    }
+
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: system-ui, sans-serif; background: #1a1a2e; color: #e8e8e8; min-height: 100vh; }
+
+    body {
+      font-family: "SF Pro Text", "Helvetica Neue", Helvetica, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+    }
 
     header {
-      background: #16213e;
-      padding: 0.75rem 1.5rem;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 14px 24px;
+    }
+
+    header h1 { font-size: 16px; font-weight: 600; }
+
+    nav {
       display: flex;
-      align-items: center;
-      border-bottom: 1px solid #1e3460;
-    }
-    header h1 { font-size: 1rem; font-weight: 600; }
-
-    nav { display: flex; gap: 1.5rem; padding: 0.75rem 1.5rem; border-bottom: 1px solid #1e3460; }
-    nav a { font-size: 0.875rem; color: #7a7a9a; text-decoration: none; }
-    nav a:hover { color: #e8e8e8; }
-    nav a.active { color: #e8e8e8; }
-
-    main { padding: 1.5rem; max-width: 900px; }
-
-    .section-label { font-size: 0.875rem; font-weight: 500; color: #7a7a9a; margin-bottom: 1rem; }
-
-    .card {
-      background: #16213e;
-      border: 1px solid #1e3460;
-      border-radius: 6px;
-      padding: 1.25rem;
-      margin-bottom: 1.25rem;
+      gap: 20px;
+      padding: 12px 24px;
+      border-bottom: 1px solid var(--border);
+      background: var(--bg);
     }
 
-    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.875rem; }
-    label { display: block; font-size: 0.8rem; color: #7a7a9a; margin-bottom: 0.3rem; }
-    input, select {
+    nav a {
+      font-size: 14px;
+      color: var(--muted);
+      text-decoration: none;
+    }
+
+    nav a:hover,
+    nav a.active { color: var(--text); }
+
+    main {
+      max-width: 1240px;
+      margin: 0 auto;
+      padding: 24px;
+    }
+
+    .page-title,
+    .panel h2 {
+      font-size: 16px;
+      font-weight: 600;
+    }
+
+    .page-title { margin-bottom: 16px; }
+
+    .panel {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 16px;
+      margin-bottom: 16px;
+    }
+
+    .panel h2 { margin-bottom: 14px; }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(150px, 1fr));
+      gap: 12px 16px;
+      align-items: end;
+    }
+
+    .field-full { grid-column: 1 / -1; }
+
+    label {
+      display: block;
+      font-size: 13px;
+      color: var(--muted);
+      margin-bottom: 6px;
+    }
+
+    input,
+    select {
       width: 100%;
-      background: #0f1f40;
-      border: 1px solid #1e3460;
-      color: #e8e8e8;
-      padding: 0.5rem 0.75rem;
-      border-radius: 4px;
-      font-size: 0.875rem;
+      background: var(--surface-alt);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 10px 12px;
+      border-radius: 8px;
+      font-size: 14px;
     }
-    input:focus, select:focus { outline: none; border-color: #e94560; }
+
+    input:focus,
+    select:focus {
+      outline: none;
+      border-color: var(--accent);
+    }
+
+    .button-row {
+      display: flex;
+      gap: 12px;
+      margin-top: 14px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .btn-primary,
+    .cancel-btn {
+      border-radius: 8px;
+      font-size: 14px;
+      cursor: pointer;
+      transition: background-color 150ms ease, border-color 150ms ease, color 150ms ease;
+    }
 
     .btn-primary {
-      background: #e94560;
+      background: var(--accent);
       color: #fff;
-      border: none;
-      padding: 0.5rem 1.25rem;
-      border-radius: 6px;
-      font-size: 0.875rem;
-      font-weight: 500;
-      cursor: pointer;
-      margin-top: 0.875rem;
-      transition: opacity 150ms ease;
+      border: 1px solid var(--accent);
+      padding: 10px 14px;
     }
-    .btn-primary:hover { opacity: 0.85; }
 
-    .error   { color: #f44336; margin-top: 0.5rem; font-size: 0.8rem; }
-    .success { color: #4caf50; margin-top: 0.5rem; font-size: 0.8rem; }
-    .empty   { color: #4a4a5a; font-size: 0.875rem; padding: 0.5rem 0; }
+    .btn-primary:hover { background: #d43a55; }
 
-    table { width: 100%; border-collapse: collapse; }
+    #form-result {
+      font-size: 13px;
+      min-height: 18px;
+    }
+
+    #form-result.error { color: var(--danger); }
+    #form-result.success { color: var(--success); }
+
+    .table-wrap { overflow-x: auto; }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 720px;
+    }
+
     th {
       text-align: left;
-      padding: 0.5rem 0.75rem;
-      font-size: 0.75rem;
-      color: #7a7a9a;
+      padding: 10px 12px;
+      font-size: 13px;
+      color: var(--muted);
       font-weight: 500;
-      border-bottom: 1px solid #1e3460;
+      border-bottom: 1px solid var(--border);
     }
+
     td {
-      padding: 0.6rem 0.75rem;
-      border-bottom: 1px solid #1a2a50;
-      font-size: 0.875rem;
+      padding: 12px;
+      border-bottom: 1px solid var(--border);
+      font-size: 14px;
+      vertical-align: middle;
     }
+
     tr:last-child td { border-bottom: none; }
 
     .badge {
       display: inline-block;
-      padding: 0.15rem 0.5rem;
-      border-radius: 3px;
-      font-size: 0.75rem;
-      font-weight: 500;
+      padding: 3px 8px;
+      border-radius: 6px;
+      font-size: 12px;
+      border: 1px solid var(--border);
     }
-    .badge.confirmed { background: #0d2e14; color: #4caf50; border: 1px solid #1a5c2a; }
-    .badge.cancelled { background: #1e1e2e; color: #4a4a5a; border: 1px solid #2a2a3a; }
-    .badge.done      { background: #0d1a2e; color: #64b5f6; border: 1px solid #1a3a5c; }
 
-    button.cancel-btn {
+    .badge.confirmed { background: #203025; color: var(--success); border-color: #35523d; }
+    .badge.cancelled { background: #2a2a30; color: #b1b1ba; border-color: #45454f; }
+    .badge.done { background: #2f2b24; color: var(--warning); border-color: #5d5138; }
+
+    .cancel-btn {
       background: transparent;
-      color: #f44336;
-      border: 1px solid #5c1a1a;
-      padding: 0.25rem 0.6rem;
-      border-radius: 4px;
-      cursor: pointer;
-      font-size: 0.75rem;
-      transition: opacity 150ms ease;
+      color: var(--danger);
+      border: 1px solid #6a3b45;
+      padding: 7px 10px;
     }
-    button.cancel-btn:hover { opacity: 0.75; }
+
+    .cancel-btn:hover { background: rgba(255, 154, 168, 0.06); }
+
+    .empty {
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    @media (max-width: 980px) {
+      .form-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+
+    @media (max-width: 760px) {
+      main { padding: 16px; }
+      .form-grid { grid-template-columns: 1fr; }
+    }
   </style>
 </head>
 <body>
@@ -110,13 +211,19 @@
   <nav>
     <a href="/">Dashboard</a>
     <a href="/bookings" class="active">Buchungen</a>
+    <a href="/boards">Boards</a>
+    {% if current_user and current_user.role.value == 'admin' %}
+    <a href="/admin">Admin</a>
+    {% endif %}
   </nav>
   <main>
-    <div class="card">
-      <div class="section-label">Neue Buchung</div>
+    <h2 class="page-title">Buchungen</h2>
+
+    <section class="panel">
+      <h2>Neue Buchung</h2>
       <div class="form-grid">
         <div>
-          <label>Gerät</label>
+          <label for="device-select">Gerät</label>
           <select id="device-select">
             {% for device in devices %}
             <option value="{{ device.id }}">{{ device.name }}</option>
@@ -124,59 +231,63 @@
           </select>
         </div>
         <div>
-          <label>Name</label>
+          <label for="member-name">Mitglied</label>
           <input type="text" id="member-name" placeholder="Max Mustermann">
         </div>
         <div>
-          <label>Von</label>
+          <label for="start-time">Start</label>
           <input type="datetime-local" id="start-time">
         </div>
         <div>
-          <label>Bis</label>
+          <label for="end-time">Ende</label>
           <input type="datetime-local" id="end-time">
         </div>
-        <div style="grid-column: span 2">
-          <label>Notiz (optional)</label>
-          <input type="text" id="note" placeholder="z.B. PLA-Druck für Vereinsprojekt">
+        <div class="field-full">
+          <label for="note">Notiz</label>
+          <input type="text" id="note" placeholder="Optional, z. B. PLA-Druck für Vereinsprojekt">
         </div>
       </div>
-      <button class="btn-primary" onclick="createBooking()">Reservieren</button>
-      <div id="form-result"></div>
-    </div>
+      <div class="button-row">
+        <button class="btn-primary" onclick="createBooking()">Buchung anlegen</button>
+        <div id="form-result"></div>
+      </div>
+    </section>
 
-    <div class="section-label">Buchungsübersicht</div>
-    <div class="card">
+    <section class="panel">
+      <h2>Buchungsübersicht</h2>
       <div id="booking-table-container">
         {% if bookings %}
-        <table>
-          <thead>
-            <tr>
-              <th>Gerät</th>
-              <th>Mitglied</th>
-              <th>Von</th>
-              <th>Bis</th>
-              <th>Status</th>
-              <th></th>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Gerät</th>
+                <th>Mitglied</th>
+                <th>Von</th>
+                <th>Bis</th>
+                <th>Status</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+            {% for b in bookings %}
+            <tr id="row-{{ b.id }}">
+              <td>{{ b.device_id }}</td>
+              <td>{{ b.member_name }}</td>
+              <td>{{ b.start_time.strftime('%d.%m. %H:%M') }}</td>
+              <td>{{ b.end_time.strftime('%d.%m. %H:%M') }}</td>
+              <td><span class="badge {{ b.status }}">{{ b.status }}</span></td>
+              <td>{% if b.status == 'confirmed' %}<button class="cancel-btn" onclick="cancelBooking({{ b.id }})">Stornieren</button>{% endif %}</td>
             </tr>
-          </thead>
-          <tbody>
-          {% for b in bookings %}
-          <tr id="row-{{ b.id }}">
-            <td>{{ b.device_id }}</td>
-            <td>{{ b.member_name }}</td>
-            <td>{{ b.start_time.strftime('%d.%m. %H:%M') }}</td>
-            <td>{{ b.end_time.strftime('%d.%m. %H:%M') }}</td>
-            <td><span class="badge {{ b.status }}">{{ b.status }}</span></td>
-            <td>{% if b.status == 'confirmed' %}<button class="cancel-btn" onclick="cancelBooking({{ b.id }})">Stornieren</button>{% endif %}</td>
-          </tr>
-          {% endfor %}
-          </tbody>
-        </table>
+            {% endfor %}
+            </tbody>
+          </table>
+        </div>
         {% else %}
         <div class="empty">Keine Buchungen vorhanden.</div>
         {% endif %}
       </div>
-    </div>
+    </section>
   </main>
 
   <script>

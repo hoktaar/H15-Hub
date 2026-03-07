@@ -5,115 +5,230 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>{{ device.name }} – H15-Hub</title>
   <style>
+    :root {
+      color-scheme: dark;
+      --bg: #19191d;
+      --surface: #232329;
+      --surface-alt: #1d1d22;
+      --border: #36363f;
+      --border-strong: #4a4a55;
+      --text: #ececf1;
+      --muted: #a2a2ad;
+      --accent: #e94560;
+      --danger: #ff9aa8;
+      --success: #83d39a;
+      --warning: #e4b35d;
+    }
+
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: system-ui, sans-serif; background: #1a1a2e; color: #e8e8e8; min-height: 100vh; }
+
+    body {
+      font-family: "SF Pro Text", "Helvetica Neue", Helvetica, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+    }
 
     header {
-      background: #16213e;
-      padding: 0.75rem 1.5rem;
-      display: flex;
-      align-items: center;
-      gap: 1.5rem;
-      border-bottom: 1px solid #1e3460;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 14px 24px;
     }
-    header h1 { font-size: 1rem; font-weight: 600; }
-    a { color: #e94560; text-decoration: none; }
 
-    main { padding: 1.5rem; max-width: 680px; }
+    header h1 { font-size: 16px; font-weight: 600; }
 
-    .back { font-size: 0.875rem; color: #7a7a9a; display: inline-block; margin-bottom: 1.25rem; }
-    .back:hover { color: #e8e8e8; }
+    nav {
+      display: flex;
+      gap: 20px;
+      padding: 12px 24px;
+      border-bottom: 1px solid var(--border);
+      background: var(--bg);
+    }
 
-    .device-title { font-size: 1.25rem; font-weight: 600; margin-bottom: 0.75rem; }
+    nav a {
+      font-size: 14px;
+      color: var(--muted);
+      text-decoration: none;
+    }
+
+    nav a:hover,
+    nav a.active { color: var(--text); }
+
+    main {
+      max-width: 980px;
+      margin: 0 auto;
+      padding: 24px;
+    }
+
+    .back {
+      display: inline-block;
+      margin-bottom: 14px;
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 14px;
+    }
+
+    .back:hover { color: var(--text); }
+
+    .page-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+    }
+
+    .page-header h2 {
+      font-size: 16px;
+      font-weight: 600;
+    }
 
     .status-badge {
       display: inline-flex;
       align-items: center;
-      gap: 0.4rem;
-      padding: 0.25rem 0.6rem;
-      border-radius: 4px;
-      font-size: 0.8rem;
-      font-weight: 500;
-    }
-    .status-badge.free    { background: #0d2e14; color: #4caf50; border: 1px solid #1a5c2a; }
-    .status-badge.in_use  { background: #2e1a0d; color: #ff9800; border: 1px solid #5c3a1a; }
-    .status-badge.offline { background: #1e1e2e; color: #7a7a9a; border: 1px solid #2a2a3a; }
-    .status-badge.error   { background: #2e0d0d; color: #f44336; border: 1px solid #5c1a1a; }
-    .dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
-
-    .card {
-      background: #16213e;
-      border: 1px solid #1e3460;
+      gap: 8px;
+      padding: 5px 10px;
       border-radius: 6px;
-      padding: 1.25rem;
-      margin-top: 1.25rem;
+      font-size: 13px;
+      border: 1px solid var(--border);
     }
-    .card-label { font-size: 0.8rem; font-weight: 500; color: #7a7a9a; margin-bottom: 0.875rem; }
+
+    .status-badge.free { background: #203025; color: var(--success); border-color: #35523d; }
+    .status-badge.in_use { background: #2f2b24; color: var(--warning); border-color: #5d5138; }
+    .status-badge.offline { background: #2a2a30; color: #b1b1ba; border-color: #45454f; }
+    .status-badge.error { background: #342328; color: var(--danger); border-color: #68404a; }
+
+    .dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: currentColor;
+    }
+
+    .panel {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 16px;
+      margin-bottom: 16px;
+    }
+
+    .panel h3 {
+      font-size: 16px;
+      font-weight: 600;
+      margin-bottom: 14px;
+    }
 
     .info-row {
       display: flex;
       justify-content: space-between;
-      padding: 0.5rem 0;
-      border-bottom: 1px solid #1e3460;
-      font-size: 0.875rem;
+      gap: 16px;
+      padding: 10px 0;
+      border-bottom: 1px solid var(--border);
+      font-size: 14px;
     }
+
     .info-row:last-child { border-bottom: none; }
-    .info-row .label { color: #7a7a9a; }
+    .info-row .label { color: var(--muted); }
 
-    .progress-bar { background: #0f1f40; height: 4px; margin-top: 0.5rem; }
-    .progress-fill { height: 100%; background: #e94560; }
-
-    .btn-group { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-top: 0.75rem; }
-    button {
-      padding: 0.5rem 1rem;
-      border: 1px solid transparent;
-      border-radius: 6px;
-      font-size: 0.875rem;
-      cursor: pointer;
-      font-weight: 500;
-      transition: opacity 150ms ease;
+    .progress-bar {
+      background: var(--surface-alt);
+      height: 6px;
+      margin-top: 10px;
+      border-radius: 999px;
+      overflow: hidden;
     }
-    button:hover { opacity: 0.85; }
+
+    .progress-fill {
+      height: 100%;
+      background: var(--accent);
+    }
+
+    .btn-group {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 12px;
+    }
+
+    button {
+      padding: 10px 14px;
+      border: 1px solid transparent;
+      border-radius: 8px;
+      font-size: 14px;
+      cursor: pointer;
+      transition: background-color 150ms ease, border-color 150ms ease, color 150ms ease;
+    }
+
     button:disabled { opacity: 0.4; cursor: not-allowed; }
-    .btn-primary   { background: #e94560; color: #fff; border-color: #e94560; }
-    .btn-secondary { background: transparent; color: #7a7a9a; border-color: #1e3460; }
-    .btn-danger    { background: transparent; color: #f44336; border-color: #5c1a1a; }
+
+    .btn-primary { background: var(--accent); color: #fff; border-color: var(--accent); }
+    .btn-primary:hover { background: #d43a55; }
+    .btn-secondary { background: var(--surface-alt); color: var(--text); border-color: var(--border-strong); }
+    .btn-danger { background: transparent; color: var(--danger); border-color: #6a3b45; }
 
     .result {
-      margin-top: 0.75rem;
-      padding: 0.6rem 0.875rem;
-      border-radius: 4px;
-      font-size: 0.875rem;
+      margin-top: 12px;
+      padding: 10px 12px;
+      border-radius: 8px;
+      font-size: 14px;
     }
-    .result.ok  { background: #0d2e14; color: #4caf50; border: 1px solid #1a5c2a; }
-    .result.err { background: #2e0d0d; color: #f44336; border: 1px solid #5c1a1a; }
 
-    label { display: block; font-size: 0.8rem; color: #7a7a9a; margin-bottom: 0.3rem; }
+    .result.ok { background: #203025; color: var(--success); border: 1px solid #35523d; }
+    .result.err { background: #342328; color: var(--danger); border: 1px solid #68404a; }
+
+    label {
+      display: block;
+      font-size: 13px;
+      color: var(--muted);
+      margin-bottom: 6px;
+    }
+
     input {
       width: 100%;
-      background: #0f1f40;
-      border: 1px solid #1e3460;
-      color: #e8e8e8;
-      padding: 0.5rem 0.75rem;
-      border-radius: 4px;
-      font-size: 0.875rem;
+      background: var(--surface-alt);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 10px 12px;
+      border-radius: 8px;
+      font-size: 14px;
     }
-    input:focus { outline: none; border-color: #e94560; }
+
+    input:focus {
+      outline: none;
+      border-color: var(--accent);
+    }
+
+    @media (max-width: 760px) {
+      main { padding: 16px; }
+      .info-row { flex-direction: column; gap: 4px; }
+    }
   </style>
 </head>
 <body>
   <header><h1>H15-Hub</h1></header>
+  <nav>
+    <a href="/" class="active">Dashboard</a>
+    <a href="/bookings">Buchungen</a>
+    <a href="/boards">Boards</a>
+    {% if current_user and current_user.role.value == 'admin' %}
+    <a href="/admin">Admin</a>
+    {% endif %}
+  </nav>
   <main>
-    <a class="back" href="/">← Dashboard</a>
+    <a class="back" href="/">← Zurück zur Übersicht</a>
 
-    <div class="device-title">{{ device.name }}</div>
-    <span class="status-badge {{ device.status }}" id="status-badge">
-      <span class="dot"></span>
-      <span id="status-text">{{ {'free':'Frei','in_use':'In Benutzung','offline':'Offline','error':'Fehler'}[device.status] }}</span>
-    </span>
+    <div class="page-header">
+      <h2>{{ device.name }}</h2>
+      <span class="status-badge {{ device.status }}" id="status-badge">
+        <span class="dot"></span>
+        <span id="status-text">{{ {'free':'Frei','in_use':'In Benutzung','offline':'Offline','error':'Fehler'}[device.status] }}</span>
+      </span>
+    </div>
 
-    <div class="card">
-      <div class="card-label">Informationen</div>
+    <section class="panel">
+      <h3>Informationen</h3>
       <div class="info-row"><span class="label">Typ</span><span>{{ device.type }}</span></div>
       <div class="info-row"><span class="label">Genutzt von</span><span id="current-user">{{ device.current_user or '–' }}</span></div>
       {% if device.progress is not none %}
@@ -126,11 +241,11 @@
       {% if device.eta_minutes %}
       <div class="info-row"><span class="label">Verbleibend</span><span id="eta">{{ device.eta_minutes }} Min.</span></div>
       {% endif %}
-    </div>
+    </section>
 
     {% if device.capabilities %}
-    <div class="card">
-      <div class="card-label">Steuerung</div>
+    <section class="panel">
+      <h3>Steuerung</h3>
       <div class="btn-group">
         {% if 'start' in device.capabilities %}<button class="btn-primary" onclick="action('start')">Starten</button>{% endif %}
         {% if 'pause' in device.capabilities %}<button class="btn-secondary" onclick="action('pause')">Pausieren</button>{% endif %}
@@ -139,19 +254,19 @@
         {% if 'emergency_stop' in device.capabilities %}<button class="btn-danger" onclick="action('emergency_stop')">Notaus</button>{% endif %}
       </div>
       <div id="action-result" style="display:none" class="result"></div>
-    </div>
+    </section>
     {% endif %}
 
     {% if 'print' in device.capabilities %}
-    <div class="card">
-      <div class="card-label">Label drucken</div>
-      <label>Text</label>
-      <input type="text" id="label-text" placeholder="z.B. Hebewerk e.V. – Max Mustermann">
-      <div class="btn-group" style="margin-top:0.75rem">
+    <section class="panel">
+      <h3>Label drucken</h3>
+      <label for="label-text">Text</label>
+      <input type="text" id="label-text" placeholder="z. B. Hebewerk e.V. – Max Mustermann">
+      <div class="btn-group">
         <button class="btn-primary" onclick="printLabel()">Drucken</button>
       </div>
       <div id="print-result" style="display:none" class="result"></div>
-    </div>
+    </section>
     {% endif %}
   </main>
 

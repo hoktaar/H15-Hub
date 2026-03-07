@@ -1,7 +1,13 @@
-from fastapi import APIRouter, HTTPException, Request
+from fastapi import APIRouter, Depends, HTTPException, Request
+
+from h15hub.auth import require_authenticated_user
 from h15hub.models.device import Device, ActionResult
 
-router = APIRouter(prefix="/api/devices", tags=["devices"])
+router = APIRouter(
+    prefix="/api/devices",
+    tags=["devices"],
+    dependencies=[Depends(require_authenticated_user)],
+)
 
 
 def make_router(_registry=None) -> APIRouter:

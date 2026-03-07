@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Boards – H15-Hub</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #19191d;
+      --surface: #232329;
+      --surface-alt: #1d1d22;
+      --border: #36363f;
+      --border-strong: #4a4a55;
+      --text: #ececf1;
+      --muted: #a2a2ad;
+      --accent: #e94560;
+      --accent-soft: #4b2730;
+      --danger: #ff9aa8;
+      --success: #83d39a;
+      --warning: #e4b35d;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: "SF Pro Text", "Helvetica Neue", Helvetica, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    header {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 14px 24px;
+    }
+
+    header h1 { font-size: 16px; font-weight: 600; }
+
+    nav {
+      display: flex;
+      gap: 20px;
+      padding: 12px 24px;
+      border-bottom: 1px solid var(--border);
+      background: var(--bg);
+    }
+
+    nav a {
+      font-size: 14px;
+      color: var(--muted);
+      text-decoration: none;
+    }
+
+    nav a:hover,
+    nav a.active { color: var(--text); }
+
+    main {
+      max-width: 1380px;
+      margin: 0 auto;
+      padding: 24px;
+    }
+
+    .panel,
+    .card-form,
+    .empty-state {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+    }
+
+    .page-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+
+    .page-header h2,
+    .panel h2,
+    .card-form h2,
+    .board-title {
+      font-size: 16px;
+      font-weight: 600;
+    }
+
+    .controls {
+      display: grid;
+      grid-template-columns: minmax(280px, 360px) minmax(320px, 1fr);
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+
+    .panel,
+    .card-form {
+      padding: 16px;
+    }
+
+    .panel h2,
+    .card-form h2,
+    .board-title {
+      margin-bottom: 12px;
+    }
+
+    .panel-note,
+    .board-context,
+    .message {
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    label {
+      display: block;
+      margin-bottom: 6px;
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    input,
+    textarea,
+    select {
+      width: 100%;
+      background: var(--surface-alt);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text);
+      padding: 10px 12px;
+      font-size: 14px;
+    }
+
+    textarea {
+      min-height: 92px;
+      resize: vertical;
+    }
+
+    input:focus,
+    textarea:focus,
+    select:focus {
+      outline: none;
+      border-color: var(--accent);
+    }
+
+    .inline-form,
+    .card-form-grid {
+      display: grid;
+      gap: 12px;
+      align-items: end;
+    }
+
+    .inline-form { grid-template-columns: minmax(0, 1fr) auto; }
+    .card-form-grid { grid-template-columns: minmax(0, 1.4fr) minmax(180px, 1fr) minmax(160px, 0.8fr); }
+    .field-span-2 { grid-column: span 2; }
+    .field-full { grid-column: 1 / -1; }
+
+    .btn-primary,
+    .btn-secondary,
+    .btn-danger {
+      border-radius: 8px;
+      padding: 10px 14px;
+      font-size: 14px;
+      cursor: pointer;
+      transition: background-color 150ms ease, border-color 150ms ease, color 150ms ease;
+    }
+
+    .btn-primary {
+      border: 1px solid var(--accent);
+      background: var(--accent);
+      color: #fff;
+    }
+
+    .btn-primary:hover { background: #d43a55; }
+
+    .btn-secondary {
+      border: 1px solid var(--border-strong);
+      background: var(--surface-alt);
+      color: var(--text);
+    }
+
+    .btn-danger {
+      border: 1px solid #6a3b45;
+      background: transparent;
+      color: var(--danger);
+    }
+
+    .btn-primary:disabled,
+    .btn-secondary:disabled,
+    .btn-danger:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+    }
+
+    .card-form {
+      margin-bottom: 20px;
+    }
+
+    .card-form-head {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+
+    .card-form-head h2 { margin-bottom: 4px; }
+
+    .actions-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-top: 14px;
+    }
+
+    .board-title {
+      margin: 0 0 12px;
+    }
+
+    .board-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 12px;
+      flex-wrap: wrap;
+    }
+
+    .board-shell {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(240px, 1fr));
+      gap: 16px;
+      align-items: start;
+    }
+
+    .board-column {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      min-height: 420px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .column-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 14px 16px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .column-head h3 { font-size: 15px; font-weight: 600; }
+    .column-count { font-size: 13px; color: var(--muted); }
+
+    .column-cards {
+      display: grid;
+      gap: 12px;
+      padding: 12px;
+      min-height: 320px;
+    }
+
+    .column-cards.drag-over {
+      background: rgba(233, 69, 96, 0.08);
+      box-shadow: inset 0 0 0 1px var(--accent);
+      border-radius: 8px;
+    }
+
+    .board-card {
+      background: var(--surface-alt);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 12px;
+      cursor: grab;
+    }
+
+    .board-card.dragging { opacity: 0.45; }
+
+    .card-top {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 8px;
+    }
+
+    .card-title {
+      font-size: 14px;
+      font-weight: 600;
+      line-height: 1.4;
+    }
+
+    .card-delete {
+      border: 0;
+      background: transparent;
+      color: var(--muted);
+      cursor: pointer;
+      font-size: 16px;
+      line-height: 1;
+    }
+
+    .card-delete:hover { color: var(--danger); }
+
+    .card-description {
+      font-size: 14px;
+      line-height: 1.45;
+      color: var(--text);
+      white-space: pre-wrap;
+    }
+
+    .card-meta {
+      margin-top: 10px;
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .empty-state,
+    .column-empty {
+      font-size: 14px;
+      color: var(--muted);
+    }
+
+    .empty-state {
+      padding: 16px;
+    }
+
+    .message {
+      min-height: 18px;
+    }
+
+    .message.error { color: var(--danger); }
+    .message.success { color: var(--success); }
+
+    @media (max-width: 1200px) {
+      .board-shell { grid-template-columns: repeat(2, minmax(240px, 1fr)); }
+      .controls { grid-template-columns: 1fr; }
+      .card-form-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .field-span-2,
+      .field-full { grid-column: 1 / -1; }
+    }
+
+    @media (max-width: 760px) {
+      main { padding: 16px; }
+      .board-shell,
+      .inline-form,
+      .card-form-grid { grid-template-columns: 1fr; }
+
+      .field-span-2,
+      .field-full { grid-column: auto; }
+
+      .page-header,
+      .card-form-head,
+      .board-header {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header><h1>H15-Hub</h1></header>
+  <nav>
+    <a href="/">Dashboard</a>
+    <a href="/bookings">Buchungen</a>
+    <a href="/boards" class="active">Boards</a>
+    {% if current_user and current_user.role.value == 'admin' %}
+    <a href="/admin">Admin</a>
+    {% endif %}
+  </nav>
+  <main>
+    <div class="page-header">
+      <h2>Boards</h2>
+    </div>
+
+    <div class="controls">
+      <section class="panel">
+        <h2>Board wählen</h2>
+        <label for="group-select">Gruppe</label>
+        <select id="group-select" onchange="changeGroup(this.value)">
+          <option value="">Bitte Gruppe wählen</option>
+          {% for group in groups %}
+          <option value="{{ group.id }}" {% if selected_group_id == group.id %}selected{% endif %}>{{ group.name }}</option>
+          {% endfor %}
+        </select>
+      </section>
+      <section class="panel">
+        <h2>Neue Gruppe</h2>
+        <div class="panel-note">Lege ein eigenes Board für eine weitere Gruppe an.</div>
+        <div class="inline-form">
+          <div>
+            <label for="group-name">Name</label>
+            <input id="group-name" type="text" placeholder="z.B. Lasercutter-Team">
+          </div>
+          <button class="btn-primary" onclick="createGroup()">Gruppe anlegen</button>
+        </div>
+        <div id="group-message" class="message"></div>
+      </section>
+    </div>
+
+    <section class="card-form">
+      <div class="card-form-head">
+        <div>
+          <h2>Neue Karte</h2>
+          <div id="card-form-context" class="panel-note"></div>
+        </div>
+      </div>
+      <div class="card-form-grid">
+        <div class="field-span-2">
+          <label for="card-title">Titel</label>
+          <input id="card-title" type="text" placeholder="z.B. Spiegel reinigen">
+        </div>
+        <div>
+          <label for="card-assignee">Verantwortlich</label>
+          <input id="card-assignee" type="text" placeholder="z.B. Alex">
+        </div>
+        <div>
+          <label for="card-column">Spalte</label>
+          <select id="card-column">
+            <option value="backlog">Backlog</option>
+            <option value="in_progress">In Arbeit</option>
+            <option value="blocked">Warten</option>
+            <option value="done">Erledigt</option>
+          </select>
+        </div>
+        <div class="field-full">
+          <label for="card-description">Beschreibung</label>
+          <textarea id="card-description" placeholder="Kurzbeschreibung der Aufgabe"></textarea>
+        </div>
+      </div>
+      <div class="actions-row">
+        <button id="create-card-button" class="btn-primary" onclick="createCard()">Karte anlegen</button>
+        <div id="card-message" class="message"></div>
+      </div>
+    </section>
+
+    <div class="board-header">
+      <h2 class="board-title" id="board-title">{% if selected_group %}{{ selected_group.name }}{% else %}Kein Board ausgewählt{% endif %}</h2>
+      <div class="board-context">Karten lassen sich per Drag &amp; Drop zwischen den Spalten verschieben.</div>
+    </div>
+
+    <div id="board-root"></div>
+  </main>
+
+  <script>
+    const columns = [
+      { id: 'backlog', label: 'Backlog' },
+      { id: 'in_progress', label: 'In Arbeit' },
+      { id: 'blocked', label: 'Warten' },
+      { id: 'done', label: 'Erledigt' },
+    ];
+    const groups = {{ groups_payload|tojson }};
+    let selectedGroupId = {{ selected_group_id|tojson }};
+    let cards = [];
+    let draggedCardId = null;
+
+    function changeGroup(groupId) {
+      location.href = groupId ? `/boards?group_id=${groupId}` : '/boards';
+    }
+
+    function setMessage(id, text, type = '') {
+      const el = document.getElementById(id);
+      el.className = `message ${type}`.trim();
+      el.textContent = text || '';
+    }
+
+    function updateBoardContext() {
+      const currentGroup = groups.find(group => group.id === selectedGroupId);
+      document.getElementById('board-title').textContent = currentGroup ? currentGroup.name : 'Kein Board ausgewählt';
+      document.getElementById('card-form-context').textContent = currentGroup
+        ? `Neue Karte für ${currentGroup.name}`
+        : 'Bitte zuerst eine Gruppe auswählen oder anlegen.';
+      document.getElementById('create-card-button').disabled = !currentGroup;
+    }
+
+    async function createGroup() {
+      const name = document.getElementById('group-name').value.trim();
+      if (!name) { setMessage('group-message', 'Bitte einen Gruppennamen eingeben.', 'error'); return; }
+      const res = await fetch('/api/boards/groups', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) { setMessage('group-message', data.detail || 'Gruppe konnte nicht angelegt werden.', 'error'); return; }
+      location.href = `/boards?group_id=${data.id}`;
+    }
+
+    async function createCard() {
+      if (!selectedGroupId) { setMessage('card-message', 'Bitte zuerst eine Gruppe anlegen oder auswählen.', 'error'); return; }
+      const payload = {
+        title: document.getElementById('card-title').value,
+        description: document.getElementById('card-description').value || null,
+        assignee: document.getElementById('card-assignee').value || null,
+        column: document.getElementById('card-column').value,
+      };
+      const res = await fetch(`/api/boards/${selectedGroupId}/cards`, {
+        method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) { setMessage('card-message', data.detail || 'Karte konnte nicht erstellt werden.', 'error'); return; }
+      document.getElementById('card-title').value = '';
+      document.getElementById('card-description').value = '';
+      document.getElementById('card-assignee').value = '';
+      document.getElementById('card-column').value = 'backlog';
+      setMessage('card-message', 'Karte angelegt.', 'success');
+      await loadCards();
+    }
+
+    async function loadCards() {
+      updateBoardContext();
+      if (!selectedGroupId) { renderBoard([]); return; }
+      const res = await fetch(`/api/boards/${selectedGroupId}/cards`);
+      cards = res.ok ? await res.json() : [];
+      renderBoard(cards);
+    }
+
+    function renderBoard(currentCards) {
+      const root = document.getElementById('board-root');
+      if (!selectedGroupId) {
+        root.innerHTML = '<div class="empty-state">Lege zuerst eine Gruppe an, damit ein eigenes Board für diese Gruppe entsteht.</div>';
+        return;
+      }
+      root.innerHTML = `<div class="board-shell">${columns.map(column => {
+        const columnCards = currentCards.filter(card => card.column === column.id).sort((a, b) => a.position - b.position);
+        return `
+          <section class="board-column">
+            <div class="column-head"><h3>${column.label}</h3><span class="column-count">${columnCards.length}</span></div>
+            <div class="column-cards" data-column="${column.id}" ondragover="handleDragOver(event)" ondragenter="handleDragEnter(event)" ondragleave="handleDragLeave(event)" ondrop="handleDrop(event, '${column.id}')">
+              ${columnCards.length ? columnCards.map(renderCard).join('') : '<div class="column-empty">Keine Karten.</div>'}
+            </div>
+          </section>`;
+      }).join('')}</div>`;
+    }
+
+    function renderCard(card) {
+      const description = card.description ? `<div class="card-description">${escapeHtml(card.description)}</div>` : '';
+      const assignee = card.assignee ? `<div class="card-meta">Verantwortlich: ${escapeHtml(card.assignee)}</div>` : '';
+      return `
+        <article class="board-card" draggable="true" data-card-id="${card.id}" ondragstart="handleDragStart(event, ${card.id})" ondragend="handleDragEnd(event)">
+          <div class="card-top">
+            <div class="card-title">${escapeHtml(card.title)}</div>
+            <button class="card-delete" title="Karte löschen" onclick="deleteCard(event, ${card.id})">×</button>
+          </div>
+          ${description}
+          ${assignee}
+        </article>`;
+    }
+
+    function escapeHtml(text) {
+      return text.replace(/[&<>"']/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[char]));
+    }
+
+    function handleDragStart(event, cardId) {
+      draggedCardId = cardId;
+      event.currentTarget.classList.add('dragging');
+    }
+
+    function handleDragEnd(event) {
+      draggedCardId = null;
+      event.currentTarget.classList.remove('dragging');
+      document.querySelectorAll('.column-cards').forEach(el => el.classList.remove('drag-over'));
+    }
+
+    function handleDragOver(event) { event.preventDefault(); }
+    function handleDragEnter(event) { event.currentTarget.classList.add('drag-over'); }
+    function handleDragLeave(event) {
+      if (!event.currentTarget.contains(event.relatedTarget)) event.currentTarget.classList.remove('drag-over');
+    }
+
+    function getDropPosition(container, clientY) {
+      const items = [...container.querySelectorAll('.board-card:not(.dragging)')];
+      for (let index = 0; index < items.length; index += 1) {
+        const box = items[index].getBoundingClientRect();
+        if (clientY < box.top + box.height / 2) return index;
+      }
+      return items.length;
+    }
+
+    async function handleDrop(event, columnId) {
+      event.preventDefault();
+      const container = event.currentTarget;
+      container.classList.remove('drag-over');
+      if (!draggedCardId) return;
+      const position = getDropPosition(container, event.clientY);
+      const res = await fetch(`/api/boards/cards/${draggedCardId}`, {
+        method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ column: columnId, position }),
+      });
+      if (!res.ok) { setMessage('card-message', 'Karte konnte nicht verschoben werden.', 'error'); return; }
+      await loadCards();
+    }
+
+    async function deleteCard(event, cardId) {
+      event.stopPropagation();
+      if (!confirm('Karte wirklich löschen?')) return;
+      const res = await fetch(`/api/boards/cards/${cardId}`, { method: 'DELETE' });
+      if (!res.ok) { setMessage('card-message', 'Karte konnte nicht gelöscht werden.', 'error'); return; }
+      await loadCards();
+    }
+
+    loadCards();
+  </script>
+</body>
+</html>
