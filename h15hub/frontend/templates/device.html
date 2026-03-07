@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{ device.name }} – H15-Hub</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: system-ui, sans-serif; background: #1a1a2e; color: #eee; min-height: 100vh; }
+    header { background: #16213e; padding: 1rem 2rem; display: flex; align-items: center; gap: 1rem; border-bottom: 2px solid #0f3460; }
+    header h1 { font-size: 1.5rem; color: #e94560; }
+    a { color: #e94560; text-decoration: none; }
+    main { padding: 2rem; max-width: 700px; }
+    .back { margin-bottom: 1.5rem; display: inline-block; color: #aaa; }
+    .status-badge { display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.4rem 1rem; border-radius: 99px; font-weight: 600; }
+    .status-badge.free { background: #1a5c2a; color: #4caf50; }
+    .status-badge.in_use { background: #5c3a1a; color: #ff9800; }
+    .status-badge.offline { background: #333; color: #888; }
+    .status-badge.error { background: #5c1a1a; color: #f44336; }
+    .dot { width: 10px; height: 10px; border-radius: 50%; background: currentColor; }
+    .card { background: #16213e; border-radius: 12px; padding: 1.5rem; border: 1px solid #0f3460; margin-top: 1.5rem; }
+    .card h2 { margin-bottom: 1rem; font-size: 1rem; color: #ccc; text-transform: uppercase; letter-spacing: 0.05em; }
+    .info-row { display: flex; justify-content: space-between; padding: 0.5rem 0; border-bottom: 1px solid #0f3460; font-size: 0.9rem; }
+    .info-row:last-child { border-bottom: none; }
+    .info-row .label { color: #888; }
+    .progress-bar { background: #0f3460; border-radius: 99px; height: 8px; overflow: hidden; margin-top: 0.5rem; }
+    .progress-fill { height: 100%; background: #e94560; border-radius: 99px; }
+    .btn-group { display: flex; gap: 0.75rem; flex-wrap: wrap; margin-top: 0.5rem; }
+    button { padding: 0.6rem 1.4rem; border: none; border-radius: 8px; font-size: 0.9rem; cursor: pointer; font-weight: 600; }
+    .btn-primary { background: #e94560; color: white; }
+    .btn-secondary { background: #0f3460; color: #ccc; }
+    .btn-danger { background: #7a1c1c; color: #f44336; }
+    button:hover { opacity: 0.85; }
+    button:disabled { opacity: 0.4; cursor: not-allowed; }
+    .result { margin-top: 1rem; padding: 0.75rem 1rem; border-radius: 8px; font-size: 0.9rem; }
+    .result.ok { background: #1a5c2a; color: #4caf50; }
+    .result.err { background: #5c1a1a; color: #f44336; }
+    label { display: block; color: #888; font-size: 0.85rem; margin-bottom: 0.3rem; }
+    input, textarea { width: 100%; background: #0f3460; border: 1px solid #1e3a6e; color: #eee; padding: 0.6rem; border-radius: 8px; font-size: 0.9rem; }
+  </style>
+</head>
+<body>
+  <header><h1>H15-Hub</h1></header>
+  <main>
+    <a class="back" href="/">← Zurück zum Dashboard</a>
+
+    <h1 style="margin-bottom:1rem">{{ device.name }}</h1>
+    <span class="status-badge {{ device.status }}" id="status-badge">
+      <span class="dot"></span>
+      <span id="status-text">{{ {'free':'Frei','in_use':'In Benutzung','offline':'Offline','error':'Fehler'}[device.status] }}</span>
+    </span>
+
+    <div class="card">
+      <h2>Informationen</h2>
+      <div class="info-row"><span class="label">Typ</span><span>{{ device.type }}</span></div>
+      <div class="info-row"><span class="label">Genutzt von</span><span id="current-user">{{ device.current_user or '–' }}</span></div>
+      {% if device.progress is not none %}
+      <div class="info-row">
+        <span class="label">Fortschritt</span>
+        <span id="progress-pct">{{ device.progress }}%</span>
+      </div>
+      <div class="progress-bar"><div class="progress-fill" id="progress-fill" style="width:{{ device.progress }}%"></div></div>
+      {% endif %}
+      {% if device.eta_minutes %}
+      <div class="info-row"><span class="label">Verbleibend</span><span id="eta">{{ device.eta_minutes }} Min.</span></div>
+      {% endif %}
+    </div>
+
+    {% if device.capabilities %}
+    <div class="card">
+      <h2>Steuerung</h2>
+      <div class="btn-group">
+        {% if 'start' in device.capabilities %}<button class="btn-primary" onclick="action('start')">Starten</button>{% endif %}
+        {% if 'pause' in device.capabilities %}<button class="btn-secondary" onclick="action('pause')">Pausieren</button>{% endif %}
+        {% if 'resume' in device.capabilities %}<button class="btn-secondary" onclick="action('resume')">Fortsetzen</button>{% endif %}
+        {% if 'cancel' in device.capabilities %}<button class="btn-danger" onclick="action('cancel')">Abbrechen</button>{% endif %}
+        {% if 'emergency_stop' in device.capabilities %}<button class="btn-danger" onclick="action('emergency_stop')">Notaus</button>{% endif %}
+      </div>
+      <div id="action-result" style="display:none" class="result"></div>
+    </div>
+    {% endif %}
+
+    {% if 'print' in device.capabilities %}
+    <div class="card">
+      <h2>Label drucken</h2>
+      <label>Text</label>
+      <input type="text" id="label-text" placeholder="z.B. Hebewerk e.V. – Max Mustermann">
+      <div class="btn-group" style="margin-top:0.75rem">
+        <button class="btn-primary" onclick="printLabel()">Drucken</button>
+      </div>
+      <div id="print-result" style="display:none" class="result"></div>
+    </div>
+    {% endif %}
+  </main>
+
+  <script>
+    const deviceId = "{{ device.id }}";
+
+    async function action(act) {
+      const res = await fetch(`/api/devices/${deviceId}/action`, {
+        method: 'POST', headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({ action: act })
+      });
+      const data = await res.json();
+      const el = document.getElementById('action-result');
+      el.style.display = 'block';
+      el.className = 'result ' + (data.success ? 'ok' : 'err');
+      el.textContent = data.message;
+    }
+
+    async function printLabel() {
+      const text = document.getElementById('label-text').value;
+      const res = await fetch(`/api/devices/${deviceId}/action`, {
+        method: 'POST', headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({ action: 'print', params: { text } })
+      });
+      const data = await res.json();
+      const el = document.getElementById('print-result');
+      el.style.display = 'block';
+      el.className = 'result ' + (data.success ? 'ok' : 'err');
+      el.textContent = data.message;
+    }
+
+    // Echtzeit-Updates via WebSocket
+    const statusLabels = { free: 'Frei', in_use: 'In Benutzung', offline: 'Offline', error: 'Fehler' };
+    const ws = new WebSocket(`ws://${location.host}/ws/status`);
+    ws.onmessage = (e) => {
+      const msg = JSON.parse(e.data);
+      const d = (msg.type === 'status_change' && msg.device_id === deviceId) ? msg.device
+               : (msg.type === 'full_update') ? msg.devices.find(x => x.id === deviceId) : null;
+      if (!d) return;
+      document.getElementById('status-badge').className = 'status-badge ' + d.status;
+      document.getElementById('status-text').textContent = statusLabels[d.status] || d.status;
+      const cu = document.getElementById('current-user');
+      if (cu) cu.textContent = d.current_user || '–';
+      if (d.progress !== null && d.progress !== undefined) {
+        const pct = document.getElementById('progress-pct');
+        const fill = document.getElementById('progress-fill');
+        if (pct) pct.textContent = d.progress + '%';
+        if (fill) fill.style.width = d.progress + '%';
+      }
+    };
+  </script>
+</body>
+</html>

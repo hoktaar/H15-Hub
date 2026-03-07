@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Buchungen – H15-Hub</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: system-ui, sans-serif; background: #1a1a2e; color: #eee; min-height: 100vh; }
+    header { background: #16213e; padding: 1rem 2rem; border-bottom: 2px solid #0f3460; }
+    header h1 { color: #e94560; font-size: 1.5rem; }
+    main { padding: 2rem; max-width: 900px; }
+    nav { margin-bottom: 1.5rem; }
+    nav a { color: #aaa; text-decoration: none; margin-right: 1.5rem; }
+    nav a:hover { color: #e94560; }
+    h2 { margin-bottom: 1rem; color: #ccc; font-size: 1rem; text-transform: uppercase; letter-spacing: 0.1em; }
+    .card { background: #16213e; border-radius: 12px; padding: 1.5rem; border: 1px solid #0f3460; margin-bottom: 1.5rem; }
+    table { width: 100%; border-collapse: collapse; }
+    th { text-align: left; padding: 0.6rem; color: #888; font-size: 0.8rem; text-transform: uppercase; border-bottom: 1px solid #0f3460; }
+    td { padding: 0.7rem 0.6rem; border-bottom: 1px solid #0f346055; font-size: 0.9rem; }
+    .badge { display: inline-block; padding: 0.2rem 0.6rem; border-radius: 99px; font-size: 0.75rem; }
+    .badge.confirmed { background: #1a5c2a; color: #4caf50; }
+    .badge.cancelled { background: #333; color: #888; }
+    .badge.done { background: #1a3a5c; color: #64b5f6; }
+    button.cancel-btn { background: #7a1c1c; color: #f44336; border: none; padding: 0.3rem 0.8rem; border-radius: 6px; cursor: pointer; font-size: 0.8rem; }
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+    label { display: block; color: #888; font-size: 0.85rem; margin-bottom: 0.3rem; }
+    input, select { width: 100%; background: #0f3460; border: 1px solid #1e3a6e; color: #eee; padding: 0.6rem; border-radius: 8px; font-size: 0.9rem; }
+    .btn-primary { background: #e94560; color: white; border: none; padding: 0.7rem 1.5rem; border-radius: 8px; font-size: 0.9rem; font-weight: 600; cursor: pointer; margin-top: 1rem; }
+    .error { color: #f44336; margin-top: 0.5rem; font-size: 0.85rem; }
+    .success { color: #4caf50; margin-top: 0.5rem; font-size: 0.85rem; }
+    .empty { color: #555; padding: 1rem 0; }
+  </style>
+</head>
+<body>
+  <header><h1>H15-Hub</h1></header>
+  <main>
+    <nav><a href="/">Dashboard</a><a href="/bookings">Buchungen</a></nav>
+
+    <div class="card">
+      <h2>Neue Buchung</h2>
+      <div class="form-grid">
+        <div>
+          <label>Gerät</label>
+          <select id="device-select">
+            {% for device in devices %}
+            <option value="{{ device.id }}">{{ device.name }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div>
+          <label>Dein Name</label>
+          <input type="text" id="member-name" placeholder="Max Mustermann">
+        </div>
+        <div>
+          <label>Von</label>
+          <input type="datetime-local" id="start-time">
+        </div>
+        <div>
+          <label>Bis</label>
+          <input type="datetime-local" id="end-time">
+        </div>
+        <div style="grid-column: span 2">
+          <label>Notiz (optional)</label>
+          <input type="text" id="note" placeholder="z.B. PLA-Druck für Vereinsprojekt">
+        </div>
+      </div>
+      <button class="btn-primary" onclick="createBooking()">Reservieren</button>
+      <div id="form-result"></div>
+    </div>
+
+    <div class="card">
+      <h2>Buchungsübersicht</h2>
+      <div id="booking-table-container">
+        {% if bookings %}
+        <table>
+          <thead><tr><th>Gerät</th><th>Mitglied</th><th>Von</th><th>Bis</th><th>Status</th><th></th></tr></thead>
+          <tbody>
+          {% for b in bookings %}
+          <tr id="row-{{ b.id }}">
+            <td>{{ b.device_id }}</td>
+            <td>{{ b.member_name }}</td>
+            <td>{{ b.start_time.strftime('%d.%m. %H:%M') }}</td>
+            <td>{{ b.end_time.strftime('%d.%m. %H:%M') }}</td>
+            <td><span class="badge {{ b.status }}">{{ b.status }}</span></td>
+            <td>{% if b.status == 'confirmed' %}<button class="cancel-btn" onclick="cancelBooking({{ b.id }})">Stornieren</button>{% endif %}</td>
+          </tr>
+          {% endfor %}
+          </tbody>
+        </table>
+        {% else %}
+        <div class="empty">Keine Buchungen vorhanden.</div>
+        {% endif %}
+      </div>
+    </div>
+  </main>
+
+  <script>
+    async function createBooking() {
+      const result = document.getElementById('form-result');
+      const payload = {
+        device_id: document.getElementById('device-select').value,
+        member_name: document.getElementById('member-name').value,
+        start_time: document.getElementById('start-time').value,
+        end_time: document.getElementById('end-time').value,
+        note: document.getElementById('note').value || null,
+      };
+      if (!payload.member_name || !payload.start_time || !payload.end_time) {
+        result.className = 'error'; result.textContent = 'Bitte alle Pflichtfelder ausfüllen.'; return;
+      }
+      const res = await fetch('/api/bookings', {
+        method: 'POST', headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify(payload),
+      });
+      if (res.ok) {
+        result.className = 'success'; result.textContent = 'Buchung erfolgreich! Seite wird neu geladen…';
+        setTimeout(() => location.reload(), 1500);
+      } else {
+        const err = await res.json();
+        result.className = 'error'; result.textContent = err.detail || 'Fehler bei der Buchung.';
+      }
+    }
+
+    async function cancelBooking(id) {
+      if (!confirm('Buchung wirklich stornieren?')) return;
+      const res = await fetch(`/api/bookings/${id}`, { method: 'DELETE' });
+      if (res.ok) location.reload();
+    }
+  </script>
+</body>
+</html>
