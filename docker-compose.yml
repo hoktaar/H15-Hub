@@ -2,7 +2,7 @@ services:
   h15hub:
     build: .
     ports:
-      - "8000:8000"
+      - "8032:8032"
     volumes:
       - ./config.yaml:/app/config.yaml:ro
       - h15hub-data:/app/data

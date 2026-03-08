@@ -131,7 +131,7 @@ Alle Brother QL Modelle die von `brother_ql` unterstützt werden, z.B.:
 ### Aktion: `print`
 
 ```bash
-curl -X POST http://localhost:8000/api/devices/labelprinter/action \
+curl -X POST http://localhost:8032/api/devices/labelprinter/action \
   -H "Content-Type: application/json" \
   -d '{"action": "print", "params": {"text": "Hebewerk e.V. – Max Mustermann"}}'
 ```

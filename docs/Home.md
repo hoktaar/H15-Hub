@@ -30,7 +30,7 @@ nano config.local.yaml   # IPs und Tokens eintragen
 docker-compose up -d
 
 # Dashboard öffnen
-open http://localhost:8000
+open http://localhost:8032
 ```
 
 ## Geräte-Übersicht

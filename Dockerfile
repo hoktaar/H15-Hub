@@ -14,7 +14,7 @@ COPY . .
 RUN mkdir -p /app/config /app/data \
     && chmod +x /app/docker-entrypoint.sh
 
-EXPOSE 8000
+EXPOSE 8032
 
 ENTRYPOINT ["/app/docker-entrypoint.sh"]
-CMD ["uvicorn", "h15hub.main:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["uvicorn", "h15hub.main:app", "--host", "0.0.0.0", "--port", "8032"]

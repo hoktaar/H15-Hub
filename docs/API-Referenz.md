@@ -1,7 +1,7 @@
 # API Referenz
 
-Alle Endpunkte sind unter `http://HOST:8000` erreichbar.  
-Interaktive Dokumentation (Swagger UI): `http://HOST:8000/docs`
+Alle Endpunkte sind unter `http://HOST:8032` erreichbar.  
+Interaktive Dokumentation (Swagger UI): `http://HOST:8032/docs`
 
 ---
 
@@ -35,7 +35,7 @@ Alle Geräte mit aktuellem Status.
 Ein einzelnes Gerät.
 
 ```bash
-curl http://localhost:8000/api/devices/bambu-p1s-1
+curl http://localhost:8032/api/devices/bambu-p1s-1
 ```
 
 **404** wenn Gerät nicht bekannt.
@@ -66,17 +66,17 @@ Aktion auf einem Gerät ausführen.
 **Beispiele:**
 ```bash
 # Drucker pausieren
-curl -X POST http://localhost:8000/api/devices/bambu-p1s-1/action \
+curl -X POST http://localhost:8032/api/devices/bambu-p1s-1/action \
   -H "Content-Type: application/json" \
   -d '{"action": "pause"}'
 
 # Label drucken
-curl -X POST http://localhost:8000/api/devices/labelprinter/action \
+curl -X POST http://localhost:8032/api/devices/labelprinter/action \
   -H "Content-Type: application/json" \
   -d '{"action": "print", "params": {"text": "Hebewerk e.V."}}'
 
 # Lasercutter stoppen (via HA)
-curl -X POST http://localhost:8000/api/devices/switch.lasercutter_power/action \
+curl -X POST http://localhost:8032/api/devices/switch.lasercutter_power/action \
   -H "Content-Type: application/json" \
   -d '{"action": "turn_off"}'
 ```
@@ -94,7 +94,7 @@ Alle aktiven Buchungen.
 - `date` – Filtern nach Tag (ISO-Format: `2026-03-10`)
 
 ```bash
-curl "http://localhost:8000/api/bookings?device_id=lasercutter&date=2026-03-10"
+curl "http://localhost:8032/api/bookings?device_id=lasercutter&date=2026-03-10"
 ```
 
 ---
@@ -123,7 +123,7 @@ Neue Buchung anlegen.
 Buchung stornieren.
 
 ```bash
-curl -X DELETE http://localhost:8000/api/bookings/42
+curl -X DELETE http://localhost:8032/api/bookings/42
 ```
 
 **204** bei Erfolg, **404** wenn nicht gefunden.
@@ -137,7 +137,7 @@ curl -X DELETE http://localhost:8000/api/bookings/42
 Echtzeit-Updates aller Geräte.
 
 ```javascript
-const ws = new WebSocket('ws://localhost:8000/ws/status');
+const ws = new WebSocket('ws://localhost:8032/ws/status');
 
 ws.onmessage = (e) => {
   const msg = JSON.parse(e.data);
@@ -169,6 +169,6 @@ ws.onmessage = (e) => {
 ### `GET /health`
 
 ```bash
-curl http://localhost:8000/health
+curl http://localhost:8032/health
 # {"status": "ok", "service": "h15hub"}
 ```

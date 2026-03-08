@@ -2,7 +2,8 @@
 
 Lokaler Integrations-Hub für den **Hebewerk e.V. Makerspace** (Havellandstraße 15, Eberswalde).
 
-Verbindet alle Geräte und Systeme im Makerspace in einem einheitlichen Dashboard:
+H15-Hub verbindet Geräte, Buchungen und interne Arbeitsabläufe in einem gemeinsamen Web-Interface:
+
 - **Home Assistant** – Gebäudeautomation, Sensoren
 - **Bambuddy** – Bambu P1S 3D-Drucker (Docker auf Raspberry Pi)
 - **Lasercutter**
@@ -12,10 +13,43 @@ Verbindet alle Geräte und Systeme im Makerspace in einem einheitlichen Dashboar
 ## Features
 
 - Echtzeit-Statusübersicht aller Maschinen (frei / belegt / offline)
-- Maschinensteuerung (Pause, Cancel, etc.) direkt im Browser
+- Maschinensteuerung direkt im Browser (z. B. Pause, Cancel)
 - Buchungssystem mit Konflikt-Prüfung
-- Browser-Benachrichtigungen wenn Maschine frei wird
+- Session-basierter **Login / Logout**
+- **Ersteinrichtung** über `/setup` zum Anlegen des ersten Admin-Kontos
+- Rollenmodell mit **`admin`** und **`member`**
+- **Adminbereich** für Benutzer-, Rollen- und Gruppenverwaltung
+- Geschützte Member-Bereiche und APIs für Dashboard, Geräte, Buchungen und Boards
+- **Hebewerk-Gruppen / Boards** mit Karten, Spalten und Sortierung
+- Browser-Benachrichtigungen, wenn Maschinen frei werden
 - Automations-Engine mit Zyklus-Erkennung (Tarjan's SCC)
+
+## Zugriff, Login und Rollen
+
+### Erster Start
+
+- Wenn noch kein Benutzer existiert, führt H15-Hub zur Ersteinrichtung unter **`/setup`**
+- Dort wird das erste **Admin-Konto** angelegt
+
+### Danach
+
+- Anmeldung über **`/login`**
+- Admins erreichen den Verwaltungsbereich unter **`/admin`**
+- Angemeldete Mitglieder nutzen die geschützten Seiten:
+  - `/` – Dashboard / Mitgliederbereich
+  - `/device/{device_id}` – Geräteansicht
+  - `/bookings` – Buchungen
+  - `/boards` – Gruppen- und Board-Ansicht
+
+### Rollen
+
+- **Admin**
+  - Benutzer anlegen und bearbeiten
+  - Rollen ändern
+  - Konten aktivieren/deaktivieren
+  - Gruppen anlegen, umbenennen und löschen
+- **Member**
+  - geschützte Mitgliederseiten und Member-APIs nutzen
 
 ## Schnellstart
 
@@ -26,9 +60,15 @@ nano config.yaml
 # Mit Docker starten
 docker-compose up
 
-# Dashboard öffnen
-open http://localhost:8000
+# App öffnen
+open http://localhost:8032
 ```
+
+Danach gilt:
+
+- beim ersten Start: **`/setup`**
+- sonst: **Login über `/login`**
+- API-Dokumentation: **`/docs`**
 
 ## Installation auf Unraid
 
@@ -36,7 +76,8 @@ open http://localhost:8000
 
 1. In Unraid → **Apps** → Suchfeld: `H15-Hub`
 2. Template installieren
-3. Pfade und IPs anpassen, Container starten
+3. Pfade und IPs anpassen
+4. Container starten und anschließend `http://UNRAID-IP:8032` öffnen
 
 ### Option B: Manuell via docker-compose
 
@@ -51,15 +92,15 @@ nano /mnt/user/appdata/h15hub/config.yaml
 # Starten
 docker-compose -f docker-compose.unraid.yml up -d
 
-# Dashboard
-open http://UNRAID-IP:8000
+# App öffnen
+open http://UNRAID-IP:8032
 ```
 
 ### Option C: Unraid Docker UI (ohne compose)
 
 ```
 Image:    ghcr.io/hoktaar/h15-hub:latest
-Port:     8000 → 8000
+Port:     8032 → 8032
 Volume:   /mnt/user/appdata/h15hub/config.yaml → /app/config.yaml (ro)
 Volume:   /mnt/user/appdata/h15hub/data        → /app/data
 Extra:    --add-host homeassistant:192.168.1.10 --add-host bambuddy:192.168.1.20
@@ -69,6 +110,12 @@ Extra:    --add-host homeassistant:192.168.1.10 --add-host bambuddy:192.168.1.20
 
 ```bash
 pip install -e ".[dev]"
-pytest tests/ -v
-uvicorn h15hub.main:app --reload
+pytest -q
+uvicorn h15hub.main:app --reload --port 8032
 ```
+
+- Lokale App: `http://localhost:8032`
+- API-Doku: `http://localhost:8032/docs`
+- Aktueller Stand der Tests: **26 Tests grün**
+
+Weitere Entwicklungsdetails stehen in `docs/Entwicklung.md`.

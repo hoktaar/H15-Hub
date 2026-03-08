@@ -13,7 +13,7 @@ services:
     # build: .
     container_name: h15hub
     ports:
-      - "8000:8000"
+      - "8032:8032"
     volumes:
       - /mnt/user/appdata/h15hub/config.yaml:/app/config.yaml:ro
       - /mnt/user/appdata/h15hub/data:/app/data
@@ -31,5 +31,5 @@ services:
     restart: unless-stopped
     labels:
       - "net.unraid.docker.managed=dockerman"
-      - "net.unraid.docker.webui=http://[IP]:[PORT:8000]/"
+      - "net.unraid.docker.webui=http://[IP]:[PORT:8032]/"
       - "net.unraid.docker.icon=https://raw.githubusercontent.com/hoktaar/H15-Hub/main/unraid/icon.png"

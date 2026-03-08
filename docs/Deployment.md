@@ -53,7 +53,7 @@ After=network.target
 [Service]
 User=pi
 WorkingDirectory=/home/pi/H15-Hub
-ExecStart=uvicorn h15hub.main:app --host 0.0.0.0 --port 8000
+ExecStart=uvicorn h15hub.main:app --host 0.0.0.0 --port 8032
 Restart=always
 Environment=H15HUB_CONFIG=/home/pi/H15-Hub/config.yaml
 

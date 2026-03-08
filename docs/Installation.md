@@ -26,7 +26,7 @@ docker-compose up -d
 docker-compose logs -f
 
 # Dashboard öffnen
-open http://localhost:8000
+open http://localhost:8032
 ```
 
 ---
@@ -50,7 +50,7 @@ open http://localhost:8000
 | Feld | Wert |
 |---|---|
 | Image | `ghcr.io/hoktaar/h15-hub:latest` |
-| Port | `8031` → `8000` |
+| Port | `8032` → `8032` |
 | Volume | `/mnt/user/appdata/h15hub/config` → `/app/config` (ro) |
 | Volume | `/mnt/user/appdata/h15hub/data` → `/app/data` |
 
@@ -79,7 +79,7 @@ After=network.target
 [Service]
 User=pi
 WorkingDirectory=/home/pi/H15-Hub
-ExecStart=uvicorn h15hub.main:app --host 0.0.0.0 --port 8000
+ExecStart=uvicorn h15hub.main:app --host 0.0.0.0 --port 8032
 Restart=always
 Environment=H15HUB_CONFIG=/home/pi/H15-Hub/config.yaml
 

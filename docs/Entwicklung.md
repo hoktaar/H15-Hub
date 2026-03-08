@@ -16,23 +16,32 @@ pip install -e ".[printers]"
 ## Tests ausführen
 
 ```bash
-pytest tests/ -v
+pytest -q
 ```
 
-Alle 18 Tests sollten grün sein:
+Aktuell sind **26 Tests** grün, u. a. für:
 - `test_adapters.py` – Bambuddy & HA Adapter (Status-Mapping, Mock-HTTP)
+- `test_auth_admin.py` – Setup, Login, Session und Admin-Schutz
+- `test_boards.py` – geschützte Board-Endpunkte und Kartenlogik
 - `test_bookings.py` – Buchungs-Logik (SQLite in-memory)
 - `test_tarjan.py` – Zyklus-Erkennung (inkl. AutomationEngine)
 
 ## Server lokal starten
 
 ```bash
-uvicorn h15hub.main:app --reload
-# Dashboard: http://localhost:8000
-# API Docs:  http://localhost:8000/docs
+uvicorn h15hub.main:app --reload --port 8032
+# Dashboard: http://localhost:8032
+# API Docs:  http://localhost:8032/docs
 ```
 
 > Mit `--reload` wird der Server bei Code-Änderungen automatisch neu gestartet.
+
+### Relevante Einstiegsrouten
+
+- `/setup` – Ersteinrichtung des ersten Admin-Kontos
+- `/login` – Anmeldung
+- `/admin` – Adminbereich für Benutzer, Rollen und Gruppen
+- `/boards` – geschützter Bereich für Hebewerk-Gruppen / Boards
 
 ---
 
