@@ -19,10 +19,10 @@ pip install -e ".[printers]"
 pytest -q
 ```
 
-Aktuell sind **26 Tests** grün, u. a. für:
+Aktuell sind **32 Tests** grün, u. a. für:
 - `test_adapters.py` – Bambuddy & HA Adapter (Status-Mapping, Mock-HTTP)
 - `test_auth_admin.py` – Setup, Login, Session und Admin-Schutz
-- `test_boards.py` – geschützte Board-Endpunkte und Kartenlogik
+- `test_boards.py` – geschützte Board-Endpunkte, Projekte, Kartenlogik und Löschkaskaden
 - `test_bookings.py` – Buchungs-Logik (SQLite in-memory)
 - `test_tarjan.py` – Zyklus-Erkennung (inkl. AutomationEngine)
 
@@ -41,7 +41,15 @@ uvicorn h15hub.main:app --reload --port 8032
 - `/setup` – Ersteinrichtung des ersten Admin-Kontos
 - `/login` – Anmeldung
 - `/admin` – Adminbereich für Benutzer, Rollen und Gruppen
-- `/boards` – geschützter Bereich für Hebewerk-Gruppen / Boards
+- `/boards` – geschützter Bereich für Projekte, die vorhandenen Gruppen zugeordnet sind
+
+### Boards im aktuellen Stand
+
+- **Gruppen** werden ausschließlich im **Adminbereich** erstellt und gepflegt
+- Im Boards-Bereich werden **Projekte** angelegt, bearbeitet und gelöscht
+- Karten hängen an **Projekten** statt direkt an Gruppen
+- Neue Karten werden in der UI über ein **Modal** erstellt
+- Bestehende Installationen werden beim Start per DB-Migration auf das Projekt-Schema angehoben
 
 ---
 

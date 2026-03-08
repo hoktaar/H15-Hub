@@ -20,7 +20,7 @@ H15-Hub verbindet Geräte, Buchungen und interne Arbeitsabläufe in einem gemein
 - Rollenmodell mit **`admin`** und **`member`**
 - **Adminbereich** für Benutzer-, Rollen-, Gruppen- und Konfigurationsverwaltung
 - Geschützte Member-Bereiche und APIs für Dashboard, Geräte, Buchungen und Boards
-- **Hebewerk-Gruppen / Boards** mit Karten, Spalten und Sortierung
+- **Boards mit Projekten**, die bestehenden Gruppen zugeordnet werden, inkl. Karten, Spalten und Sortierung
 - Browser-Benachrichtigungen, wenn Maschinen frei werden
 - Automations-Engine mit Zyklus-Erkennung (Tarjan's SCC)
 
@@ -39,7 +39,7 @@ H15-Hub verbindet Geräte, Buchungen und interne Arbeitsabläufe in einem gemein
   - `/` – Dashboard / Mitgliederbereich
   - `/device/{device_id}` – Geräteansicht
   - `/bookings` – Buchungen
-  - `/boards` – Gruppen- und Board-Ansicht
+  - `/boards` – Projekt-Boards mit Kartenansicht
 
 ### Rollen
 
@@ -50,6 +50,14 @@ H15-Hub verbindet Geräte, Buchungen und interne Arbeitsabläufe in einem gemein
   - Gruppen anlegen, umbenennen und löschen
 - **Member**
   - geschützte Mitgliederseiten und Member-APIs nutzen
+
+### Boards / Projekte
+
+- **Gruppen** werden im **Adminbereich** angelegt und verwaltet
+- Im Bereich **`/boards`** werden daraus **Projekte** erstellt und einer Gruppe zugeordnet
+- Karten werden innerhalb eines Projekts verwaltet
+- Neue Karten werden über ein **Modal** angelegt
+- Projekte können im Boards-Bereich **bearbeitet und gelöscht** werden
 
 ## Schnellstart
 

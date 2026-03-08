@@ -376,6 +376,17 @@
       box-shadow: 0 18px 40px rgba(0, 0, 0, 0.35);
     }
 
+    .modal-danger-zone {
+      margin-top: 14px;
+      padding-top: 14px;
+      border-top: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
     .modal-head {
       display: flex;
       justify-content: space-between;
@@ -429,6 +440,7 @@
         {% if current_user and current_user.role.value == 'admin' %}
         <a href="/admin"><button type="button" class="btn-secondary">Gruppen im Admin verwalten</button></a>
         {% endif %}
+        <button id="open-project-settings-button" type="button" class="btn-secondary" onclick="openProjectSettingsModal()">Projekt bearbeiten</button>
         <button id="open-card-modal-button" type="button" class="btn-primary" onclick="openCardModal()">Neue Karte</button>
       </div>
     </section>
@@ -534,6 +546,44 @@
     </section>
   </div>
 
+  <div id="project-settings-modal" class="modal-backdrop hidden" onclick="handleProjectSettingsBackdrop(event)">
+    <section class="modal" role="dialog" aria-modal="true" aria-labelledby="project-settings-title">
+      <div class="modal-head">
+        <div>
+          <h3 id="project-settings-title">Projekt bearbeiten</h3>
+          <div class="panel-note">Name anpassen oder Projekt einer anderen Gruppe zuordnen.</div>
+        </div>
+        <button type="button" class="icon-button" aria-label="Modal schließen" onclick="closeProjectSettingsModal()">×</button>
+      </div>
+      <div class="modal-grid">
+        <div class="field-full">
+          <label for="edit-project-name">Projektname</label>
+          <input id="edit-project-name" type="text" placeholder="Projektname">
+        </div>
+        <div class="field-full">
+          <label for="edit-project-group-id">Gruppe</label>
+          <select id="edit-project-group-id">
+            <option value="">Bitte Gruppe wählen</option>
+            {% for group in groups %}
+            <option value="{{ group.id }}">{{ group.name }}</option>
+            {% endfor %}
+          </select>
+        </div>
+      </div>
+      <div class="modal-actions" style="margin-top: 14px; justify-content: space-between;">
+        <div id="project-settings-message" class="message"></div>
+        <div class="inline-actions">
+          <button type="button" class="btn-secondary" onclick="closeProjectSettingsModal()">Abbrechen</button>
+          <button id="save-project-button" type="button" class="btn-primary" onclick="saveProjectSettings()">Speichern</button>
+        </div>
+      </div>
+      <div class="modal-danger-zone">
+        <div class="panel-note">Löscht das Projekt inklusive aller Karten.</div>
+        <button id="delete-project-button" type="button" class="btn-danger" onclick="deleteProject()">Projekt löschen</button>
+      </div>
+    </section>
+  </div>
+
   <script>
     const columns = [
       { id: 'backlog', label: 'Backlog' },
@@ -577,6 +627,7 @@
       const hasGroups = groups.length > 0;
 
       document.getElementById('open-card-modal-button').disabled = !project;
+      document.getElementById('open-project-settings-button').disabled = !project;
       document.getElementById('create-card-button').disabled = !project;
       document.getElementById('create-project-button').disabled = !hasGroups;
       document.getElementById('project-group-id').disabled = !hasGroups;
@@ -657,10 +708,88 @@
       setMessage('card-modal-message', '');
     }
 
+    function openProjectSettingsModal() {
+      const project = getSelectedProject();
+      if (!project) {
+        setMessage('board-message', 'Bitte zuerst ein Projekt wählen.', 'error');
+        return;
+      }
+
+      document.getElementById('edit-project-name').value = project.name;
+      document.getElementById('edit-project-group-id').value = String(project.group_id);
+      setMessage('project-settings-message', '');
+      document.getElementById('project-settings-modal').classList.remove('hidden');
+      document.getElementById('edit-project-name').focus();
+    }
+
+    function closeProjectSettingsModal() {
+      document.getElementById('project-settings-modal').classList.add('hidden');
+      setMessage('project-settings-message', '');
+    }
+
     function handleModalBackdrop(event) {
       if (event.target.id === 'card-modal') {
         closeCardModal();
       }
+    }
+
+    function handleProjectSettingsBackdrop(event) {
+      if (event.target.id === 'project-settings-modal') {
+        closeProjectSettingsModal();
+      }
+    }
+
+    async function saveProjectSettings() {
+      const project = getSelectedProject();
+      if (!project) {
+        setMessage('project-settings-message', 'Bitte zuerst ein Projekt wählen.', 'error');
+        return;
+      }
+
+      const name = document.getElementById('edit-project-name').value.trim();
+      const groupId = Number(document.getElementById('edit-project-group-id').value);
+
+      if (!name) {
+        setMessage('project-settings-message', 'Bitte einen Projektnamen eingeben.', 'error');
+        return;
+      }
+      if (!groupId) {
+        setMessage('project-settings-message', 'Bitte eine Gruppe auswählen.', 'error');
+        return;
+      }
+
+      const res = await fetch(`/api/boards/projects/${project.id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, group_id: groupId }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        setMessage('project-settings-message', data.detail || 'Projekt konnte nicht gespeichert werden.', 'error');
+        return;
+      }
+
+      location.href = `/boards?project_id=${data.id}`;
+    }
+
+    async function deleteProject() {
+      const project = getSelectedProject();
+      if (!project) {
+        setMessage('project-settings-message', 'Bitte zuerst ein Projekt wählen.', 'error');
+        return;
+      }
+      if (!confirm(`Projekt "${project.name}" inklusive aller Karten wirklich löschen?`)) {
+        return;
+      }
+
+      const res = await fetch(`/api/boards/projects/${project.id}`, { method: 'DELETE' });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        setMessage('project-settings-message', data.detail || 'Projekt konnte nicht gelöscht werden.', 'error');
+        return;
+      }
+
+      location.href = '/boards';
     }
 
     async function createCard() {
@@ -841,8 +970,14 @@
     }
 
     document.addEventListener('keydown', event => {
-      if (event.key === 'Escape' && !document.getElementById('card-modal').classList.contains('hidden')) {
+      if (event.key !== 'Escape') {
+        return;
+      }
+      if (!document.getElementById('card-modal').classList.contains('hidden')) {
         closeCardModal();
+      }
+      if (!document.getElementById('project-settings-modal').classList.contains('hidden')) {
+        closeProjectSettingsModal();
       }
     });
 

@@ -127,6 +127,45 @@ def test_create_project_and_card(board_client):
     assert len(list_response.json()) == 1
 
 
+def test_update_project_name_and_group(board_client):
+    original_group = create_group(board_client, "Laser-Team")
+    target_group = create_group(board_client, "Metallwerkstatt")
+    project = create_project(board_client, original_group["id"], "Wartung")
+
+    response = board_client.patch(
+        f"/api/boards/projects/{project['id']}",
+        json={"name": "Wochencheck", "group_id": target_group["id"]},
+    )
+    assert response.status_code == 200
+    assert response.json() == {
+        "id": project["id"],
+        "name": "Wochencheck",
+        "group_id": target_group["id"],
+        "group_name": target_group["name"],
+    }
+
+
+def test_delete_project_removes_associated_cards(board_client):
+    group = create_group(board_client, "CNC")
+    project = create_project(board_client, group["id"], "Monatscheck")
+
+    card_response = board_client.post(
+        f"/api/boards/projects/{project['id']}/cards",
+        json={"title": "Maschine reinigen", "column": "backlog"},
+    )
+    assert card_response.status_code == 201
+
+    delete_response = board_client.delete(f"/api/boards/projects/{project['id']}")
+    assert delete_response.status_code == 204
+
+    projects_response = board_client.get("/api/boards/projects")
+    assert projects_response.status_code == 200
+    assert projects_response.json() == []
+
+    cards_response = board_client.get(f"/api/boards/projects/{project['id']}/cards")
+    assert cards_response.status_code == 404
+
+
 def test_move_card_within_and_between_columns(board_client):
     group = create_group(board_client, "3D-Druck")
     project = create_project(board_client, group["id"], "Druckerpflege")

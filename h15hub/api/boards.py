@@ -16,10 +16,6 @@ router = APIRouter(
 )
 
 
-class BoardGroupCreate(BaseModel):
-    name: str = Field(min_length=1, max_length=128)
-
-
 class BoardGroupResponse(BaseModel):
     id: int
     name: str
@@ -30,6 +26,11 @@ class BoardGroupResponse(BaseModel):
 class BoardProjectCreate(BaseModel):
     name: str = Field(min_length=1, max_length=128)
     group_id: int
+
+
+class BoardProjectUpdate(BaseModel):
+    name: str | None = Field(default=None, min_length=1, max_length=128)
+    group_id: int | None = None
 
 
 class BoardProjectResponse(BaseModel):
@@ -115,15 +116,35 @@ async def _ensure_unique_project_name(
     name: str,
     *,
     group_id: int,
+    exclude_project_id: int | None = None,
 ) -> None:
-    result = await db.execute(
-        select(BoardProject).where(
-            BoardProject.group_id == group_id,
-            func.lower(BoardProject.name) == name.lower(),
-        )
+    stmt = select(BoardProject).where(
+        BoardProject.group_id == group_id,
+        func.lower(BoardProject.name) == name.lower(),
     )
+    if exclude_project_id is not None:
+        stmt = stmt.where(BoardProject.id != exclude_project_id)
+
+    result = await db.execute(stmt)
     if result.scalar_one_or_none():
         raise HTTPException(status_code=409, detail="Projekt existiert in dieser Gruppe bereits")
+
+
+async def _delete_project_cards(db: AsyncSession, project_id: int) -> None:
+    result = await db.execute(
+        select(BoardCard).where(
+            BoardCard.project_id == project_id,
+        )
+    )
+    for card in result.scalars().all():
+        await db.delete(card)
+
+
+def _clean_project_name(name: str) -> str:
+    value = name.strip()
+    if not value:
+        raise HTTPException(status_code=422, detail="Projektname darf nicht leer sein")
+    return value
 
 
 def _serialize_project(project: BoardProject, group: BoardGroup) -> BoardProjectResponse:
@@ -160,9 +181,7 @@ async def create_project(
     data: BoardProjectCreate,
     db: AsyncSession = Depends(get_db),
 ) -> BoardProjectResponse:
-    name = data.name.strip()
-    if not name:
-        raise HTTPException(status_code=422, detail="Projektname darf nicht leer sein")
+    name = _clean_project_name(data.name)
 
     group = await _get_group_or_404(db, data.group_id)
     await _ensure_unique_project_name(db, name, group_id=group.id)
@@ -172,6 +191,47 @@ async def create_project(
     await db.commit()
     await db.refresh(project)
     return _serialize_project(project, group)
+
+
+@router.patch("/projects/{project_id}", response_model=BoardProjectResponse)
+async def update_project(
+    project_id: int,
+    data: BoardProjectUpdate,
+    db: AsyncSession = Depends(get_db),
+) -> BoardProjectResponse:
+    project = await _get_project_or_404(db, project_id)
+    group = await _get_group_or_404(db, project.group_id)
+
+    next_name = project.name
+    if "name" in data.model_fields_set and data.name is not None:
+        next_name = _clean_project_name(data.name)
+
+    next_group = group
+    if "group_id" in data.model_fields_set and data.group_id is not None:
+        next_group = await _get_group_or_404(db, data.group_id)
+
+    if next_name != project.name or next_group.id != project.group_id:
+        await _ensure_unique_project_name(
+            db,
+            next_name,
+            group_id=next_group.id,
+            exclude_project_id=project.id,
+        )
+
+    project.name = next_name
+    project.group_id = next_group.id
+
+    await db.commit()
+    await db.refresh(project)
+    return _serialize_project(project, next_group)
+
+
+@router.delete("/projects/{project_id}", status_code=status.HTTP_204_NO_CONTENT)
+async def delete_project(project_id: int, db: AsyncSession = Depends(get_db)) -> None:
+    project = await _get_project_or_404(db, project_id)
+    await _delete_project_cards(db, project.id)
+    await db.delete(project)
+    await db.commit()
 
 
 @router.get("/projects/{project_id}/cards", response_model=list[BoardCardResponse])
