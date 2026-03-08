@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import errno
 from datetime import datetime
 
 from fastapi import APIRouter, Depends, HTTPException, Request, status
@@ -19,6 +20,7 @@ from h15hub.auth import (
     resolve_next_path,
     verify_password,
 )
+from h15hub.configuration import read_config_text, save_config_text
 from h15hub.database import get_db
 from h15hub.models.board import BoardCard, BoardGroup
 from h15hub.models.user import User, UserRole
@@ -83,6 +85,16 @@ class GroupResponse(BaseModel):
     model_config = {"from_attributes": True}
 
 
+class RuntimeConfigResponse(BaseModel):
+    path: str
+    content: str
+    requires_restart: bool = True
+
+
+class RuntimeConfigUpdate(BaseModel):
+    content: str = Field(min_length=1)
+
+
 def _serialize_user(user: User) -> UserResponse:
     return UserResponse(
         id=user.id,
@@ -107,6 +119,13 @@ def _hash_password_or_422(password: str) -> tuple[str, str]:
         return hash_password(password)
     except ValueError as exc:
         raise HTTPException(status_code=422, detail=str(exc)) from exc
+
+
+def _config_io_error_to_500(exc: OSError, *, action: str) -> HTTPException:
+    detail = f"Konfiguration konnte nicht {action} werden: {exc.strerror or exc}"
+    if exc.errno in {errno.EACCES, errno.EPERM, errno.EROFS}:
+        detail += ". Bitte den Config-Mount schreibbar (rw) einbinden."
+    return HTTPException(status_code=500, detail=detail)
 
 
 async def _ensure_unique_group_name(db: AsyncSession, name: str, *, exclude_group_id: int | None = None) -> None:
@@ -219,6 +238,32 @@ async def me(current_user: User = Depends(require_authenticated_user)) -> UserRe
 async def list_users(_admin: User = Depends(require_admin_user), db: AsyncSession = Depends(get_db)) -> list[UserResponse]:
     result = await db.execute(select(User).order_by(User.display_name, User.username))
     return [_serialize_user(user) for user in result.scalars().all()]
+
+
+@router.get("/api/admin/config", response_model=RuntimeConfigResponse)
+async def get_runtime_config(_admin: User = Depends(require_admin_user)) -> RuntimeConfigResponse:
+    try:
+        config_path, content = read_config_text()
+    except OSError as exc:
+        raise _config_io_error_to_500(exc, action="gelesen") from exc
+
+    return RuntimeConfigResponse(path=str(config_path), content=content)
+
+
+@router.patch("/api/admin/config", response_model=RuntimeConfigResponse)
+async def update_runtime_config(
+    data: RuntimeConfigUpdate,
+    _admin: User = Depends(require_admin_user),
+) -> RuntimeConfigResponse:
+    try:
+        config_path = save_config_text(data.content)
+        content = config_path.read_text(encoding="utf-8")
+    except ValueError as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
+    except OSError as exc:
+        raise _config_io_error_to_500(exc, action="gespeichert") from exc
+
+    return RuntimeConfigResponse(path=str(config_path), content=content)
 
 
 @router.post("/api/admin/users", response_model=UserResponse, status_code=status.HTTP_201_CREATED)

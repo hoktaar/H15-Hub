@@ -18,7 +18,7 @@ H15-Hub verbindet Geräte, Buchungen und interne Arbeitsabläufe in einem gemein
 - Session-basierter **Login / Logout**
 - **Ersteinrichtung** über `/setup` zum Anlegen des ersten Admin-Kontos
 - Rollenmodell mit **`admin`** und **`member`**
-- **Adminbereich** für Benutzer-, Rollen- und Gruppenverwaltung
+- **Adminbereich** für Benutzer-, Rollen-, Gruppen- und Konfigurationsverwaltung
 - Geschützte Member-Bereiche und APIs für Dashboard, Geräte, Buchungen und Boards
 - **Hebewerk-Gruppen / Boards** mit Karten, Spalten und Sortierung
 - Browser-Benachrichtigungen, wenn Maschinen frei werden
@@ -85,9 +85,8 @@ Danach gilt:
 # AppData-Verzeichnis anlegen
 mkdir -p /mnt/user/appdata/h15hub/data
 
-# Konfiguration hineinkopieren und anpassen
-cp config.yaml /mnt/user/appdata/h15hub/config.yaml
-nano /mnt/user/appdata/h15hub/config.yaml
+# Verzeichnisse anlegen
+mkdir -p /mnt/user/appdata/h15hub/config /mnt/user/appdata/h15hub/data
 
 # Starten
 docker-compose -f docker-compose.unraid.yml up -d
@@ -96,12 +95,15 @@ docker-compose -f docker-compose.unraid.yml up -d
 open http://UNRAID-IP:8032
 ```
 
+Danach wird beim ersten Start automatisch eine Beispiel-Datei unter
+`/mnt/user/appdata/h15hub/config/config.yaml` angelegt. Diese kann später auch im Adminbereich bearbeitet werden.
+
 ### Option C: Unraid Docker UI (ohne compose)
 
 ```
 Image:    ghcr.io/hoktaar/h15-hub:latest
 Port:     8032 → 8032
-Volume:   /mnt/user/appdata/h15hub/config.yaml → /app/config.yaml (ro)
+Volume:   /mnt/user/appdata/h15hub/config → /app/config (rw)
 Volume:   /mnt/user/appdata/h15hub/data        → /app/data
 Extra:    --add-host homeassistant:192.168.1.10 --add-host bambuddy:192.168.1.20
 ```

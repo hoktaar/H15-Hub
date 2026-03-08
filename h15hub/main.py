@@ -1,6 +1,5 @@
 from __future__ import annotations
 import os
-import yaml
 import logging
 from contextlib import asynccontextmanager
 from fastapi import Depends, FastAPI, Request
@@ -12,6 +11,7 @@ from starlette.middleware.sessions import SessionMiddleware
 
 from h15hub.api.admin import router as admin_router
 from h15hub.auth import count_users, ensure_page_admin, ensure_page_user, get_current_user_from_request, resolve_next_path
+from h15hub.configuration import load_config
 from h15hub.database import init_db, get_db
 from h15hub.engine.device_registry import build_registry_from_config
 from h15hub.engine.automation import AutomationEngine
@@ -24,7 +24,6 @@ from h15hub.models.user import UserRole
 logging.basicConfig(level=logging.INFO, format="%(levelname)s %(name)s: %(message)s")
 logger = logging.getLogger(__name__)
 
-CONFIG_PATH = os.getenv("H15HUB_CONFIG", "config.yaml")
 SESSION_SECRET = os.getenv("H15HUB_SESSION_SECRET", "h15hub-dev-session-secret")
 
 templates = Jinja2Templates(
@@ -34,11 +33,6 @@ templates = Jinja2Templates(
 
 def template_context(request: Request, **extra: object) -> dict[str, object]:
     return {"request": request, **extra}
-
-
-def load_config() -> dict:
-    with open(CONFIG_PATH, encoding="utf-8") as f:
-        return yaml.safe_load(f)
 
 
 @asynccontextmanager

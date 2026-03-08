@@ -25,7 +25,7 @@
   <Config Name="AppData" Target="/app/data" Default="/mnt/user/appdata/h15hub/data" Mode="rw" Description="Persistente Daten (SQLite-Datenbank)" Type="Path" Display="always" Required="true" Mask="false">/mnt/user/appdata/h15hub/data</Config>
 
   <!-- Konfigurationsverzeichnis (enthält config.yaml) -->
-  <Config Name="Config Dir" Target="/app/config" Default="/mnt/user/appdata/h15hub/config" Mode="ro" Description="Verzeichnis mit config.yaml (Geräte-IPs und API-Keys)" Type="Path" Display="always" Required="true" Mask="false">/mnt/user/appdata/h15hub/config</Config>
+  <Config Name="Config Dir" Target="/app/config" Default="/mnt/user/appdata/h15hub/config" Mode="rw" Description="Beschreibbares Verzeichnis für config.yaml. Die Datei wird beim ersten Start automatisch angelegt und kann im Adminbereich bearbeitet werden." Type="Path" Display="always" Required="true" Mask="false">/mnt/user/appdata/h15hub/config</Config>
 
   <!-- Port -->
   <Config Name="WebUI Port" Target="8032" Default="8032" Mode="tcp" Description="Port für das Web-Dashboard" Type="Port" Display="always" Required="true" Mask="false">8032</Config>

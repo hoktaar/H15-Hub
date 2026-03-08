@@ -2,6 +2,8 @@
 
 Die gesamte Konfiguration erfolgt über eine einzige Datei: `config.yaml`.
 
+Admins können diese Datei im Adminbereich direkt bearbeiten. Änderungen an Geräten und Automationen werden nach einem Neustart des Containers aktiv.
+
 ## Vollständiges Beispiel
 
 ```yaml

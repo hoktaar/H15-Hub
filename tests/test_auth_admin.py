@@ -114,3 +114,55 @@ def test_last_admin_cannot_deactivate_self(admin_client):
     )
     assert update_response.status_code == 400
     assert "nicht deaktiviert" in update_response.json()["detail"]
+
+
+def test_admin_can_read_and_update_runtime_config(admin_client, tmp_path, monkeypatch):
+    config_file = tmp_path / "config" / "config.yaml"
+    monkeypatch.setenv("H15HUB_CONFIG", str(config_file))
+
+    setup_response = admin_client.post(
+        "/api/auth/setup",
+        json={
+            "username": "admin",
+            "display_name": "Admin",
+            "password": "supersecret123",
+        },
+    )
+    assert setup_response.status_code == 201
+
+    get_response = admin_client.get("/api/admin/config")
+    assert get_response.status_code == 200
+    assert get_response.json()["path"] == str(config_file)
+    assert "devices: {}" in get_response.json()["content"]
+    assert config_file.exists()
+
+    new_config = """app:
+  title: \"Test Hub\"
+devices:
+  printer:
+    adapter: laserprinter
+    url: ipp://192.168.1.50/ipp/print
+automations: []
+"""
+    update_response = admin_client.patch("/api/admin/config", json={"content": new_config})
+    assert update_response.status_code == 200
+    assert update_response.json()["content"] == new_config
+    assert config_file.read_text(encoding="utf-8") == new_config
+
+
+def test_admin_rejects_invalid_runtime_config(admin_client, tmp_path, monkeypatch):
+    monkeypatch.setenv("H15HUB_CONFIG", str(tmp_path / "config" / "config.yaml"))
+
+    setup_response = admin_client.post(
+        "/api/auth/setup",
+        json={
+            "username": "admin",
+            "display_name": "Admin",
+            "password": "supersecret123",
+        },
+    )
+    assert setup_response.status_code == 201
+
+    response = admin_client.patch("/api/admin/config", json={"content": "- invalid\n- list\n"})
+    assert response.status_code == 422
+    assert "YAML-Objekt" in response.json()["detail"]

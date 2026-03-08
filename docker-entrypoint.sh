@@ -9,6 +9,10 @@ mkdir -p "$CONFIG_DIR"
 
 # Minimal-Config erstellen wenn keine vorhanden
 if [ ! -f "$CONFIG_FILE" ]; then
+    if [ ! -w "$CONFIG_DIR" ]; then
+        echo "ERROR: Keine config.yaml gefunden und $CONFIG_DIR ist nicht schreibbar. Bitte den Config-Mount als rw einbinden." >&2
+        exit 1
+    fi
     echo "INFO: Keine config.yaml gefunden – erstelle Beispiel-Konfiguration in $CONFIG_FILE"
     cat > "$CONFIG_FILE" << 'YAML'
 # H15-Hub Konfiguration

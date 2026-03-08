@@ -2,9 +2,9 @@
 # Pfade nutzen /mnt/user/appdata/ wie auf Unraid üblich.
 #
 # Vor dem Start:
-#   1. config.yaml nach /mnt/user/appdata/h15hub/config.yaml kopieren und anpassen
-#   2. mkdir -p /mnt/user/appdata/h15hub/data
-#   3. docker-compose -f docker-compose.unraid.yml up -d
+#   1. mkdir -p /mnt/user/appdata/h15hub/config /mnt/user/appdata/h15hub/data
+#   2. docker-compose -f docker-compose.unraid.yml up -d
+#   3. Beim ersten Start wird /mnt/user/appdata/h15hub/config/config.yaml automatisch erzeugt
 
 services:
   h15hub:
@@ -15,10 +15,10 @@ services:
     ports:
       - "8032:8032"
     volumes:
-      - /mnt/user/appdata/h15hub/config.yaml:/app/config.yaml:ro
+      - /mnt/user/appdata/h15hub/config:/app/config
       - /mnt/user/appdata/h15hub/data:/app/data
     environment:
-      - H15HUB_CONFIG=/app/config.yaml
+      - H15HUB_CONFIG=/app/config/config.yaml
       - H15HUB_DB_URL=sqlite+aiosqlite:////app/data/h15hub.db
       - LOG_LEVEL=INFO
     extra_hosts:

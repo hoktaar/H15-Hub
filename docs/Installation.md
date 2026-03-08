@@ -43,7 +43,7 @@ open http://localhost:8032
 4. **Apply** klicken – Container startet automatisch
 
 > Der Container legt beim ersten Start eine Beispiel-`config.yaml` unter `/mnt/user/appdata/h15hub/config/config.yaml` an.
-> Passe sie dort an deine Umgebung an und starte den Container neu.
+> Du kannst sie dort bearbeiten oder später direkt im Adminbereich speichern. Danach den Container neu starten.
 
 ### Via Unraid Docker UI (manuell)
 
@@ -51,7 +51,7 @@ open http://localhost:8032
 |---|---|
 | Image | `ghcr.io/hoktaar/h15-hub:latest` |
 | Port | `8032` → `8032` |
-| Volume | `/mnt/user/appdata/h15hub/config` → `/app/config` (ro) |
+| Volume | `/mnt/user/appdata/h15hub/config` → `/app/config` (rw) |
 | Volume | `/mnt/user/appdata/h15hub/data` → `/app/data` |
 
 ---

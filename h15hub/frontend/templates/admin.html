@@ -18,7 +18,8 @@
     h1, h2 { font-size:18px; }
     p, .muted { color:var(--muted); font-size:14px; }
     label { display:block; margin:12px 0 6px; font-size:13px; color:var(--muted); }
-    input, select { width:100%; padding:10px 12px; border-radius:8px; border:1px solid var(--border); background:var(--surface-alt); color:var(--text); }
+    input, select, textarea { width:100%; padding:10px 12px; border-radius:8px; border:1px solid var(--border); background:var(--surface-alt); color:var(--text); }
+    textarea { min-height:320px; resize:vertical; font-family:"SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace; }
     .row { display:grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap:12px; }
     .actions { display:flex; gap:10px; align-items:center; flex-wrap:wrap; margin-top:14px; }
     button.primary, button.secondary, button.danger { border-radius:8px; padding:10px 14px; cursor:pointer; }
@@ -58,6 +59,14 @@
       <div class="actions muted">
         <span id="current-user-summary">Lade aktuelle Benutzerdaten…</span>
       </div>
+    </section>
+    <section class="panel">
+      <div class="card-head"><h2>Systemkonfiguration</h2><span id="config-path" class="badge">Lade…</span></div>
+      <p class="muted">Bearbeite hier die <code>config.yaml</code>. Änderungen werden nach einem Container-Neustart wirksam.</p>
+      <label for="config-editor">config.yaml</label>
+      <textarea id="config-editor" spellcheck="false">Lade Konfiguration…</textarea>
+      <div class="actions"><button class="secondary" type="button" onclick="saveConfig()">Konfiguration speichern</button></div>
+      <div id="config-message" class="message"></div>
     </section>
     <div class="grid">
       <section class="panel">
@@ -144,6 +153,19 @@
       document.getElementById('current-user-summary').textContent = `${data.display_name} ist angemeldet. Rechte: ${data.permissions.join(', ')}`;
     }
 
+    async function loadConfig() {
+      const res = await fetch('/api/admin/config');
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        document.getElementById('config-path').textContent = 'Fehler';
+        setMessage('config-message', data.detail || 'Konfiguration konnte nicht geladen werden.', 'error');
+        return;
+      }
+      document.getElementById('config-path').textContent = data.path;
+      document.getElementById('config-editor').value = data.content;
+      setMessage('config-message', 'Konfiguration geladen. Änderungen werden nach Neustart aktiv.', 'success');
+    }
+
     async function loadUsers() {
       const res = await fetch('/api/admin/users');
       users = res.ok ? await res.json() : [];
@@ -216,6 +238,19 @@
       await loadGroups();
     }
 
+    async function saveConfig() {
+      const res = await fetch('/api/admin/config', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ content: document.getElementById('config-editor').value }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) { setMessage('config-message', data.detail || 'Konfiguration konnte nicht gespeichert werden.', 'error'); return; }
+      document.getElementById('config-path').textContent = data.path;
+      document.getElementById('config-editor').value = data.content;
+      setMessage('config-message', 'Konfiguration gespeichert. Bitte den Container neu starten.', 'success');
+    }
+
     async function deleteGroup(groupId) {
       if (!confirm('Gruppe inklusive Karten wirklich löschen?')) return;
       const res = await fetch(`/api/admin/groups/${groupId}`, { method: 'DELETE' });
@@ -228,7 +263,7 @@
       location.href = '/login';
     }
 
-    Promise.all([loadMe(), loadUsers(), loadGroups()]);
+    Promise.all([loadMe(), loadConfig(), loadUsers(), loadGroups()]);
   </script>
 </body>
 </html>
