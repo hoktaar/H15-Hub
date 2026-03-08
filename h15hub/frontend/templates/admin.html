@@ -252,7 +252,7 @@
     }
 
     async function deleteGroup(groupId) {
-      if (!confirm('Gruppe inklusive Karten wirklich löschen?')) return;
+      if (!confirm('Gruppe inklusive Projekte und Karten wirklich löschen?')) return;
       const res = await fetch(`/api/admin/groups/${groupId}`, { method: 'DELETE' });
       if (!res.ok) { alert('Gruppe konnte nicht gelöscht werden.'); return; }
       await loadGroups();

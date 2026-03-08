@@ -180,21 +180,35 @@ async def bookings_page(request: Request, db: AsyncSession = Depends(get_db)) ->
 @app.get("/boards", response_class=HTMLResponse)
 async def boards_page(
     request: Request,
-    group_id: int | None = None,
+    project_id: int | None = None,
     db: AsyncSession = Depends(get_db),
 ) -> HTMLResponse:
-    from h15hub.models.board import BoardGroup
+    from h15hub.models.board import BoardGroup, BoardProject
 
     current_user = await ensure_page_user(request, db)
     if isinstance(current_user, RedirectResponse):
         return current_user
 
-    result = await db.execute(select(BoardGroup).order_by(BoardGroup.name))
-    groups = list(result.scalars().all())
+    group_result = await db.execute(select(BoardGroup).order_by(BoardGroup.name))
+    groups = list(group_result.scalars().all())
+    project_result = await db.execute(
+        select(BoardProject, BoardGroup)
+        .join(BoardGroup, BoardProject.group_id == BoardGroup.id)
+        .order_by(BoardGroup.name, BoardProject.name, BoardProject.id)
+    )
+    projects = [
+        {
+            "id": project.id,
+            "name": project.name,
+            "group_id": group.id,
+            "group_name": group.name,
+        }
+        for project, group in project_result.all()
+    ]
 
-    selected_group = next((group for group in groups if group.id == group_id), None)
-    if not selected_group and groups:
-        selected_group = groups[0]
+    selected_project = next((project for project in projects if project["id"] == project_id), None)
+    if not selected_project and projects:
+        selected_project = projects[0]
 
     groups_payload = [{"id": group.id, "name": group.name} for group in groups]
 
@@ -204,8 +218,10 @@ async def boards_page(
             **template_context(request, current_user=current_user),
             "groups": groups,
             "groups_payload": groups_payload,
-            "selected_group": selected_group,
-            "selected_group_id": selected_group.id if selected_group else None,
+            "projects": projects,
+            "projects_payload": projects,
+            "selected_project": selected_project,
+            "selected_project_id": selected_project["id"] if selected_project else None,
         },
     )
 

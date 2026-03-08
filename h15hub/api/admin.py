@@ -22,7 +22,7 @@ from h15hub.auth import (
 )
 from h15hub.configuration import read_config_text, save_config_text
 from h15hub.database import get_db
-from h15hub.models.board import BoardCard, BoardGroup
+from h15hub.models.board import BoardCard, BoardGroup, BoardProject
 from h15hub.models.user import User, UserRole
 
 router = APIRouter(tags=["auth", "admin"])
@@ -378,6 +378,8 @@ async def delete_group(
     group = await db.get(BoardGroup, group_id)
     if not group:
         raise HTTPException(status_code=404, detail="Gruppe nicht gefunden")
-    await db.execute(delete(BoardCard).where(BoardCard.group_id == group_id))
+    project_ids = select(BoardProject.id).where(BoardProject.group_id == group_id)
+    await db.execute(delete(BoardCard).where(BoardCard.project_id.in_(project_ids)))
+    await db.execute(delete(BoardProject).where(BoardProject.group_id == group_id))
     await db.delete(group)
     await db.commit()

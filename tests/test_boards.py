@@ -44,7 +44,13 @@ async def board_client(tmp_path):
 
 
 def create_group(client: TestClient, name: str = "Laser-Team") -> dict:
-    response = client.post("/api/boards/groups", json={"name": name})
+    response = client.post("/api/admin/groups", json={"name": name})
+    assert response.status_code == 201
+    return response.json()
+
+
+def create_project(client: TestClient, group_id: int, name: str = "Wartung") -> dict:
+    response = client.post("/api/boards/projects", json={"name": name, "group_id": group_id})
     assert response.status_code == 201
     return response.json()
 
@@ -72,17 +78,25 @@ def test_board_endpoints_require_authentication(tmp_path):
     app.dependency_overrides[get_db] = override_get_db
 
     with TestClient(app) as client:
-        response = client.get("/api/boards/groups")
-        assert response.status_code == 401
+        groups_response = client.get("/api/boards/groups")
+        projects_response = client.get("/api/boards/projects")
+        assert groups_response.status_code == 401
+        assert projects_response.status_code == 401
 
     asyncio.run(engine.dispose())
 
 
-def test_create_group_and_card(board_client):
+def test_groups_cannot_be_created_via_boards_api(board_client):
+    response = board_client.post("/api/boards/groups", json={"name": "Nicht erlaubt"})
+    assert response.status_code == 405
+
+
+def test_create_project_and_card(board_client):
     group = create_group(board_client)
+    project = create_project(board_client, group["id"], "Laser-Wartung")
 
     response = board_client.post(
-        f"/api/boards/{group['id']}/cards",
+        f"/api/boards/projects/{project['id']}/cards",
         json={
             "title": "Spiegel reinigen",
             "description": "Vor der offenen Werkstatt prüfen",
@@ -93,24 +107,36 @@ def test_create_group_and_card(board_client):
 
     assert response.status_code == 201
     data = response.json()
-    assert data["group_id"] == group["id"]
+    assert data["project_id"] == project["id"]
     assert data["title"] == "Spiegel reinigen"
     assert data["position"] == 0
 
-    list_response = board_client.get(f"/api/boards/{group['id']}/cards")
+    projects_response = board_client.get("/api/boards/projects")
+    assert projects_response.status_code == 200
+    assert projects_response.json() == [
+        {
+            "id": project["id"],
+            "name": "Laser-Wartung",
+            "group_id": group["id"],
+            "group_name": group["name"],
+        }
+    ]
+
+    list_response = board_client.get(f"/api/boards/projects/{project['id']}/cards")
     assert list_response.status_code == 200
     assert len(list_response.json()) == 1
 
 
 def test_move_card_within_and_between_columns(board_client):
     group = create_group(board_client, "3D-Druck")
+    project = create_project(board_client, group["id"], "Druckerpflege")
 
     first = board_client.post(
-        f"/api/boards/{group['id']}/cards",
+        f"/api/boards/projects/{project['id']}/cards",
         json={"title": "Düse prüfen", "column": "backlog"},
     ).json()
     second = board_client.post(
-        f"/api/boards/{group['id']}/cards",
+        f"/api/boards/projects/{project['id']}/cards",
         json={"title": "Filament trocknen", "column": "backlog"},
     ).json()
 
@@ -120,7 +146,7 @@ def test_move_card_within_and_between_columns(board_client):
     )
     assert move_same_column.status_code == 200
 
-    cards = board_client.get(f"/api/boards/{group['id']}/cards").json()
+    cards = board_client.get(f"/api/boards/projects/{project['id']}/cards").json()
     backlog_ids = [card["id"] for card in cards if card["column"] == "backlog"]
     assert backlog_ids == [second["id"], first["id"]]
 
@@ -130,7 +156,7 @@ def test_move_card_within_and_between_columns(board_client):
     )
     assert move_other_column.status_code == 200
 
-    cards = board_client.get(f"/api/boards/{group['id']}/cards").json()
+    cards = board_client.get(f"/api/boards/projects/{project['id']}/cards").json()
     backlog_positions = [(card["id"], card["position"]) for card in cards if card["column"] == "backlog"]
     done_positions = [(card["id"], card["position"]) for card in cards if card["column"] == "done"]
     assert backlog_positions == [(second["id"], 0)]
@@ -139,24 +165,25 @@ def test_move_card_within_and_between_columns(board_client):
 
 def test_delete_card_reorders_remaining_cards(board_client):
     group = create_group(board_client, "Elektronik")
+    project = create_project(board_client, group["id"], "Arbeitsplatzpflege")
 
     first = board_client.post(
-        f"/api/boards/{group['id']}/cards",
+        f"/api/boards/projects/{project['id']}/cards",
         json={"title": "Lötstation aufräumen", "column": "in_progress"},
     ).json()
     second = board_client.post(
-        f"/api/boards/{group['id']}/cards",
+        f"/api/boards/projects/{project['id']}/cards",
         json={"title": "Bauteile nachfüllen", "column": "in_progress"},
     ).json()
 
     delete_response = board_client.delete(f"/api/boards/cards/{first['id']}")
     assert delete_response.status_code == 204
 
-    cards = board_client.get(f"/api/boards/{group['id']}/cards").json()
+    cards = board_client.get(f"/api/boards/projects/{project['id']}/cards").json()
     assert cards == [
         {
             "id": second["id"],
-            "group_id": group["id"],
+            "project_id": project["id"],
             "title": "Bauteile nachfüllen",
             "description": None,
             "assignee": None,
@@ -164,3 +191,24 @@ def test_delete_card_reorders_remaining_cards(board_client):
             "position": 0,
         }
     ]
+
+
+def test_deleting_group_removes_associated_projects_and_cards(board_client):
+    group = create_group(board_client, "Holzwerkstatt")
+    project = create_project(board_client, group["id"], "Frühjahrsputz")
+
+    card_response = board_client.post(
+        f"/api/boards/projects/{project['id']}/cards",
+        json={"title": "Werkbank reinigen", "column": "backlog"},
+    )
+    assert card_response.status_code == 201
+
+    delete_group_response = board_client.delete(f"/api/admin/groups/{group['id']}")
+    assert delete_group_response.status_code == 204
+
+    projects_response = board_client.get("/api/boards/projects")
+    assert projects_response.status_code == 200
+    assert projects_response.json() == []
+
+    cards_response = board_client.get(f"/api/boards/projects/{project['id']}/cards")
+    assert cards_response.status_code == 404
