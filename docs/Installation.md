@@ -42,6 +42,12 @@ open http://localhost:8032
    - **Bambuddy IP**: z.B. `192.168.1.20`
 4. **Apply** klicken – Container startet automatisch
 
+Template direkt per Shell aktualisieren:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/hoktaar/H15-Hub/main/unraid/h15hub.xml -o /boot/config/plugins/dockerMan/templates-user/h15hub.xml
+```
+
 > Der Container legt beim ersten Start eine Beispiel-`config.yaml` unter `/mnt/user/appdata/h15hub/config/config.yaml` an.
 > Du kannst sie dort bearbeiten oder später direkt im Adminbereich speichern. Danach den Container neu starten.
 
@@ -53,6 +59,12 @@ open http://localhost:8032
 | Port | `8032` → `8032` |
 | Volume | `/mnt/user/appdata/h15hub/config` → `/app/config` (rw) |
 | Volume | `/mnt/user/appdata/h15hub/data` → `/app/data` |
+
+Pfad für das manuell aktualisierte Unraid-Template:
+
+```bash
+/boot/config/plugins/dockerMan/templates-user/h15hub.xml
+```
 
 ---
 

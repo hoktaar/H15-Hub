@@ -70,6 +70,12 @@ Image-Tag: ghcr.io/hoktaar/h15-hub:latest
 Siehe Installation-Seite fuer den vollstaendigen Unraid-Guide.
 Mit dem Docker Auto-Update Plugin wird das Image automatisch aktualisiert.
 
+Das Unraid-Template kann per Shell direkt aus GitHub aktualisiert werden:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/hoktaar/H15-Hub/main/unraid/h15hub.xml -o /boot/config/plugins/dockerMan/templates-user/h15hub.xml
+```
+
 ---
 
 ## Updates

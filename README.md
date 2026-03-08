@@ -79,6 +79,12 @@ Danach gilt:
 3. Pfade und IPs anpassen
 4. Container starten und anschließend `http://UNRAID-IP:8032` öffnen
 
+Falls du das Unraid-Template manuell aus GitHub aktualisieren willst:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/hoktaar/H15-Hub/main/unraid/h15hub.xml -o /boot/config/plugins/dockerMan/templates-user/h15hub.xml
+```
+
 ### Option B: Manuell via docker-compose
 
 ```bash
@@ -106,6 +112,12 @@ Port:     8032 → 8032
 Volume:   /mnt/user/appdata/h15hub/config → /app/config (rw)
 Volume:   /mnt/user/appdata/h15hub/data        → /app/data
 Extra:    --add-host homeassistant:192.168.1.10 --add-host bambuddy:192.168.1.20
+```
+
+Template per Shell aktualisieren:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/hoktaar/H15-Hub/main/unraid/h15hub.xml -o /boot/config/plugins/dockerMan/templates-user/h15hub.xml
 ```
 
 ## Entwicklung
