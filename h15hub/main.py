@@ -33,8 +33,8 @@ templates = Jinja2Templates(
 )
 
 
-def template_context(request: Request, **extra: object) -> dict[str, object]:
-    return {"request": request, **extra}
+def template_context(**extra: object) -> dict[str, object]:
+    return {**extra}
 
 
 @asynccontextmanager
@@ -103,10 +103,7 @@ async def setup_page(request: Request, db: AsyncSession = Depends(get_db)) -> HT
             return RedirectResponse(url=target, status_code=303)
         return RedirectResponse(url="/login", status_code=303)
 
-    return templates.TemplateResponse(
-        "setup.html",
-        template_context(request, next_path=next_path),
-    )
+    return templates.TemplateResponse(request, "setup.html", template_context(next_path=next_path))
 
 
 @app.get("/login", response_class=HTMLResponse)
@@ -120,10 +117,7 @@ async def login_page(request: Request, db: AsyncSession = Depends(get_db)) -> HT
         target = "/admin" if current_user.role == UserRole.ADMIN else "/"
         return RedirectResponse(url=target, status_code=303)
 
-    return templates.TemplateResponse(
-        "login.html",
-        template_context(request, next_path=next_path),
-    )
+    return templates.TemplateResponse(request, "login.html", template_context(next_path=next_path))
 
 
 @app.get("/admin", response_class=HTMLResponse)
@@ -164,10 +158,7 @@ async def admin_page(request: Request, db: AsyncSession = Depends(get_db)) -> HT
     except Exception:
         pass  # Wizard zeigt leere Liste, Nutzer kann manuell eingeben
 
-    return templates.TemplateResponse(
-        "admin.html",
-        template_context(request, current_user=current_user, ha_entities=ha_entities),
-    )
+    return templates.TemplateResponse(request, "admin.html", template_context(current_user=current_user, ha_entities=ha_entities))
 
 
 @app.get("/", response_class=HTMLResponse)
@@ -176,10 +167,7 @@ async def dashboard(request: Request, db: AsyncSession = Depends(get_db)) -> HTM
     if isinstance(current_user, RedirectResponse):
         return current_user
 
-    return templates.TemplateResponse(
-        "index.html",
-        template_context(request, current_user=current_user),
-    )
+    return templates.TemplateResponse(request, "index.html", template_context(current_user=current_user))
 
 
 @app.get("/device/{device_id}", response_class=HTMLResponse)
@@ -196,10 +184,7 @@ async def device_detail(request: Request, device_id: str, db: AsyncSession = Dep
     device = registry.get(device_id)
     if not device:
         return HTMLResponse("Gerät nicht gefunden", status_code=404)
-    return templates.TemplateResponse(
-        "device.html",
-        template_context(request, current_user=current_user, device=device),
-    )
+    return templates.TemplateResponse(request, "device.html", template_context(current_user=current_user, device=device))
 
 
 @app.get("/labeldesigner", response_class=HTMLResponse)
@@ -207,10 +192,7 @@ async def labeldesigner_page(request: Request, db: AsyncSession = Depends(get_db
     current_user = await ensure_page_user(request, db)
     if isinstance(current_user, RedirectResponse):
         return current_user
-    return templates.TemplateResponse(
-        "labeldesigner.html",
-        template_context(request, current_user=current_user),
-    )
+    return templates.TemplateResponse(request, "labeldesigner.html", template_context(current_user=current_user))
 
 
 @app.get("/bookings", response_class=HTMLResponse)
@@ -231,10 +213,7 @@ async def bookings_page(request: Request, db: AsyncSession = Depends(get_db)) ->
     )
     bookings = list(result.scalars().all())
 
-    return templates.TemplateResponse(
-        "bookings.html",
-        template_context(request, current_user=current_user, devices=devices, bookings=bookings),
-    )
+    return templates.TemplateResponse(request, "bookings.html", template_context(current_user=current_user, devices=devices, bookings=bookings))
 
 
 @app.get("/boards", response_class=HTMLResponse)
@@ -272,18 +251,15 @@ async def boards_page(
 
     groups_payload = [{"id": group.id, "name": group.name} for group in groups]
 
-    return templates.TemplateResponse(
-        "boards.html",
-        {
-            **template_context(request, current_user=current_user),
-            "groups": groups,
-            "groups_payload": groups_payload,
-            "projects": projects,
-            "projects_payload": projects,
-            "selected_project": selected_project,
-            "selected_project_id": selected_project["id"] if selected_project else None,
-        },
-    )
+    return templates.TemplateResponse(request, "boards.html", template_context(
+        current_user=current_user,
+        groups=groups,
+        groups_payload=groups_payload,
+        projects=projects,
+        projects_payload=projects,
+        selected_project=selected_project,
+        selected_project_id=selected_project["id"] if selected_project else None,
+    ))
 
 
 @app.get("/health")
