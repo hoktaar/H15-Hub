@@ -10,10 +10,10 @@ services:
       - H15HUB_CONFIG=/app/config.yaml
       - H15HUB_DB_URL=sqlite+aiosqlite:////app/data/h15hub.db
     restart: unless-stopped
-    devices:
-      - /dev/usb/lp0:/dev/usb/lp0
-      - /dev/sda:/dev/sda
-      - /dev/sda1:/dev/sda1
+    # devices:  # Auskommentiert wenn Geräte nicht angeschlossen
+    #   - /dev/usb/lp0:/dev/usb/lp0
+    #   - /dev/sda:/dev/sda
+    #   - /dev/sda1:/dev/sda1
     extra_hosts:
       # Lokale Dienste im Heimnetz erreichbar machen
       - "homeassistant:192.168.1.10"
