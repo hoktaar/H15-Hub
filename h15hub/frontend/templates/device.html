@@ -5,76 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>{{ device.name }} – H15-Hub</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90' fill='%23f0a020'>⚙</text></svg>">
+  <link rel="stylesheet" href="/static/base.css">
   <style>
-    :root {
-      color-scheme: dark;
-      --bg:        #0d0b08;
-      --surface:   #161310;
-      --surf2:     #1d1a15;
-      --border:    #2e2519;
-      --border2:   #4a3c28;
-      --text:      #ede8dd;
-      --muted:     #887a64;
-      --dim:       #524638;
-      --amber:     #f0a020;
-      --green:     #5ecc80;
-      --red:       #e84040;
-      --yellow:    #f0c040;
-      --accent:        var(--amber);
-      --success:       var(--green);
-      --danger:        var(--red);
-      --warning:       var(--yellow);
-      --surface-alt:   var(--surf2);
-      --border-strong: var(--border2);
-    }
-
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-
-    body {
-      font-family: 'JetBrains Mono', 'Courier New', monospace;
-      background: var(--bg);
-      color: var(--text);
-      min-height: 100vh;
-      font-size: 13px;
-    }
-
-    header {
-      border-bottom: 1px solid var(--border2);
-      padding: 0 28px;
-      height: 56px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-    }
-
-    .logo { display: flex; align-items: baseline; gap: 10px; }
-    .logo-mark { font-family: 'Bebas Neue', sans-serif; font-size: 30px; letter-spacing: 0.06em; color: var(--amber); line-height: 1; }
-    .logo-sub { font-size: 9px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.2em; }
-
-    nav {
-      border-bottom: 1px solid var(--border);
-      padding: 0 28px;
-      display: flex;
-    }
-
-    nav a {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 10px;
-      color: var(--muted);
-      text-decoration: none;
-      text-transform: uppercase;
-      letter-spacing: 0.15em;
-      padding: 13px 16px;
-      border-bottom: 2px solid transparent;
-      transition: color 120ms, border-color 120ms;
-    }
-
-    nav a:hover { color: var(--text); }
-    nav a.active { color: var(--amber); border-bottom-color: var(--amber); }
-
     main {
       max-width: 980px;
       margin: 0 auto;
@@ -122,10 +55,10 @@
       border: 1px solid var(--border);
     }
 
-    .status-badge.free    { background: #152017; color: var(--green);  border-color: #2a4030; }
-    .status-badge.in_use  { background: #1e1a0e; color: var(--yellow); border-color: #3a3015; }
+    .status-badge.free    { background: var(--status-free-bg);  color: var(--green);  border-color: var(--status-free-border); }
+    .status-badge.in_use  { background: var(--status-inuse-bg); color: var(--yellow); border-color: var(--status-inuse-border); }
     .status-badge.offline { background: var(--surf2); color: var(--dim); border-color: var(--border); }
-    .status-badge.error   { background: #1e1010; color: var(--red);    border-color: #4a2020; }
+    .status-badge.error   { background: var(--status-error-bg); color: var(--red);    border-color: var(--status-error-border); }
 
     .dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
 
@@ -232,7 +165,6 @@
     }
 
     input:focus, textarea:focus, select:focus {
-      outline: none;
       border-color: var(--amber);
     }
 
@@ -334,7 +266,7 @@
       line-height: 1.5;
     }
 
-    .ld-textarea:focus { outline: none; border-color: var(--amber); }
+    .ld-textarea:focus { border-color: var(--amber); }
 
     /* Preview box */
     .ld-preview-box {
@@ -438,7 +370,7 @@
       font-family: 'JetBrains Mono', monospace;
     }
 
-    .ld-sel:focus { outline: none; border-color: var(--amber); }
+    .ld-sel:focus { border-color: var(--amber); }
 
     .ld-main { display: flex; flex-direction: column; gap: 0; }
 
@@ -1246,6 +1178,18 @@
       refreshCamera();
       setInterval(refreshCamera, 5000);
     }
+  </script>
+  <div id="toast-container"></div>
+  <script>
+  function showToast(msg, type = 'info') {
+    const c = document.getElementById('toast-container');
+    if (!c) return;
+    const t = document.createElement('div');
+    t.className = 'toast' + (type === 'error' ? ' toast-error' : type === 'success' ? ' toast-success' : '');
+    t.textContent = msg;
+    c.appendChild(t);
+    setTimeout(() => t.remove(), 4000);
+  }
   </script>
 </body>
 </html>

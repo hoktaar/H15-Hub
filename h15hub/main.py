@@ -5,6 +5,7 @@ from contextlib import asynccontextmanager
 from fastapi import Depends, FastAPI, Request
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
+from starlette.staticfiles import StaticFiles
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from starlette.middleware.sessions import SessionMiddleware
@@ -81,6 +82,7 @@ app = FastAPI(
     lifespan=lifespan,
 )
 app.add_middleware(SessionMiddleware, secret_key=SESSION_SECRET, same_site="lax")
+app.mount("/static", StaticFiles(directory=os.path.join(os.path.dirname(__file__), "frontend", "static")), name="static")
 
 app.include_router(admin_router)
 app.include_router(make_device_router())

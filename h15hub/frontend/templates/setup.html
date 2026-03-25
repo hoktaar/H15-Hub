@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Setup – H15-Hub</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90' fill='%23f0a020'>⚙</text></svg>">
   <style>
     :root { color-scheme: dark; --bg:#19191d; --surface:#232329; --border:#36363f; --text:#ececf1; --muted:#a2a2ad; --accent:#e94560; --danger:#ff9aa8; }
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -13,7 +14,7 @@
     p { color: var(--muted); font-size: 14px; margin-bottom: 18px; }
     label { display: block; margin: 14px 0 6px; font-size: 13px; color: var(--muted); }
     input { width: 100%; border: 1px solid var(--border); border-radius: 8px; background: #1d1d22; color: var(--text); padding: 11px 12px; }
-    input:focus { outline: none; border-color: var(--accent); }
+    input:focus { border-color: var(--accent); }
     button { width: 100%; margin-top: 18px; border: 1px solid var(--accent); border-radius: 8px; background: var(--accent); color: #fff; padding: 11px 14px; cursor: pointer; }
     .message { min-height: 20px; margin-top: 14px; font-size: 14px; }
     .message.error { color: var(--danger); }
@@ -60,6 +61,19 @@
       }
       location.href = data.redirect_to || '/admin';
     });
+  </script>
+  <div id="toast-container" style="position:fixed;bottom:24px;right:24px;z-index:9999;display:flex;flex-direction:column;gap:8px;pointer-events:none"></div>
+  <script>
+  function showToast(msg, type = 'info') {
+    const c = document.getElementById('toast-container');
+    if (!c) return;
+    const t = document.createElement('div');
+    t.style.cssText = 'background:#232329;border:1px solid #36363f;border-left:3px solid #e94560;border-radius:8px;padding:10px 14px;font-size:12px;color:#ececf1;min-width:240px;max-width:360px;pointer-events:auto;font-family:system-ui,sans-serif';
+    if (type === 'success') t.style.borderLeftColor = '#5ecc80';
+    t.textContent = msg;
+    c.appendChild(t);
+    setTimeout(() => t.remove(), 4000);
+  }
   </script>
 </body>
 </html>

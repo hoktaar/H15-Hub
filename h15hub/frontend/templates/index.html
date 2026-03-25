@@ -3,86 +3,10 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>H15-Hub</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <title>Dashboard – H15-Hub</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90' fill='%23f0a020'>⚙</text></svg>">
+  <link rel="stylesheet" href="/static/base.css">
   <style>
-    :root {
-      color-scheme: dark;
-      --bg:        #0d0b08;
-      --surface:   #161310;
-      --surf2:     #1d1a15;
-      --border:    #2e2519;
-      --border2:   #4a3c28;
-      --text:      #ede8dd;
-      --muted:     #887a64;
-      --dim:       #524638;
-      --amber:     #f0a020;
-      --green:     #5ecc80;
-      --red:       #e84040;
-      --yellow:    #f0c040;
-      --accent:        var(--amber);
-      --success:       var(--green);
-      --danger:        var(--red);
-      --warning:       var(--yellow);
-      --surface-alt:   var(--surf2);
-      --border-strong: var(--border2);
-    }
-
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-
-    body {
-      font-family: 'JetBrains Mono', 'Courier New', monospace;
-      background: var(--bg);
-      color: var(--text);
-      min-height: 100vh;
-      font-size: 13px;
-    }
-
-    header {
-      border-bottom: 1px solid var(--border2);
-      padding: 0 28px;
-      height: 56px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-    }
-
-    .logo { display: flex; align-items: baseline; gap: 10px; }
-    .logo-mark { font-family: 'Bebas Neue', sans-serif; font-size: 30px; letter-spacing: 0.06em; color: var(--amber); line-height: 1; }
-    .logo-sub { font-size: 9px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.2em; }
-
-    #ws-status {
-      font-size: 10px;
-      color: var(--muted);
-      text-transform: uppercase;
-      letter-spacing: 0.15em;
-    }
-
-    #ws-status.connected { color: var(--green); }
-
-    nav {
-      border-bottom: 1px solid var(--border);
-      padding: 0 28px;
-      display: flex;
-    }
-
-    nav a {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 10px;
-      color: var(--muted);
-      text-decoration: none;
-      text-transform: uppercase;
-      letter-spacing: 0.15em;
-      padding: 13px 16px;
-      border-bottom: 2px solid transparent;
-      transition: color 120ms, border-color 120ms;
-    }
-
-    nav a:hover { color: var(--text); }
-    nav a.active { color: var(--amber); border-bottom-color: var(--amber); }
-
     main {
       max-width: 1380px;
       margin: 0 auto;
@@ -111,25 +35,36 @@
       gap: 14px;
     }
 
-    @keyframes in-use-pulse {
-      0%,100% { box-shadow: -3px 0 6px rgba(240,160,32,0); }
-      50%      { box-shadow: -3px 0 18px rgba(240,160,32,0.4); }
-    }
-
     .card {
       background: var(--surface);
       border: 1px solid var(--border);
       border-left: 3px solid var(--dim);
       border-radius: 2px;
       padding: 16px;
-      cursor: pointer;
+      text-decoration: none;
+      color: inherit;
+      display: block;
       transition: background-color 150ms ease, border-color 150ms ease;
+      position: relative;
     }
 
     .card:hover { background: var(--surf2); }
 
     .card.free    { border-left-color: var(--green); }
-    .card.in_use  { border-left-color: var(--amber); animation: in-use-pulse 2.5s ease-in-out infinite; }
+    .card.in_use { border-left-color: var(--amber); }
+    .card.in_use::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      box-shadow: -3px 0 18px rgba(240,160,32,0.4);
+      animation: in-use-pulse 2.5s ease-in-out infinite;
+      border-radius: 2px;
+    }
+    @keyframes in-use-pulse {
+      0%,100% { opacity: 0; }
+      50%      { opacity: 1; }
+    }
     .card.error   { border-left-color: var(--red); }
 
     .card-header {
@@ -187,7 +122,10 @@
     .progress-fill {
       height: 100%;
       background: var(--amber);
-      transition: width 500ms ease;
+      transform-origin: left center;
+      transform: scaleX(var(--progress, 0));
+      transition: transform 500ms ease;
+      width: 100%;
     }
 
     .empty {
@@ -250,63 +188,6 @@
       border-top: 1px solid var(--border);
     }
 
-    .btn-cta {
-      flex: 1;
-      padding: 8px 10px;
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 10px;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.1em;
-      border-radius: 2px;
-      border: 1px solid var(--amber);
-      background: var(--amber);
-      color: #0d0b08;
-      cursor: pointer;
-      transition: background 120ms, border-color 120ms;
-      text-align: center;
-      text-decoration: none;
-      display: inline-block;
-    }
-
-    .btn-cta:hover { background: #d4911a; border-color: #d4911a; }
-
-    .btn-cta-sec {
-      padding: 8px 10px;
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 10px;
-      text-transform: uppercase;
-      letter-spacing: 0.1em;
-      border-radius: 2px;
-      border: 1px solid var(--border2);
-      background: transparent;
-      color: var(--muted);
-      cursor: pointer;
-      transition: color 120ms, border-color 120ms;
-      text-decoration: none;
-      display: inline-block;
-    }
-
-    .btn-cta-sec:hover { color: var(--text); border-color: var(--text); }
-
-    .btn-plug {
-      padding: 8px 10px;
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 10px;
-      font-weight: 600;
-      letter-spacing: 0.08em;
-      border-radius: 2px;
-      border: 1px solid var(--border2);
-      background: transparent;
-      color: var(--dim);
-      cursor: pointer;
-      transition: color 120ms, border-color 120ms, background 120ms;
-    }
-
-    .btn-plug:hover { color: var(--text); border-color: var(--text); }
-    .btn-plug.plug-on { color: var(--green); border-color: #2a5030; background: rgba(94,204,128,0.06); }
-    .btn-plug.plug-on:hover { background: rgba(94,204,128,0.14); }
-
     @media (max-width: 760px) {
       main { padding: 16px; }
       .page-header { align-items: flex-start; flex-direction: column; }
@@ -338,6 +219,18 @@
     </div>
   </main>
 
+  <div id="toast-container"></div>
+  <script>
+  function showToast(msg, type = 'info') {
+    const c = document.getElementById('toast-container');
+    if (!c) return;
+    const t = document.createElement('div');
+    t.className = 'toast' + (type === 'error' ? ' toast-error' : type === 'success' ? ' toast-success' : '');
+    t.textContent = msg;
+    c.appendChild(t);
+    setTimeout(() => t.remove(), 4000);
+  }
+  </script>
   <script>
     const statusLabel = { free: 'Frei', in_use: 'In Benutzung', offline: 'Offline', error: 'Fehler' };
     const typeLabel = { '3d_printer': '3D-Drucker', lasercutter: 'Lasercutter', printer: 'Drucker', sensor: 'Sensor' };
@@ -365,7 +258,7 @@
       const grid = document.getElementById('device-grid');
       if (!devices.length) { grid.innerHTML = '<div class="empty">Keine Geräte gefunden.</div>'; return; }
       grid.innerHTML = devices.map(d => `
-        <div class="card ${d.status}" onclick="location.href='/device/${d.id}'">
+        <a class="card ${d.status}" href="/device/${d.id}">
           <div class="card-header">
             <div class="status-dot ${d.status}"></div>
             <div>
@@ -376,7 +269,7 @@
           <div class="card-status ${d.status}">${statusLabel[d.status] || d.status}</div>
           ${d.current_user ? `<div class="card-user">${d.current_user}</div>` : ''}
           ${d.progress !== null && d.progress !== undefined ? `
-            <div class="progress-bar"><div class="progress-fill" style="width:${d.progress}%"></div></div>
+            <div class="progress-bar"><div class="progress-fill" style="--progress:${d.progress / 100}"></div></div>
             <div class="progress-text">${d.progress}%${d.eta_minutes ? ` · noch ca. ${d.eta_minutes} Min.` : ''}</div>
           ` : ''}
           ${d.type === 'printer' && d.raw?.toner ? renderToner(d.raw.toner) : ''}
@@ -391,17 +284,17 @@
             ${d.type === '3d_printer' && d.raw?.plug_on !== undefined && d.raw?.plug_on !== null
               ? `<button class="btn-plug${d.raw.plug_on ? ' plug-on' : ''}"
                    title="${d.raw.plug_on ? 'Steckdose ausschalten' : 'Steckdose einschalten'}"
-                   onclick="togglePlug('${d.id}', ${d.raw.plug_on})">
+                   onclick="event.preventDefault(); event.stopPropagation(); togglePlug('${d.id}', ${d.raw.plug_on})">
                    ${d.raw.plug_on ? '⏻ AN' : '⏻ AUS'}
                  </button>`
               : ''
             }
             ${d.type === '3d_printer' && d.raw?.bambuddy_url
-              ? `<a class="btn-cta-sec" href="${d.raw.bambuddy_url}" target="_blank" rel="noopener">Bambuddy</a>`
+              ? `<a class="btn-cta-sec" href="${d.raw.bambuddy_url}" target="_blank" rel="noopener" onclick="event.stopPropagation()">Bambuddy</a>`
               : ''
             }
           </div>
-        </div>
+        </a>
       `).join('');
     }
 
@@ -415,10 +308,10 @@
         });
         if (!res.ok) {
           const err = await res.json().catch(() => ({}));
-          alert(err.detail || 'Fehler beim Schalten.');
+          showToast(err.detail || 'Fehler beim Schalten.', 'error');
         }
       } catch (e) {
-        alert('Netzwerkfehler: ' + e.message);
+        showToast('Netzwerkfehler: ' + e.message, 'error');
       }
     }
 

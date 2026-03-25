@@ -1,0 +1,221 @@
+/* H15-Hub Base Styles */
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=JetBrains+Mono:wght@400;600&display=swap');
+
+:root {
+  color-scheme: dark;
+  --bg:        #0d0b08;
+  --surface:   #161310;
+  --surf2:     #1d1a15;
+  --border:    #2e2519;
+  --border2:   #4a3c28;
+  --text:      #ede8dd;
+  --muted:     #887a64;
+  --dim:       #524638;
+  --amber:     #f0a020;
+  --amber-hover: #d4911a;
+  --green:     #5ecc80;
+  --red:       #e84040;
+  --yellow:    #f0c040;
+  --accent:        var(--amber);
+  --success:       var(--green);
+  --danger:        var(--red);
+  --warning:       var(--yellow);
+  --surface-alt:   var(--surf2);
+  --border-strong: var(--border2);
+  /* Status bg tokens */
+  --status-free-bg:    #152017;
+  --status-free-border: #2a4030;
+  --status-inuse-bg:   #1e1a0e;
+  --status-inuse-border: #3a3015;
+  --status-error-bg:   #1e1010;
+  --status-error-border: #4a2020;
+  --green-subtle: rgba(94,204,128,0.06);
+  --green-subtle-hover: rgba(94,204,128,0.14);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'JetBrains Mono', 'Courier New', monospace;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  font-size: 13px;
+}
+
+button, input, select, textarea { font: inherit; }
+
+/* Focus visible - accessible focus ring using amber */
+:focus-visible {
+  outline: 2px solid var(--amber);
+  outline-offset: 2px;
+}
+
+/* Remove outline on mouse click (not keyboard) */
+:focus:not(:focus-visible) {
+  outline: none;
+}
+
+/* ── Header ── */
+header {
+  border-bottom: 1px solid var(--border2);
+  padding: 0 28px;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.logo { display: flex; align-items: baseline; gap: 10px; }
+.logo-mark { font-family: 'Bebas Neue', sans-serif; font-size: 30px; letter-spacing: 0.06em; color: var(--amber); line-height: 1; text-decoration: none; }
+.logo-sub { font-size: 9px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.2em; }
+
+/* ── Nav ── */
+nav {
+  border-bottom: 1px solid var(--border);
+  padding: 0 28px;
+  display: flex;
+  align-items: center;
+}
+
+nav a, nav button {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  color: var(--muted);
+  text-decoration: none;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  padding: 13px 16px;
+  border: none;
+  border-bottom: 2px solid transparent;
+  background: none;
+  cursor: pointer;
+  transition: color 120ms, border-color 120ms;
+  line-height: 1;
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+}
+
+nav a:hover, nav button:hover { color: var(--text); }
+nav a.active { color: var(--amber); border-bottom-color: var(--amber); }
+nav button.nav-danger:hover { color: var(--red); }
+
+/* ── Buttons ── */
+.btn-cta {
+  min-height: 44px;
+  padding: 10px 14px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  border-radius: 2px;
+  border: 1px solid var(--amber);
+  background: var(--amber);
+  color: var(--bg);
+  cursor: pointer;
+  transition: background 120ms, border-color 120ms;
+  text-align: center;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+}
+
+.btn-cta:hover { background: var(--amber-hover); border-color: var(--amber-hover); }
+
+.btn-cta-sec {
+  min-height: 44px;
+  padding: 10px 14px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  border-radius: 2px;
+  border: 1px solid var(--border2);
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+  transition: color 120ms, border-color 120ms;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-cta-sec:hover { color: var(--text); border-color: var(--text); }
+
+.btn-plug {
+  min-height: 44px;
+  padding: 10px 14px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  border-radius: 2px;
+  border: 1px solid var(--border2);
+  background: transparent;
+  color: var(--dim);
+  cursor: pointer;
+  transition: color 120ms, border-color 120ms, background 120ms;
+  display: inline-flex;
+  align-items: center;
+}
+
+.btn-plug:hover { color: var(--text); border-color: var(--text); }
+.btn-plug.plug-on { color: var(--green); border-color: var(--status-free-border); background: var(--green-subtle); }
+.btn-plug.plug-on:hover { background: var(--green-subtle-hover); }
+
+/* ── Toast notifications ── */
+#toast-container {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  pointer-events: none;
+}
+
+.toast {
+  background: var(--surface);
+  border: 1px solid var(--border2);
+  border-left: 3px solid var(--amber);
+  border-radius: 2px;
+  padding: 10px 14px;
+  font-size: 12px;
+  color: var(--text);
+  min-width: 240px;
+  max-width: 360px;
+  pointer-events: auto;
+  animation: toast-in 150ms ease-out;
+}
+
+.toast.toast-error { border-left-color: var(--red); }
+.toast.toast-success { border-left-color: var(--green); }
+
+@keyframes toast-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ── WebSocket status ── */
+#ws-status {
+  font-size: 10px;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+}
+#ws-status.connected { color: var(--green); }
+
+/* ── Header right area ── */
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 11px;
+  color: var(--muted);
+}
