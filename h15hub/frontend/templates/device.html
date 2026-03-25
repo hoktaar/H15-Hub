@@ -1188,7 +1188,7 @@
     t.className = 'toast' + (type === 'error' ? ' toast-error' : type === 'success' ? ' toast-success' : '');
     t.textContent = msg;
     c.appendChild(t);
-    setTimeout(() => t.remove(), 4000);
+    setTimeout(() => { t.classList.add('toast-exit'); setTimeout(() => t.remove(), 150); }, 3800);
   }
   </script>
 </body>

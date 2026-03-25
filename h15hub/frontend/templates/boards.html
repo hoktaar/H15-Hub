@@ -354,10 +354,16 @@
       gap: 6px;
     }
 
+    @keyframes drop-zone-pulse {
+      0%,100% { background: rgba(240,160,32,0.04); }
+      50%      { background: rgba(240,160,32,0.09); }
+    }
+
     .column-body.drag-over {
-      background: rgba(240,160,32,0.04);
-      outline: 1px solid rgba(240,160,32,0.3);
+      animation: drop-zone-pulse 800ms ease-in-out infinite;
+      outline: 1px solid rgba(240,160,32,0.4);
       outline-offset: -2px;
+      transition: outline-color 120ms;
     }
 
     .column-empty {
@@ -379,6 +385,7 @@
 
     /* Quick-add form */
     .quick-add-form {
+      animation: quick-add-in 220ms var(--ease-out-expo) both;
       background: var(--surf2);
       border: 1px solid var(--border2);
       border-radius: 2px;
@@ -422,6 +429,16 @@
     .quick-add-actions button:hover { color: var(--text); }
 
     /* ── CARDS ── */
+    @keyframes board-card-in {
+      from { opacity: 0; transform: translateY(6px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes quick-add-in {
+      from { opacity: 0; transform: translateY(-6px); max-height: 0; }
+      to   { opacity: 1; transform: translateY(0);    max-height: 120px; }
+    }
+
     .board-card {
       background: var(--surf2);
       border: 1px solid var(--border);
@@ -429,11 +446,21 @@
       padding: 9px 10px;
       cursor: pointer;
       position: relative;
-      transition: border-color 100ms;
+      transition: border-color 120ms, transform 150ms var(--ease-out-quart), box-shadow 150ms var(--ease-out-quart);
     }
 
-    .board-card:hover { border-color: var(--border2); }
-    .board-card.dragging { opacity: 0.4; }
+    .board-card:hover {
+      border-color: var(--border2);
+      transform: translateY(-1px);
+      box-shadow: 0 3px 10px rgba(0,0,0,0.25);
+    }
+
+    .board-card.dragging {
+      opacity: 0.35;
+      transform: rotate(1.5deg) scale(1.03);
+      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+      z-index: 10;
+    }
     .board-card.drag-placeholder {
       background: var(--bg);
       border: 1px dashed var(--border2);
@@ -1328,7 +1355,7 @@
       t.className = 'toast' + (type==='error'?' toast-error':type==='success'?' toast-success':'');
       t.textContent = msg;
       c.appendChild(t);
-      setTimeout(() => t.remove(), 4000);
+      setTimeout(() => { t.classList.add('toast-exit'); setTimeout(() => t.remove(), 150); }, 3800);
     }
 
     function getProject(id) {
@@ -1599,14 +1626,14 @@
             >
               <div id="quick-add-${col.id}"></div>
               ${colCards.length
-                ? colCards.map(c => renderCardHtml(c)).join('')
+                ? colCards.map((c, i) => renderCardHtml(c, i)).join('')
                 : '<div class="column-empty">Keine Karten.</div>'}
             </div>
           </div>`;
       }).join('');
     }
 
-    function renderCardHtml(card) {
+    function renderCardHtml(card, idx = 0) {
       const label = card.label_color
         ? `<div class="card-label-strip ${card.label_color}"></div>`
         : '';
@@ -1638,6 +1665,7 @@
           class="board-card"
           data-card-id="${card.id}"
           draggable="true"
+          style="animation:board-card-in 280ms var(--ease-out-quart) both;animation-delay:${idx * 35}ms"
           ondragstart="onDragStart(event,${card.id})"
           ondragend="onDragEnd(event)"
           ondragover="event.preventDefault()"

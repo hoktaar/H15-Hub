@@ -29,10 +29,32 @@
       text-transform: uppercase;
     }
 
+    @keyframes ws-dot-pulse {
+      0%, 100% { opacity: 1; }
+      50%       { opacity: 0.4; }
+    }
+
+    #ws-status.connected::before {
+      content: '● ';
+      animation: ws-dot-pulse 2s ease-in-out infinite;
+      display: inline;
+    }
+
     .grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
       gap: 14px;
+    }
+
+    @keyframes card-in {
+      from { opacity: 0; transform: translateY(10px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes status-flash {
+      0%   { box-shadow: 0 0 0 0 rgba(240,160,32,0.5); }
+      50%  { box-shadow: 0 0 0 6px rgba(240,160,32,0); }
+      100% { box-shadow: none; }
     }
 
     .card {
@@ -44,11 +66,13 @@
       text-decoration: none;
       color: inherit;
       display: block;
-      transition: background-color 150ms ease, border-color 150ms ease;
+      transition: background-color 150ms ease, border-color 150ms ease, transform 150ms var(--ease-out-quart);
       position: relative;
     }
 
-    .card:hover { background: var(--surf2); }
+    .card:hover { background: var(--surf2); transform: translateY(-1px); }
+    .card:active { transform: translateY(0); }
+    .card.status-changed { animation: status-flash 600ms var(--ease-out-quart); }
 
     .card.free    { border-left-color: var(--green); }
     .card.in_use { border-left-color: var(--amber); }
@@ -228,7 +252,7 @@
     t.className = 'toast' + (type === 'error' ? ' toast-error' : type === 'success' ? ' toast-success' : '');
     t.textContent = msg;
     c.appendChild(t);
-    setTimeout(() => t.remove(), 4000);
+    setTimeout(() => { t.classList.add('toast-exit'); setTimeout(() => t.remove(), 150); }, 3800);
   }
   </script>
   <script>
@@ -257,8 +281,8 @@
     function renderDevices(devices) {
       const grid = document.getElementById('device-grid');
       if (!devices.length) { grid.innerHTML = '<div class="empty">Keine Geräte gefunden.</div>'; return; }
-      grid.innerHTML = devices.map(d => `
-        <a class="card ${d.status}" href="/device/${d.id}">
+      grid.innerHTML = devices.map((d, i) => `
+        <a class="card ${d.status}" href="/device/${d.id}" style="animation:card-in 320ms var(--ease-out-quart) both;animation-delay:${i * 45}ms">
           <div class="card-header">
             <div class="status-dot ${d.status}"></div>
             <div>
@@ -320,7 +344,7 @@
 
     function connect() {
       const ws = new WebSocket(`ws://${location.host}/ws/status`);
-      ws.onopen = () => { wsIndicator.textContent = '● LIVE'; wsIndicator.className = 'connected'; };
+      ws.onopen = () => { wsIndicator.textContent = 'LIVE'; wsIndicator.className = 'connected'; };
       ws.onmessage = (e) => {
         const msg = JSON.parse(e.data);
         if (msg.type === 'full_update') {
@@ -330,6 +354,15 @@
           const d = devices.find(x => x.id === msg.device_id);
           if (d) Object.assign(d, msg.device);
           renderDevices(devices);
+          // Flash the changed card after re-render
+          requestAnimationFrame(() => {
+            const el = document.querySelector(`[href="/device/${msg.device_id}"]`);
+            if (el) {
+              el.classList.remove('status-changed');
+              void el.offsetWidth; // force reflow to restart animation
+              el.classList.add('status-changed');
+            }
+          });
           if (msg.new_status === 'free' && Notification.permission === 'granted') {
             new Notification(`${msg.device.name} ist jetzt frei!`);
           }

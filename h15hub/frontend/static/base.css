@@ -3,6 +3,10 @@
 
 :root {
   color-scheme: dark;
+  /* Easing curves */
+  --ease-out-quart: cubic-bezier(0.25, 1, 0.5, 1);
+  --ease-out-expo:  cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-out-quint: cubic-bezier(0.22, 1, 0.36, 1);
   --bg:        #0d0b08;
   --surface:   #161310;
   --surf2:     #1d1a15;
@@ -124,7 +128,8 @@ nav button.nav-danger:hover { color: var(--red); }
   flex: 1;
 }
 
-.btn-cta:hover { background: var(--amber-hover); border-color: var(--amber-hover); }
+.btn-cta:hover  { background: var(--amber-hover); border-color: var(--amber-hover); }
+.btn-cta:active { transform: scale(0.97); transition-duration: 80ms; }
 
 .btn-cta-sec {
   min-height: 44px;
@@ -145,7 +150,8 @@ nav button.nav-danger:hover { color: var(--red); }
   justify-content: center;
 }
 
-.btn-cta-sec:hover { color: var(--text); border-color: var(--text); }
+.btn-cta-sec:hover  { color: var(--text); border-color: var(--text); }
+.btn-cta-sec:active { transform: scale(0.97); transition-duration: 80ms; }
 
 .btn-plug {
   min-height: 44px;
@@ -164,7 +170,8 @@ nav button.nav-danger:hover { color: var(--red); }
   align-items: center;
 }
 
-.btn-plug:hover { color: var(--text); border-color: var(--text); }
+.btn-plug:hover  { color: var(--text); border-color: var(--text); }
+.btn-plug:active { transform: scale(0.97); transition-duration: 80ms; }
 .btn-plug.plug-on { color: var(--green); border-color: var(--status-free-border); background: var(--green-subtle); }
 .btn-plug.plug-on:hover { background: var(--green-subtle-hover); }
 
@@ -200,6 +207,26 @@ nav button.nav-danger:hover { color: var(--red); }
 @keyframes toast-in {
   from { opacity: 0; transform: translateY(8px); }
   to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes toast-out {
+  from { opacity: 1; transform: translateY(0); }
+  to   { opacity: 0; transform: translateY(4px); }
+}
+
+.toast.toast-exit {
+  animation: toast-out 150ms var(--ease-out-quart) forwards;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+/* ── Reduced motion ── */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }
 
 /* ── WebSocket status ── */
