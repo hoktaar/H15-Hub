@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from datetime import datetime
+
 from fastapi import APIRouter, Depends, HTTPException, status
 from pydantic import BaseModel, Field
 from sqlalchemy import select, func
@@ -8,6 +10,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from h15hub.auth import require_authenticated_user
 from h15hub.database import get_db
 from h15hub.models.board import BoardCard, BoardCardColumn, BoardGroup, BoardProject
+from h15hub.models.user import User
 
 router = APIRouter(
     prefix="/api/boards",
@@ -40,11 +43,19 @@ class BoardProjectResponse(BaseModel):
     group_name: str
 
 
+class BoardMemberResponse(BaseModel):
+    username: str
+    display_name: str
+
+
 class BoardCardCreate(BaseModel):
     title: str = Field(min_length=1, max_length=140)
     description: str | None = Field(default=None, max_length=2000)
     assignee: str | None = Field(default=None, max_length=128)
     column: BoardCardColumn = BoardCardColumn.BACKLOG
+    due_date: datetime | None = None
+    priority: str = "none"
+    label_color: str | None = None
 
 
 class BoardCardUpdate(BaseModel):
@@ -53,6 +64,9 @@ class BoardCardUpdate(BaseModel):
     assignee: str | None = Field(default=None, max_length=128)
     column: BoardCardColumn | None = None
     position: int | None = Field(default=None, ge=0)
+    due_date: datetime | None = None
+    priority: str | None = None
+    label_color: str | None = None
 
 
 class BoardCardResponse(BaseModel):
@@ -63,6 +77,9 @@ class BoardCardResponse(BaseModel):
     assignee: str | None
     column: BoardCardColumn
     position: int
+    due_date: datetime | None
+    priority: str
+    label_color: str | None
 
     model_config = {"from_attributes": True}
 
@@ -154,6 +171,15 @@ def _serialize_project(project: BoardProject, group: BoardGroup) -> BoardProject
         group_id=group.id,
         group_name=group.name,
     )
+
+
+@router.get("/members", response_model=list[BoardMemberResponse])
+async def list_members(db: AsyncSession = Depends(get_db)) -> list[BoardMemberResponse]:
+    result = await db.execute(
+        select(User).where(User.is_active == True).order_by(User.display_name)  # noqa: E712
+    )
+    users = result.scalars().all()
+    return [BoardMemberResponse(username=u.username, display_name=u.display_name) for u in users]
 
 
 @router.get("/groups", response_model=list[BoardGroupResponse])
@@ -268,6 +294,9 @@ async def create_card(
         assignee=data.assignee.strip() if data.assignee else None,
         column=data.column,
         position=len(siblings),
+        due_date=data.due_date,
+        priority=data.priority or "none",
+        label_color=data.label_color,
     )
     if not card.title:
         raise HTTPException(status_code=422, detail="Titel darf nicht leer sein")
@@ -295,6 +324,12 @@ async def update_card(
         card.description = data.description.strip() if data.description else None
     if "assignee" in data.model_fields_set:
         card.assignee = data.assignee.strip() if data.assignee else None
+    if "due_date" in data.model_fields_set:
+        card.due_date = data.due_date
+    if "priority" in data.model_fields_set and data.priority is not None:
+        card.priority = data.priority
+    if "label_color" in data.model_fields_set:
+        card.label_color = data.label_color
 
     move_requested = "column" in data.model_fields_set or "position" in data.model_fields_set
     if move_requested:

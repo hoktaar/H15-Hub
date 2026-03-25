@@ -47,6 +47,9 @@ class BoardCard(Base):
         default=BoardCardColumn.BACKLOG,
     )
     position: Mapped[int] = mapped_column(Integer, default=0)
+    due_date: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
+    priority: Mapped[str] = mapped_column(String(16), default="none")
+    label_color: Mapped[str | None] = mapped_column(String(32), nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
     updated_at: Mapped[datetime] = mapped_column(
         DateTime,
@@ -110,3 +113,21 @@ async def migrate_board_schema(conn: AsyncConnection) -> None:
     )
     await conn.execute(text("DROP TABLE board_cards"))
     await conn.execute(text("ALTER TABLE board_cards_new RENAME TO board_cards"))
+
+
+async def migrate_board_cards_v2(conn: AsyncConnection) -> None:
+    def _check_columns(sync_conn):
+        inspector = inspect(sync_conn)
+        if "board_cards" not in set(inspector.get_table_names()):
+            return None
+        return {col["name"] for col in inspector.get_columns("board_cards")}
+
+    card_columns = await conn.run_sync(_check_columns)
+    if card_columns is None:
+        return
+    if "due_date" in card_columns:
+        return
+
+    await conn.execute(text("ALTER TABLE board_cards ADD COLUMN due_date DATETIME"))
+    await conn.execute(text("ALTER TABLE board_cards ADD COLUMN priority VARCHAR(16) NOT NULL DEFAULT 'none'"))
+    await conn.execute(text("ALTER TABLE board_cards ADD COLUMN label_color VARCHAR(32)"))

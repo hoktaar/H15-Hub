@@ -6,238 +6,289 @@
   <title>Boards – H15-Hub</title>
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90' fill='%23f0a020'>⚙</text></svg>">
   <link rel="stylesheet" href="/static/base.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css">
   <style>
-    main {
-      max-width: 1400px;
-      margin: 0 auto;
-      padding: 20px 28px;
+    :root {
+      --bg: #0d0b08;
+      --surface: #161310;
+      --surf2: #1d1a15;
+      --border: #2e2519;
+      --border2: #4a3c28;
+      --text: #ede8dd;
+      --muted: #887a64;
+      --dim: #524638;
+      --amber: #f0a020;
+      --green: #5ecc80;
+      --red: #e84040;
+      --yellow: #f0c040;
     }
 
-    /* Page header */
-    .page-header {
+    body {
+      margin: 0;
+      overflow: hidden;
+      height: 100vh;
+    }
+
+    .board-layout {
+      display: flex;
+      height: calc(100vh - 56px - 37px);
+      overflow: hidden;
+    }
+
+    /* ── SIDEBAR ── */
+    .sidebar {
+      width: 220px;
+      min-width: 220px;
       background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 2px;
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .sidebar-scroll {
+      flex: 1;
+      overflow-y: auto;
+      padding: 8px 0;
+    }
+
+    .sidebar-bottom {
+      padding: 10px;
+      border-top: 1px solid var(--border);
+    }
+
+    .sidebar-group-header {
       display: flex;
       justify-content: space-between;
-      align-items: flex-start;
-      gap: 14px;
-      padding: 16px 18px;
-      margin-bottom: 14px;
-    }
-
-    .page-header h2 {
-      font-family: 'Bebas Neue', sans-serif;
-      font-size: 22px;
-      letter-spacing: 0.06em;
-      color: var(--text);
-    }
-
-    .page-subtitle,
-    .panel-note,
-    .board-context,
-    .message,
-    .meta-line,
-    .column-empty,
-    .empty-state {
-      font-size: 11px;
-      color: var(--muted);
-      line-height: 1.45;
-    }
-
-    .header-actions,
-    .inline-actions,
-    .modal-actions,
-    .board-head-actions {
-      display: flex;
-      gap: 10px;
       align-items: center;
-      flex-wrap: wrap;
+      padding: 6px 12px 4px;
+      gap: 4px;
     }
 
-    /* Toolbar */
-    .toolbar {
-      display: grid;
-      grid-template-columns: minmax(300px, 1.2fr) minmax(320px, 1fr);
-      gap: 14px;
-      padding: 14px;
-      margin-bottom: 14px;
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 2px;
-    }
-
-    .compact-card {
-      padding: 14px;
-      background: var(--surf2);
-      border: 1px solid var(--border);
-      border-radius: 2px;
-    }
-
-    .compact-card h3 {
-      font-family: 'Bebas Neue', sans-serif;
-      font-size: 16px;
-      letter-spacing: 0.06em;
-      color: var(--muted);
-      margin-bottom: 8px;
-    }
-
-    .stack { display: grid; gap: 10px; }
-
-    .form-grid {
-      display: grid;
-      gap: 10px;
-      grid-template-columns: minmax(0, 1fr) minmax(180px, 0.8fr) auto;
-      align-items: end;
-    }
-
-    .project-summary {
-      display: flex;
-      gap: 8px;
-      align-items: center;
-      flex-wrap: wrap;
-    }
-
-    .badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      min-height: 26px;
-      padding: 3px 9px;
-      border-radius: 2px;
-      background: var(--surf2);
-      border: 1px solid var(--border);
-      font-size: 11px;
-      color: var(--text);
-    }
-
-    label {
-      display: block;
-      margin-bottom: 5px;
-      font-size: 10px;
+    .sidebar-group-label {
+      font-size: 9px;
       color: var(--muted);
       text-transform: uppercase;
-      letter-spacing: 0.12em;
+      letter-spacing: 0.14em;
+      font-weight: 600;
+      flex: 1;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
 
-    input,
-    select,
-    textarea {
+    .sidebar-group-add {
+      background: none;
+      border: none;
+      color: var(--dim);
+      cursor: pointer;
+      padding: 2px 4px;
+      font-size: 14px;
+      line-height: 1;
+      border-radius: 2px;
+    }
+
+    .sidebar-group-add:hover { color: var(--amber); }
+
+    .sidebar-project {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 12px 6px 16px;
+      cursor: pointer;
+      font-size: 12px;
+      color: var(--muted);
+      border-left: 2px solid transparent;
+      transition: color 100ms, border-color 100ms;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .sidebar-project:hover { color: var(--text); }
+
+    .sidebar-project.active {
+      color: var(--amber);
+      border-left-color: var(--amber);
+      background: rgba(240,160,32,0.05);
+    }
+
+    .sidebar-project-name {
+      flex: 1;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .sidebar-project-settings {
+      background: none;
+      border: none;
+      color: var(--dim);
+      cursor: pointer;
+      padding: 2px 3px;
+      font-size: 13px;
+      line-height: 1;
+      border-radius: 2px;
+      opacity: 0;
+      transition: opacity 100ms;
+    }
+
+    .sidebar-project:hover .sidebar-project-settings { opacity: 1; }
+    .sidebar-project-settings:hover { color: var(--muted); }
+
+    .sidebar-inline-form {
+      padding: 6px 12px 6px 16px;
+      display: flex;
+      gap: 4px;
+    }
+
+    .sidebar-inline-form input {
+      flex: 1;
+      background: var(--surf2);
+      border: 1px solid var(--border2);
+      border-radius: 2px;
+      color: var(--text);
+      padding: 4px 7px;
+      font-size: 11px;
+      font-family: 'JetBrains Mono', monospace;
+      min-width: 0;
+    }
+
+    .sidebar-inline-form input:focus { border-color: var(--amber); outline: none; }
+
+    .sidebar-inline-form button {
+      background: none;
+      border: none;
+      color: var(--dim);
+      cursor: pointer;
+      padding: 2px 4px;
+      font-size: 13px;
+    }
+
+    .sidebar-inline-form button:hover { color: var(--amber); }
+
+    .btn-sidebar-create {
       width: 100%;
       background: var(--surf2);
       border: 1px solid var(--border);
       border-radius: 2px;
-      color: var(--text);
-      padding: 9px 11px;
-      font-size: 12px;
-      font-family: 'JetBrains Mono', monospace;
-    }
-
-    textarea { min-height: 110px; resize: vertical; }
-
-    input:focus,
-    select:focus,
-    textarea:focus {
-      border-color: var(--amber);
-    }
-
-    select option { background: var(--surface); }
-
-    /* Buttons */
-    .btn-primary,
-    .btn-secondary,
-    .btn-danger,
-    .icon-button {
-      border-radius: 2px;
-      padding: 9px 13px;
-      border: 1px solid transparent;
-      cursor: pointer;
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 11px;
-      transition: background 120ms, color 120ms, border-color 120ms, opacity 150ms;
-    }
-
-    .btn-primary {
-      background: var(--amber);
-      border-color: var(--amber);
-      color: #0d0b08;
-      font-weight: 600;
-    }
-
-    .btn-primary:hover { background: #d4911a; border-color: #d4911a; }
-
-    .btn-secondary {
-      background: var(--surf2);
-      border-color: var(--border2);
-      color: var(--text);
-    }
-
-    .btn-secondary:hover { border-color: var(--amber); color: var(--text); }
-
-    .btn-danger {
-      background: transparent;
-      border-color: #6a2a2a;
-      color: var(--red);
-    }
-
-    .btn-danger:hover { background: rgba(232,64,64,0.08); }
-
-    .icon-button {
-      background: transparent;
-      border-color: transparent;
       color: var(--muted);
-      padding: 2px 8px;
-      font-size: 18px;
-      line-height: 1;
+      padding: 7px 10px;
+      font-size: 11px;
+      font-family: 'JetBrains Mono', monospace;
+      cursor: pointer;
+      text-align: left;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: border-color 100ms, color 100ms;
     }
 
-    .icon-button:hover { color: var(--text); }
+    .btn-sidebar-create:hover { border-color: var(--border2); color: var(--text); }
 
-    .btn-primary:disabled,
-    .btn-secondary:disabled,
-    .btn-danger:disabled,
-    .icon-button:disabled {
-      opacity: 0.45;
-      cursor: not-allowed;
+    /* ── MAIN BOARD AREA ── */
+    .board-main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      min-width: 0;
     }
 
-    .message { min-height: 18px; font-size: 11px; }
-    .message.error { color: var(--red); }
-    .message.success { color: var(--green); }
-
-    /* Board header */
-    .board-header {
+    .board-toolbar {
       display: flex;
       justify-content: space-between;
       align-items: center;
       gap: 12px;
-      margin-bottom: 10px;
-      padding: 0 4px;
-      flex-wrap: wrap;
+      padding: 0 16px;
+      height: 46px;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      flex-shrink: 0;
     }
 
-    .board-title-row { display: grid; gap: 4px; }
-
-    .board-title {
+    .board-toolbar-title {
       font-family: 'Bebas Neue', sans-serif;
       font-size: 20px;
       letter-spacing: 0.06em;
       color: var(--text);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
 
-    /* Board shell */
-    .board-shell {
-      display: grid;
-      grid-template-columns: repeat(4, minmax(220px, 1fr));
-      gap: 12px;
-      align-items: start;
+    .board-toolbar-right {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-shrink: 0;
+    }
+
+    .filter-btn {
+      background: var(--surf2);
+      border: 1px solid var(--border);
+      border-radius: 2px;
+      color: var(--muted);
+      padding: 5px 10px;
+      font-size: 11px;
+      font-family: 'JetBrains Mono', monospace;
+      cursor: pointer;
+      transition: border-color 100ms, color 100ms;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .filter-btn:hover { border-color: var(--border2); color: var(--text); }
+    .filter-btn.active { border-color: var(--amber); color: var(--amber); }
+
+    .filter-select {
+      background: var(--surf2);
+      border: 1px solid var(--border);
+      border-radius: 2px;
+      color: var(--muted);
+      padding: 5px 8px;
+      font-size: 11px;
+      font-family: 'JetBrains Mono', monospace;
+      cursor: pointer;
+    }
+
+    .filter-select:focus { border-color: var(--amber); outline: none; color: var(--text); }
+    .filter-select option { background: var(--surface); }
+
+    .btn-new-card {
+      background: var(--amber);
+      border: 1px solid var(--amber);
+      border-radius: 2px;
+      color: #0d0b08;
+      padding: 5px 12px;
+      font-size: 11px;
+      font-family: 'JetBrains Mono', monospace;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      transition: background 100ms;
+    }
+
+    .btn-new-card:hover { background: #d4911a; }
+
+    /* ── COLUMNS ── */
+    .board-columns {
+      display: flex;
+      gap: 10px;
+      padding: 12px;
+      flex: 1;
+      overflow-x: auto;
+      overflow-y: hidden;
     }
 
     .board-column {
+      width: 260px;
+      min-width: 260px;
       background: var(--surface);
       border: 1px solid var(--border);
       border-radius: 2px;
-      min-height: 340px;
       display: flex;
       flex-direction: column;
       overflow: hidden;
@@ -247,127 +298,461 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 10px 14px;
+      padding: 8px 12px 8px 14px;
       border-bottom: 1px solid var(--border);
-      background: rgba(255,255,255,0.01);
+      flex-shrink: 0;
     }
 
-    .column-head h3 {
+    .column-head-left {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .column-title {
       font-family: 'Bebas Neue', sans-serif;
-      font-size: 14px;
-      letter-spacing: 0.06em;
+      font-size: 13px;
+      letter-spacing: 0.08em;
       color: var(--muted);
     }
 
     .column-count {
-      font-size: 10px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 18px;
+      height: 16px;
+      padding: 0 5px;
+      background: var(--surf2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      font-size: 9px;
       color: var(--muted);
     }
 
-    .column-cards {
-      display: grid;
-      gap: 8px;
+    .column-add-btn {
+      background: none;
+      border: none;
+      color: var(--dim);
+      cursor: pointer;
+      padding: 3px 5px;
+      font-size: 15px;
+      line-height: 1;
+      border-radius: 2px;
+      transition: color 100ms;
+    }
+
+    .column-add-btn:hover { color: var(--amber); }
+
+    .column-body {
+      flex: 1;
+      overflow-y: auto;
+      padding: 8px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .column-body.drag-over {
+      background: rgba(240,160,32,0.04);
+      outline: 1px solid rgba(240,160,32,0.3);
+      outline-offset: -2px;
+    }
+
+    .column-empty {
       padding: 10px;
-      min-height: 280px;
+      font-size: 11px;
+      color: var(--dim);
+      text-align: center;
     }
 
-    .column-cards.drag-over {
-      background: rgba(240,160,32,0.06);
-      box-shadow: inset 0 0 0 1px var(--amber);
+    .drop-indicator {
+      height: 2px;
+      background: var(--amber);
+      border-radius: 1px;
+      margin: 2px 0;
+      display: none;
     }
 
+    .drop-indicator.visible { display: block; }
+
+    /* Quick-add form */
+    .quick-add-form {
+      background: var(--surf2);
+      border: 1px solid var(--border2);
+      border-radius: 2px;
+      padding: 8px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .quick-add-form input {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 2px;
+      color: var(--text);
+      padding: 6px 8px;
+      font-size: 12px;
+      font-family: 'JetBrains Mono', monospace;
+      width: 100%;
+      box-sizing: border-box;
+    }
+
+    .quick-add-form input:focus { border-color: var(--amber); outline: none; }
+
+    .quick-add-actions {
+      display: flex;
+      gap: 5px;
+    }
+
+    .quick-add-actions button {
+      background: none;
+      border: 1px solid var(--border);
+      border-radius: 2px;
+      color: var(--muted);
+      padding: 3px 8px;
+      font-size: 10px;
+      font-family: 'JetBrains Mono', monospace;
+      cursor: pointer;
+    }
+
+    .quick-add-actions button.save { border-color: var(--amber); color: var(--amber); }
+    .quick-add-actions button:hover { color: var(--text); }
+
+    /* ── CARDS ── */
     .board-card {
       background: var(--surf2);
       border: 1px solid var(--border);
-      border-left: 3px solid var(--dim);
       border-radius: 2px;
-      padding: 10px;
-      cursor: grab;
-      display: grid;
-      gap: 7px;
+      padding: 9px 10px;
+      cursor: pointer;
+      position: relative;
+      transition: border-color 100ms;
     }
 
-    .board-card.dragging { opacity: 0.45; }
+    .board-card:hover { border-color: var(--border2); }
+    .board-card.dragging { opacity: 0.4; }
+    .board-card.drag-placeholder {
+      background: var(--bg);
+      border: 1px dashed var(--border2);
+    }
 
-    .card-top {
-      display: flex;
-      align-items: flex-start;
-      justify-content: space-between;
-      gap: 8px;
+    .card-label-strip {
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 3px;
+      border-radius: 2px 0 0 2px;
+    }
+
+    .card-label-strip.red    { background: var(--red); }
+    .card-label-strip.orange { background: #e07820; }
+    .card-label-strip.yellow { background: var(--yellow); }
+    .card-label-strip.green  { background: var(--green); }
+    .card-label-strip.blue   { background: #4080d0; }
+    .card-label-strip.purple { background: #9060c0; }
+    .card-label-strip.pink   { background: #d060a0; }
+
+    .card-inner {
+      padding-left: 6px;
     }
 
     .card-title {
       font-size: 12px;
       font-weight: 600;
       line-height: 1.4;
-    }
-
-    .card-description {
-      font-size: 11px;
-      line-height: 1.45;
       color: var(--text);
-      white-space: pre-wrap;
+      margin-bottom: 4px;
     }
 
-    .card-meta-row {
+    .card-desc-preview {
+      font-size: 11px;
+      color: var(--muted);
+      line-height: 1.4;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      margin-bottom: 6px;
+    }
+
+    .card-footer {
       display: flex;
-      gap: 8px;
       align-items: center;
+      gap: 6px;
       flex-wrap: wrap;
     }
 
-    .column-empty,
-    .empty-state {
-      padding: 14px;
+    .card-priority {
       font-size: 11px;
+      font-weight: 700;
+    }
+
+    .card-priority.high   { color: var(--red); }
+    .card-priority.medium { color: var(--yellow); }
+
+    .card-due {
+      font-size: 10px;
       color: var(--muted);
     }
 
-    .empty-state {
-      background: var(--surface);
-      border: 1px solid var(--border);
+    .card-due.overdue { color: var(--red); font-weight: 600; }
+    .card-due.today   { color: var(--yellow); font-weight: 600; }
+
+    .card-avatar {
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 9px;
+      font-weight: 700;
+      color: #0d0b08;
+      flex-shrink: 0;
+      margin-left: auto;
+    }
+
+    /* ── DETAIL PANEL ── */
+    .detail-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(5,4,3,0.5);
+      z-index: 200;
+      display: none;
+    }
+
+    .detail-backdrop.open { display: block; }
+
+    .detail-panel {
+      position: fixed;
+      top: 0;
+      right: -400px;
+      width: 380px;
+      height: 100vh;
+      background: var(--surf2);
+      border-left: 1px solid var(--border2);
+      z-index: 201;
+      display: flex;
+      flex-direction: column;
+      transition: right 220ms ease;
+      overflow: hidden;
+    }
+
+    .detail-panel.open { right: 0; }
+
+    .detail-panel-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+
+    .detail-panel-title-wrap {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .detail-panel-title {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text);
+      background: none;
+      border: none;
+      padding: 0;
+      width: 100%;
+      font-family: 'JetBrains Mono', monospace;
+      cursor: text;
+      outline: none;
+    }
+
+    .detail-panel-title:focus {
+      border-bottom: 1px solid var(--amber);
+    }
+
+    .detail-close {
+      background: none;
+      border: none;
+      color: var(--muted);
+      cursor: pointer;
+      padding: 4px 6px;
+      font-size: 18px;
+      line-height: 1;
       border-radius: 2px;
     }
 
-    /* Modal */
+    .detail-close:hover { color: var(--text); }
+
+    .detail-body {
+      flex: 1;
+      overflow-y: auto;
+      padding: 14px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .detail-section-label {
+      font-size: 9px;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      margin-bottom: 5px;
+    }
+
+    .detail-textarea {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 2px;
+      color: var(--text);
+      padding: 8px 10px;
+      font-size: 12px;
+      font-family: 'JetBrains Mono', monospace;
+      width: 100%;
+      box-sizing: border-box;
+      min-height: 90px;
+      resize: vertical;
+    }
+
+    .detail-textarea:focus { border-color: var(--amber); outline: none; }
+
+    .detail-select {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 2px;
+      color: var(--text);
+      padding: 7px 9px;
+      font-size: 12px;
+      font-family: 'JetBrains Mono', monospace;
+      width: 100%;
+      box-sizing: border-box;
+    }
+
+    .detail-select:focus { border-color: var(--amber); outline: none; }
+    .detail-select option { background: var(--surface); }
+
+    .detail-date-input {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 2px;
+      color: var(--text);
+      padding: 7px 9px;
+      font-size: 12px;
+      font-family: 'JetBrains Mono', monospace;
+      width: 100%;
+      box-sizing: border-box;
+    }
+
+    .detail-date-input:focus { border-color: var(--amber); outline: none; }
+
+    .priority-seg {
+      display: flex;
+      border: 1px solid var(--border);
+      border-radius: 2px;
+      overflow: hidden;
+    }
+
+    .priority-seg button {
+      flex: 1;
+      background: none;
+      border: none;
+      border-right: 1px solid var(--border);
+      color: var(--muted);
+      padding: 6px 4px;
+      font-size: 10px;
+      font-family: 'JetBrains Mono', monospace;
+      cursor: pointer;
+      transition: background 100ms, color 100ms;
+    }
+
+    .priority-seg button:last-child { border-right: none; }
+    .priority-seg button:hover { background: rgba(255,255,255,0.04); color: var(--text); }
+    .priority-seg button.active { background: rgba(240,160,32,0.12); color: var(--amber); }
+    .priority-seg button.active.high   { background: rgba(232,64,64,0.12); color: var(--red); }
+    .priority-seg button.active.medium { background: rgba(240,192,64,0.12); color: var(--yellow); }
+
+    .label-swatches {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .label-swatch {
+      width: 22px;
+      height: 22px;
+      border-radius: 2px;
+      border: 2px solid transparent;
+      cursor: pointer;
+      transition: transform 100ms, border-color 100ms;
+    }
+
+    .label-swatch:hover { transform: scale(1.15); }
+    .label-swatch.active { border-color: var(--text); }
+    .label-swatch.none-swatch {
+      background: var(--bg);
+      border: 2px solid var(--border2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .detail-meta-row {
+      display: flex;
+      gap: 14px;
+      font-size: 10px;
+      color: var(--dim);
+    }
+
+    .detail-footer {
+      padding: 12px 16px;
+      border-top: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+
+    .btn-delete-card {
+      background: transparent;
+      border: 1px solid #6a2a2a;
+      border-radius: 2px;
+      color: var(--red);
+      padding: 6px 12px;
+      font-size: 11px;
+      font-family: 'JetBrains Mono', monospace;
+      cursor: pointer;
+      width: 100%;
+      transition: background 100ms;
+    }
+
+    .btn-delete-card:hover { background: rgba(232,64,64,0.08); }
+    .btn-delete-card.confirm { border-color: var(--red); background: rgba(232,64,64,0.14); }
+
+    /* ── MODALS ── */
     .modal-backdrop {
       position: fixed;
       inset: 0;
-      background: rgba(5, 4, 3, 0.78);
+      background: rgba(5,4,3,0.78);
       display: flex;
       align-items: center;
       justify-content: center;
       padding: 18px;
-      z-index: 1000;
+      z-index: 300;
     }
 
     .modal-backdrop.hidden { display: none; }
 
     .modal {
-      width: min(560px, 100%);
+      width: min(480px, 100%);
       padding: 18px;
       background: var(--surf2);
       border: 1px solid var(--border2);
       border-radius: 2px;
       box-shadow: 0 20px 48px rgba(0,0,0,.5);
-    }
-
-    .modal h3 {
-      font-family: 'Bebas Neue', sans-serif;
-      font-size: 18px;
-      letter-spacing: 0.06em;
-      color: var(--text);
-    }
-
-    .modal-danger-zone {
-      margin-top: 14px;
-      padding-top: 14px;
-      border-top: 1px solid var(--border);
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 10px;
-      flex-wrap: wrap;
     }
 
     .modal-head {
@@ -378,28 +763,143 @@
       margin-bottom: 14px;
     }
 
-    .modal-grid {
-      display: grid;
+    .modal h3 {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 18px;
+      letter-spacing: 0.06em;
+      color: var(--text);
+    }
+
+    .modal-close-btn {
+      background: none;
+      border: none;
+      color: var(--muted);
+      cursor: pointer;
+      font-size: 20px;
+      line-height: 1;
+      padding: 2px 5px;
+    }
+
+    .modal-close-btn:hover { color: var(--text); }
+
+    .modal-field {
+      margin-bottom: 10px;
+    }
+
+    .modal-label {
+      display: block;
+      font-size: 9px;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      margin-bottom: 4px;
+    }
+
+    .modal-input,
+    .modal-select {
+      width: 100%;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 2px;
+      color: var(--text);
+      padding: 8px 10px;
+      font-size: 12px;
+      font-family: 'JetBrains Mono', monospace;
+      box-sizing: border-box;
+    }
+
+    .modal-input:focus,
+    .modal-select:focus { border-color: var(--amber); outline: none; }
+    .modal-select option { background: var(--surface); }
+
+    .modal-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+      margin-top: 14px;
+    }
+
+    .modal-danger-zone {
+      margin-top: 14px;
+      padding-top: 14px;
+      border-top: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
       gap: 10px;
-      grid-template-columns: minmax(0, 1fr) minmax(180px, 0.8fr);
     }
 
-    .field-full { grid-column: 1 / -1; }
-
-    @media (max-width: 1180px) {
-      .toolbar,
-      .form-grid { grid-template-columns: 1fr; }
-      .board-shell { grid-template-columns: repeat(2, minmax(220px, 1fr)); }
+    .modal-danger-note {
+      font-size: 10px;
+      color: var(--muted);
     }
 
-    @media (max-width: 760px) {
-      main { padding: 16px; }
-      .page-header,
-      .board-header,
-      .modal-head { flex-direction: column; align-items: flex-start; }
-      .board-shell,
-      .modal-grid { grid-template-columns: 1fr; }
+    .btn-primary {
+      background: var(--amber);
+      border: 1px solid var(--amber);
+      border-radius: 2px;
+      color: #0d0b08;
+      padding: 7px 14px;
+      font-size: 11px;
+      font-family: 'JetBrains Mono', monospace;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background 100ms;
     }
+
+    .btn-primary:hover { background: #d4911a; }
+
+    .btn-secondary {
+      background: var(--surf2);
+      border: 1px solid var(--border2);
+      border-radius: 2px;
+      color: var(--text);
+      padding: 7px 14px;
+      font-size: 11px;
+      font-family: 'JetBrains Mono', monospace;
+      cursor: pointer;
+      transition: border-color 100ms;
+    }
+
+    .btn-secondary:hover { border-color: var(--amber); }
+
+    .btn-danger {
+      background: transparent;
+      border: 1px solid #6a2a2a;
+      border-radius: 2px;
+      color: var(--red);
+      padding: 6px 12px;
+      font-size: 11px;
+      font-family: 'JetBrains Mono', monospace;
+      cursor: pointer;
+      transition: background 100ms;
+    }
+
+    .btn-danger:hover { background: rgba(232,64,64,0.08); }
+
+    .msg-error { font-size: 11px; color: var(--red); }
+    .msg-success { font-size: 11px; color: var(--green); }
+
+    /* ── EMPTY STATE ── */
+    .board-empty {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--dim);
+      font-size: 12px;
+      padding: 20px;
+      text-align: center;
+    }
+
+    /* scrollbar */
+    ::-webkit-scrollbar { width: 5px; height: 5px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: var(--dim); border-radius: 2px; }
+    ::-webkit-scrollbar-thumb:hover { background: var(--muted); }
+
+    /* hidden */
+    .hidden { display: none !important; }
   </style>
 </head>
 <body>
@@ -418,494 +918,840 @@
     {% endif %}
   </nav>
 
-  <main>
-    <section class="page-header">
-      <div>
-        <h2>Boards</h2>
-        <div class="page-subtitle">Projekte werden hier verwaltet. Gruppen werden ausschließlich im Adminbereich angelegt.</div>
+  <div class="board-layout">
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+      <div class="sidebar-scroll" id="sidebar-scroll"></div>
+      <div class="sidebar-bottom">
+        <button class="btn-sidebar-create" onclick="startCreateGroup()">
+          <i class="ti ti-plus"></i> Gruppe erstellen
+        </button>
       </div>
-      <div class="header-actions">
-        {% if current_user and current_user.role.value == 'admin' %}
-        <a href="/admin"><button type="button" class="btn-secondary">Gruppen im Admin verwalten</button></a>
-        {% endif %}
-        <button id="open-project-settings-button" type="button" class="btn-secondary" onclick="openProjectSettingsModal()">Projekt bearbeiten</button>
-        <button id="open-card-modal-button" type="button" class="btn-primary" onclick="openCardModal()">Neue Karte</button>
-      </div>
-    </section>
+    </aside>
 
-    <section class="toolbar">
-      <article class="compact-card stack">
-        <div>
-          <h3>Projekt wählen</h3>
-          <div id="project-meta" class="panel-note">Wähle ein Projekt oder lege ein neues an.</div>
+    <!-- MAIN -->
+    <div class="board-main">
+      <div class="board-toolbar">
+        <div class="board-toolbar-title" id="toolbar-title">Kein Projekt</div>
+        <div class="board-toolbar-right">
+          <button class="filter-btn" id="btn-my-cards" onclick="toggleMyCards()" title="Nur meine Karten">
+            <i class="ti ti-user"></i> Meine Karten
+          </button>
+          <select class="filter-select" id="filter-assignee" onchange="applyFiltersAndRender()">
+            <option value="">Alle Personen</option>
+          </select>
+          <select class="filter-select" id="filter-priority" onchange="applyFiltersAndRender()">
+            <option value="">Alle Prioritäten</option>
+            <option value="high">Hoch</option>
+            <option value="medium">Mittel</option>
+            <option value="low">Niedrig</option>
+            <option value="none">Keine</option>
+          </select>
+          <button class="btn-new-card" onclick="openQuickCardModal()">
+            <i class="ti ti-plus"></i> Karte
+          </button>
         </div>
+      </div>
+
+      <div id="board-columns" class="board-columns">
+        <div class="board-empty">Wähle ein Projekt aus der Seitenleiste.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- DETAIL PANEL BACKDROP -->
+  <div class="detail-backdrop" id="detail-backdrop" onclick="closeDetail()"></div>
+
+  <!-- DETAIL PANEL -->
+  <div class="detail-panel" id="detail-panel">
+    <div class="detail-panel-head">
+      <div class="detail-panel-title-wrap">
+        <input
+          class="detail-panel-title"
+          id="detail-title-input"
+          type="text"
+          placeholder="Kartentitel"
+          onblur="saveDetailField('title', this.value)"
+        >
+      </div>
+      <button class="detail-close" onclick="closeDetail()" title="Schließen">×</button>
+    </div>
+    <div class="detail-body">
+      <div>
+        <div class="detail-section-label">Beschreibung</div>
+        <textarea
+          class="detail-textarea"
+          id="detail-desc"
+          placeholder="Beschreibung hinzufügen…"
+          onblur="saveDetailField('description', this.value || null)"
+        ></textarea>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
         <div>
-          <label for="project-select">Projekt</label>
-          <select id="project-select" onchange="changeProject(this.value)">
-            <option value="">Bitte Projekt wählen</option>
-            {% for project in projects %}
-            <option value="{{ project.id }}" {% if selected_project_id == project.id %}selected{% endif %}>{{ project.name }} — {{ project.group_name }}</option>
-            {% endfor %}
+          <div class="detail-section-label">Verantwortlich</div>
+          <select class="detail-select" id="detail-assignee" onchange="saveDetailField('assignee', this.value || null)">
+            <option value="">Niemand</option>
           </select>
         </div>
-        <div class="project-summary">
-          <span class="badge" id="selected-project-badge">Projekt: —</span>
-          <span class="badge" id="selected-group-badge">Gruppe: —</span>
-        </div>
-      </article>
-
-      <article class="compact-card stack">
         <div>
-          <h3>Neues Projekt</h3>
-          <div class="panel-note">Gruppen werden im Admin erstellt. Hier ordnest du neue Projekte einer vorhandenen Gruppe zu.</div>
-        </div>
-        <div class="form-grid">
-          <div>
-            <label for="project-name">Projektname</label>
-            <input id="project-name" type="text" placeholder="z. B. Frühjahrsputz">
-          </div>
-          <div>
-            <label for="project-group-id">Gruppe</label>
-            <select id="project-group-id">
-              <option value="">Bitte Gruppe wählen</option>
-              {% for group in groups %}
-              <option value="{{ group.id }}">{{ group.name }}</option>
-              {% endfor %}
-            </select>
-          </div>
-          <button id="create-project-button" type="button" class="btn-primary" onclick="createProject()">Projekt anlegen</button>
-        </div>
-        <div id="project-message" class="message"></div>
-      </article>
-    </section>
-
-    <section class="board-header">
-      <div class="board-title-row">
-        <h3 id="board-title" class="board-title">{% if selected_project %}{{ selected_project.name }}{% else %}Kein Projekt ausgewählt{% endif %}</h3>
-        <div id="board-context" class="board-context">{% if selected_project %}Gruppe: {{ selected_project.group_name }}{% else %}Bitte zuerst ein Projekt wählen oder anlegen.{% endif %}</div>
-      </div>
-      <div class="board-head-actions">
-        <div id="board-message" class="message"></div>
-      </div>
-    </section>
-
-    <div id="board-root"></div>
-  </main>
-
-  <div id="card-modal" class="modal-backdrop hidden" onclick="handleModalBackdrop(event)">
-    <section class="modal" role="dialog" aria-modal="true" aria-labelledby="card-modal-title">
-      <div class="modal-head">
-        <div>
-          <h3 id="card-modal-title">Neue Karte</h3>
-          <div id="card-modal-project" class="panel-note">Bitte zuerst ein Projekt wählen.</div>
-        </div>
-        <button type="button" class="icon-button" aria-label="Modal schließen" onclick="closeCardModal()">×</button>
-      </div>
-      <div class="modal-grid">
-        <div class="field-full">
-          <label for="card-title">Titel</label>
-          <input id="card-title" type="text" placeholder="z. B. Spiegel reinigen">
-        </div>
-        <div>
-          <label for="card-assignee">Verantwortlich</label>
-          <input id="card-assignee" type="text" placeholder="z. B. Alex">
-        </div>
-        <div>
-          <label for="card-column">Spalte</label>
-          <select id="card-column">
+          <div class="detail-section-label">Spalte</div>
+          <select class="detail-select" id="detail-column" onchange="saveDetailField('column', this.value)">
             <option value="backlog">Backlog</option>
             <option value="in_progress">In Arbeit</option>
-            <option value="blocked">Warten</option>
+            <option value="blocked">Blockiert</option>
             <option value="done">Erledigt</option>
           </select>
         </div>
-        <div class="field-full">
-          <label for="card-description">Beschreibung</label>
-          <textarea id="card-description" placeholder="Kurzbeschreibung der Aufgabe"></textarea>
+      </div>
+      <div>
+        <div class="detail-section-label">Fällig am</div>
+        <input class="detail-date-input" type="date" id="detail-due" onchange="saveDetailField('due_date', this.value ? this.value + 'T00:00:00' : null)">
+      </div>
+      <div>
+        <div class="detail-section-label">Priorität</div>
+        <div class="priority-seg" id="priority-seg">
+          <button data-p="none"   onclick="setPriority('none')"  >Keine</button>
+          <button data-p="low"    onclick="setPriority('low')"   >Niedrig</button>
+          <button data-p="medium" onclick="setPriority('medium')">Mittel</button>
+          <button data-p="high"   onclick="setPriority('high')"  >Hoch</button>
         </div>
       </div>
-      <div class="modal-actions" style="margin-top: 14px; justify-content: space-between;">
-        <div id="card-modal-message" class="message"></div>
-        <div class="inline-actions">
-          <button type="button" class="btn-secondary" onclick="closeCardModal()">Abbrechen</button>
-          <button id="create-card-button" type="button" class="btn-primary" onclick="createCard()">Karte anlegen</button>
+      <div>
+        <div class="detail-section-label">Label</div>
+        <div class="label-swatches" id="label-swatches">
+          <div class="label-swatch none-swatch active" data-color="" onclick="setLabel('')" title="Kein Label">×</div>
+          <div class="label-swatch active" data-color="red"    style="background:var(--red)"    onclick="setLabel('red')"   ></div>
+          <div class="label-swatch"        data-color="orange" style="background:#e07820"        onclick="setLabel('orange')"></div>
+          <div class="label-swatch"        data-color="yellow" style="background:var(--yellow)"  onclick="setLabel('yellow')"></div>
+          <div class="label-swatch"        data-color="green"  style="background:var(--green)"   onclick="setLabel('green')"></div>
+          <div class="label-swatch"        data-color="blue"   style="background:#4080d0"         onclick="setLabel('blue')" ></div>
+          <div class="label-swatch"        data-color="purple" style="background:#9060c0"         onclick="setLabel('purple')"></div>
+          <div class="label-swatch"        data-color="pink"   style="background:#d060a0"         onclick="setLabel('pink')"></div>
         </div>
       </div>
-    </section>
+      <div class="detail-meta-row" id="detail-meta"></div>
+    </div>
+    <div class="detail-footer">
+      <button class="btn-delete-card" id="btn-delete-card" onclick="deleteDetailCard()">
+        <i class="ti ti-trash"></i> Karte löschen
+      </button>
+    </div>
   </div>
 
-  <div id="project-settings-modal" class="modal-backdrop hidden" onclick="handleProjectSettingsBackdrop(event)">
-    <section class="modal" role="dialog" aria-modal="true" aria-labelledby="project-settings-title">
+  <!-- CREATE GROUP MODAL -->
+  <div class="modal-backdrop hidden" id="group-modal" onclick="handleGroupBackdrop(event)">
+    <div class="modal">
       <div class="modal-head">
-        <div>
-          <h3 id="project-settings-title">Projekt bearbeiten</h3>
-          <div class="panel-note">Name anpassen oder Projekt einer anderen Gruppe zuordnen.</div>
-        </div>
-        <button type="button" class="icon-button" aria-label="Modal schließen" onclick="closeProjectSettingsModal()">×</button>
+        <h3>Gruppe erstellen</h3>
+        <button class="modal-close-btn" onclick="closeGroupModal()">×</button>
       </div>
-      <div class="modal-grid">
-        <div class="field-full">
-          <label for="edit-project-name">Projektname</label>
-          <input id="edit-project-name" type="text" placeholder="Projektname">
-        </div>
-        <div class="field-full">
-          <label for="edit-project-group-id">Gruppe</label>
-          <select id="edit-project-group-id">
-            <option value="">Bitte Gruppe wählen</option>
-            {% for group in groups %}
-            <option value="{{ group.id }}">{{ group.name }}</option>
-            {% endfor %}
-          </select>
-        </div>
+      <div class="modal-field">
+        <label class="modal-label" for="new-group-name">Name</label>
+        <input class="modal-input" id="new-group-name" type="text" placeholder="z.B. Werkstatt" onkeydown="if(event.key==='Enter')saveNewGroup()">
       </div>
-      <div class="modal-actions" style="margin-top: 14px; justify-content: space-between;">
-        <div id="project-settings-message" class="message"></div>
-        <div class="inline-actions">
-          <button type="button" class="btn-secondary" onclick="closeProjectSettingsModal()">Abbrechen</button>
-          <button id="save-project-button" type="button" class="btn-primary" onclick="saveProjectSettings()">Speichern</button>
-        </div>
+      <div id="group-modal-msg" style="min-height:16px;font-size:11px;"></div>
+      <div class="modal-actions">
+        <button class="btn-secondary" onclick="closeGroupModal()">Abbrechen</button>
+        <button class="btn-primary" onclick="saveNewGroup()">Erstellen</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- PROJECT SETTINGS MODAL -->
+  <div class="modal-backdrop hidden" id="proj-modal" onclick="handleProjBackdrop(event)">
+    <div class="modal">
+      <div class="modal-head">
+        <h3>Projekt bearbeiten</h3>
+        <button class="modal-close-btn" onclick="closeProjModal()">×</button>
+      </div>
+      <div class="modal-field">
+        <label class="modal-label" for="edit-proj-name">Name</label>
+        <input class="modal-input" id="edit-proj-name" type="text">
+      </div>
+      <div class="modal-field">
+        <label class="modal-label" for="edit-proj-group">Gruppe</label>
+        <select class="modal-select" id="edit-proj-group"></select>
+      </div>
+      <div id="proj-modal-msg" style="min-height:16px;font-size:11px;"></div>
+      <div class="modal-actions">
+        <button class="btn-secondary" onclick="closeProjModal()">Abbrechen</button>
+        <button class="btn-primary" onclick="saveProjSettings()">Speichern</button>
       </div>
       <div class="modal-danger-zone">
-        <div class="panel-note">Löscht das Projekt inklusive aller Karten.</div>
-        <button id="delete-project-button" type="button" class="btn-danger" onclick="deleteProject()">Projekt löschen</button>
+        <span class="modal-danger-note">Löscht das Projekt und alle Karten.</span>
+        <button class="btn-danger" onclick="deleteProjFromModal()">Projekt löschen</button>
       </div>
-    </section>
+    </div>
   </div>
 
+  <!-- QUICK CARD MODAL -->
+  <div class="modal-backdrop hidden" id="quick-card-modal" onclick="handleQuickCardBackdrop(event)">
+    <div class="modal">
+      <div class="modal-head">
+        <h3>Neue Karte</h3>
+        <button class="modal-close-btn" onclick="closeQuickCardModal()">×</button>
+      </div>
+      <div class="modal-field">
+        <label class="modal-label" for="qc-title">Titel</label>
+        <input class="modal-input" id="qc-title" type="text" placeholder="Kartentitel" onkeydown="if(event.key==='Enter')saveQuickCard()">
+      </div>
+      <div class="modal-field">
+        <label class="modal-label" for="qc-column">Spalte</label>
+        <select class="modal-select" id="qc-column">
+          <option value="backlog">Backlog</option>
+          <option value="in_progress">In Arbeit</option>
+          <option value="blocked">Blockiert</option>
+          <option value="done">Erledigt</option>
+        </select>
+      </div>
+      <div id="qc-msg" style="min-height:16px;font-size:11px;"></div>
+      <div class="modal-actions">
+        <button class="btn-secondary" onclick="closeQuickCardModal()">Abbrechen</button>
+        <button class="btn-primary" onclick="saveQuickCard()">Anlegen</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast-container"></div>
+
   <script>
-    const columns = [
-      { id: 'backlog', label: 'Backlog' },
+    // ── STATE ──────────────────────────────────────────────
+    const CURRENT_USERNAME = {{ current_username | tojson }};
+
+    const state = {
+      groups: {{ groups_payload | tojson }},
+      projects: {{ projects_payload | tojson }},
+      cards: [],
+      members: [],
+      selectedProjectId: {{ selected_project_id | tojson }},
+      filters: { myCards: false, assignee: '', priority: '' },
+      detailCardId: null,
+      deleteConfirmTimer: null,
+    };
+
+    const COLUMNS = [
+      { id: 'backlog',     label: 'Backlog'   },
       { id: 'in_progress', label: 'In Arbeit' },
-      { id: 'blocked', label: 'Warten' },
-      { id: 'done', label: 'Erledigt' },
+      { id: 'blocked',     label: 'Blockiert' },
+      { id: 'done',        label: 'Erledigt'  },
     ];
-    const groups = {{ groups_payload|tojson }};
-    const projects = {{ projects_payload|tojson }};
-    let selectedProjectId = {{ selected_project_id|tojson }};
-    let cards = [];
-    let draggedCardId = null;
 
-    function getSelectedProject() {
-      return projects.find(project => project.id === selectedProjectId) || null;
+    const LABEL_COLORS = {
+      red: 'var(--red)',
+      orange: '#e07820',
+      yellow: 'var(--yellow)',
+      green: 'var(--green)',
+      blue: '#4080d0',
+      purple: '#9060c0',
+      pink: '#d060a0',
+    };
+
+    // ── UTILS ──────────────────────────────────────────────
+    function esc(text) {
+      return String(text ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
     }
 
-    function changeProject(projectId) {
-      const parsedId = Number(projectId);
-      location.href = parsedId ? `/boards?project_id=${parsedId}` : '/boards';
+    function avatarColor(username) {
+      let h = 0;
+      for (let i = 0; i < username.length; i++) h = (h * 31 + username.charCodeAt(i)) & 0xffffffff;
+      const colors = ['#c07020','#20a060','#2060c0','#9040a0','#c04040','#30a0a0','#a08020'];
+      return colors[Math.abs(h) % colors.length];
     }
 
-    function setMessage(id, text, type = '') {
-      const el = document.getElementById(id);
-      el.className = `message ${type}`.trim();
-      el.textContent = text || '';
+    function initials(displayName) {
+      return displayName.trim().charAt(0).toUpperCase();
     }
 
-    function escapeHtml(text) {
-      return String(text ?? '').replace(/[&<>"']/g, char => ({
-        '&': '&amp;',
-        '<': '&lt;',
-        '>': '&gt;',
-        '"': '&quot;',
-        "'": '&#39;',
-      }[char]));
+    function formatDate(iso) {
+      if (!iso) return null;
+      const d = new Date(iso);
+      const today = new Date();
+      today.setHours(0,0,0,0);
+      d.setHours(0,0,0,0);
+      const day = String(d.getDate()).padStart(2,'0');
+      const mon = String(d.getMonth()+1).padStart(2,'0');
+      const yr  = String(d.getFullYear()).slice(2);
+      const label = d.getFullYear() === new Date().getFullYear()
+        ? `${day}.${mon}`
+        : `${day}.${mon}.${yr}`;
+      let cls = 'card-due';
+      if (d < today) cls += ' overdue';
+      else if (d.getTime() === today.getTime()) cls += ' today';
+      return { label, cls };
     }
 
-    function updateBoardContext() {
-      const project = getSelectedProject();
-      const hasGroups = groups.length > 0;
-
-      document.getElementById('open-card-modal-button').disabled = !project;
-      document.getElementById('open-project-settings-button').disabled = !project;
-      document.getElementById('create-card-button').disabled = !project;
-      document.getElementById('create-project-button').disabled = !hasGroups;
-      document.getElementById('project-group-id').disabled = !hasGroups;
-
-      document.getElementById('board-title').textContent = project ? project.name : 'Kein Projekt ausgewählt';
-      document.getElementById('board-context').textContent = project
-        ? `Gruppe: ${project.group_name} · Karten lassen sich per Drag & Drop zwischen den Spalten verschieben.`
-        : hasGroups
-          ? 'Lege ein Projekt an oder wähle ein bestehendes Projekt.'
-          : 'Lege zuerst im Admin eine Gruppe an, damit hier Projekte angelegt werden können.';
-
-      document.getElementById('project-meta').textContent = project
-        ? `Aktives Projekt in ${project.group_name}`
-        : hasGroups
-          ? 'Projekte können hier bestehenden Gruppen zugeordnet werden.'
-          : 'Aktuell sind noch keine Gruppen vorhanden.';
-
-      document.getElementById('selected-project-badge').textContent = `Projekt: ${project ? project.name : '—'}`;
-      document.getElementById('selected-group-badge').textContent = `Gruppe: ${project ? project.group_name : '—'}`;
-      document.getElementById('card-modal-project').textContent = project
-        ? `${project.name} — ${project.group_name}`
-        : 'Bitte zuerst ein Projekt wählen.';
+    function showToast(msg, type = 'info') {
+      const c = document.getElementById('toast-container');
+      const t = document.createElement('div');
+      t.className = 'toast' + (type==='error'?' toast-error':type==='success'?' toast-success':'');
+      t.textContent = msg;
+      c.appendChild(t);
+      setTimeout(() => t.remove(), 4000);
     }
 
-    async function createProject() {
-      if (!groups.length) {
-        setMessage('project-message', 'Bitte zuerst im Admin eine Gruppe anlegen.', 'error');
-        return;
+    function getProject(id) {
+      return state.projects.find(p => p.id === id) || null;
+    }
+
+    // ── SIDEBAR ────────────────────────────────────────────
+    function renderSidebar() {
+      const container = document.getElementById('sidebar-scroll');
+      const byGroup = {};
+      for (const g of state.groups) byGroup[g.id] = { group: g, projects: [] };
+      for (const p of state.projects) {
+        if (byGroup[p.group_id]) byGroup[p.group_id].projects.push(p);
       }
 
-      const name = document.getElementById('project-name').value.trim();
-      const groupId = Number(document.getElementById('project-group-id').value);
+      let html = '';
+      for (const gid of Object.keys(byGroup)) {
+        const { group, projects } = byGroup[gid];
+        html += `
+          <div class="sidebar-group-header">
+            <span class="sidebar-group-label">${esc(group.name)}</span>
+            <button class="sidebar-group-add" onclick="startCreateProject(${group.id})" title="Projekt hinzufügen">+</button>
+          </div>`;
+        for (const p of projects) {
+          const active = p.id === state.selectedProjectId ? ' active' : '';
+          html += `
+            <div class="sidebar-project${active}" onclick="selectProject(${p.id})" data-proj-id="${p.id}">
+              <span class="sidebar-project-name">${esc(p.name)}</span>
+              <button class="sidebar-project-settings" onclick="openProjModal(event,${p.id})" title="Einstellungen">
+                <i class="ti ti-dots"></i>
+              </button>
+            </div>`;
+        }
+        // inline create form placeholder
+        html += `<div id="create-form-${group.id}"></div>`;
+      }
 
-      if (!name) {
-        setMessage('project-message', 'Bitte einen Projektnamen eingeben.', 'error');
-        return;
-      }
-      if (!groupId) {
-        setMessage('project-message', 'Bitte eine Gruppe auswählen.', 'error');
-        return;
-      }
+      container.innerHTML = html;
+    }
+
+    function startCreateProject(groupId) {
+      // close others
+      document.querySelectorAll('[id^=create-form-]').forEach(el => el.innerHTML = '');
+
+      const container = document.getElementById(`create-form-${groupId}`);
+      if (!container) return;
+      container.innerHTML = `
+        <div class="sidebar-inline-form">
+          <input id="new-proj-name-${groupId}" type="text" placeholder="Projektname" maxlength="128"
+            onkeydown="handleCreateProjectKey(event,${groupId})">
+          <button onclick="saveCreateProject(${groupId})" title="Erstellen"><i class="ti ti-check"></i></button>
+          <button onclick="cancelCreateProject(${groupId})" title="Abbrechen"><i class="ti ti-x"></i></button>
+        </div>`;
+      document.getElementById(`new-proj-name-${groupId}`)?.focus();
+    }
+
+    function handleCreateProjectKey(event, groupId) {
+      if (event.key === 'Enter') saveCreateProject(groupId);
+      if (event.key === 'Escape') cancelCreateProject(groupId);
+    }
+
+    function cancelCreateProject(groupId) {
+      const el = document.getElementById(`create-form-${groupId}`);
+      if (el) el.innerHTML = '';
+    }
+
+    async function saveCreateProject(groupId) {
+      const input = document.getElementById(`new-proj-name-${groupId}`);
+      const name = input?.value.trim();
+      if (!name) return;
 
       const res = await fetch('/api/boards/projects', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {'Content-Type':'application/json'},
         body: JSON.stringify({ name, group_id: groupId }),
       });
       const data = await res.json().catch(() => ({}));
-      if (!res.ok) {
-        setMessage('project-message', data.detail || 'Projekt konnte nicht angelegt werden.', 'error');
-        return;
-      }
-
-      location.href = `/boards?project_id=${data.id}`;
+      if (!res.ok) { showToast(data.detail || 'Fehler', 'error'); return; }
+      state.projects.push(data);
+      state.selectedProjectId = data.id;
+      renderSidebar();
+      await loadProject(data.id);
     }
 
-    function resetCardForm() {
-      document.getElementById('card-title').value = '';
-      document.getElementById('card-description').value = '';
-      document.getElementById('card-assignee').value = '';
-      document.getElementById('card-column').value = 'backlog';
-      setMessage('card-modal-message', '');
+    function startCreateGroup() {
+      document.getElementById('new-group-name').value = '';
+      document.getElementById('group-modal-msg').textContent = '';
+      document.getElementById('group-modal').classList.remove('hidden');
+      setTimeout(() => document.getElementById('new-group-name').focus(), 50);
     }
 
-    function openCardModal() {
-      if (!getSelectedProject()) {
-        setMessage('board-message', 'Bitte zuerst ein Projekt wählen oder anlegen.', 'error');
-        return;
-      }
-
-      resetCardForm();
-      document.getElementById('card-modal').classList.remove('hidden');
-      document.getElementById('card-title').focus();
+    function closeGroupModal() {
+      document.getElementById('group-modal').classList.add('hidden');
     }
 
-    function closeCardModal() {
-      document.getElementById('card-modal').classList.add('hidden');
-      setMessage('card-modal-message', '');
+    function handleGroupBackdrop(e) {
+      if (e.target.id === 'group-modal') closeGroupModal();
     }
 
-    function openProjectSettingsModal() {
-      const project = getSelectedProject();
-      if (!project) {
-        setMessage('board-message', 'Bitte zuerst ein Projekt wählen.', 'error');
-        return;
-      }
-
-      document.getElementById('edit-project-name').value = project.name;
-      document.getElementById('edit-project-group-id').value = String(project.group_id);
-      setMessage('project-settings-message', '');
-      document.getElementById('project-settings-modal').classList.remove('hidden');
-      document.getElementById('edit-project-name').focus();
-    }
-
-    function closeProjectSettingsModal() {
-      document.getElementById('project-settings-modal').classList.add('hidden');
-      setMessage('project-settings-message', '');
-    }
-
-    function handleModalBackdrop(event) {
-      if (event.target.id === 'card-modal') {
-        closeCardModal();
-      }
-    }
-
-    function handleProjectSettingsBackdrop(event) {
-      if (event.target.id === 'project-settings-modal') {
-        closeProjectSettingsModal();
-      }
-    }
-
-    async function saveProjectSettings() {
-      const project = getSelectedProject();
-      if (!project) {
-        setMessage('project-settings-message', 'Bitte zuerst ein Projekt wählen.', 'error');
-        return;
-      }
-
-      const name = document.getElementById('edit-project-name').value.trim();
-      const groupId = Number(document.getElementById('edit-project-group-id').value);
-
-      if (!name) {
-        setMessage('project-settings-message', 'Bitte einen Projektnamen eingeben.', 'error');
-        return;
-      }
-      if (!groupId) {
-        setMessage('project-settings-message', 'Bitte eine Gruppe auswählen.', 'error');
-        return;
-      }
-
-      const res = await fetch(`/api/boards/projects/${project.id}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, group_id: groupId }),
-      });
-      const data = await res.json().catch(() => ({}));
-      if (!res.ok) {
-        setMessage('project-settings-message', data.detail || 'Projekt konnte nicht gespeichert werden.', 'error');
-        return;
-      }
-
-      location.href = `/boards?project_id=${data.id}`;
-    }
-
-    async function deleteProject() {
-      const project = getSelectedProject();
-      if (!project) {
-        setMessage('project-settings-message', 'Bitte zuerst ein Projekt wählen.', 'error');
-        return;
-      }
-      if (!confirm(`Projekt "${project.name}" inklusive aller Karten wirklich löschen?`)) {
-        return;
-      }
-
-      const res = await fetch(`/api/boards/projects/${project.id}`, { method: 'DELETE' });
-      if (!res.ok) {
-        const data = await res.json().catch(() => ({}));
-        setMessage('project-settings-message', data.detail || 'Projekt konnte nicht gelöscht werden.', 'error');
-        return;
-      }
-
-      location.href = '/boards';
-    }
-
-    async function createCard() {
-      if (!selectedProjectId) {
-        setMessage('card-modal-message', 'Bitte zuerst ein Projekt wählen.', 'error');
-        return;
-      }
-
-      const payload = {
-        title: document.getElementById('card-title').value,
-        description: document.getElementById('card-description').value || null,
-        assignee: document.getElementById('card-assignee').value || null,
-        column: document.getElementById('card-column').value,
-      };
-
-      const res = await fetch(`/api/boards/projects/${selectedProjectId}/cards`, {
+    async function saveNewGroup() {
+      const name = document.getElementById('new-group-name').value.trim();
+      if (!name) return;
+      const res = await fetch('/api/boards/groups', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
+        headers: {'Content-Type':'application/json'},
+        body: JSON.stringify({ name }),
       });
       const data = await res.json().catch(() => ({}));
       if (!res.ok) {
-        setMessage('card-modal-message', data.detail || 'Karte konnte nicht erstellt werden.', 'error');
+        document.getElementById('group-modal-msg').innerHTML = `<span class="msg-error">${esc(data.detail||'Fehler')}</span>`;
         return;
       }
-
-      closeCardModal();
-      resetCardForm();
-      setMessage('board-message', 'Karte angelegt.', 'success');
-      await loadCards();
+      state.groups.push(data);
+      closeGroupModal();
+      renderSidebar();
+      showToast('Gruppe angelegt', 'success');
     }
 
-    async function loadCards() {
-      updateBoardContext();
-      if (!selectedProjectId) {
-        renderBoard([]);
-        return;
-      }
+    // ── PROJECT MODAL ──────────────────────────────────────
+    let editingProjectId = null;
 
-      const res = await fetch(`/api/boards/projects/${selectedProjectId}/cards`);
+    function openProjModal(event, projectId) {
+      event.stopPropagation();
+      editingProjectId = projectId;
+      const p = getProject(projectId);
+      if (!p) return;
+
+      document.getElementById('edit-proj-name').value = p.name;
+      const sel = document.getElementById('edit-proj-group');
+      sel.innerHTML = state.groups.map(g =>
+        `<option value="${g.id}" ${g.id===p.group_id?'selected':''}>${esc(g.name)}</option>`
+      ).join('');
+      document.getElementById('proj-modal-msg').textContent = '';
+      document.getElementById('proj-modal').classList.remove('hidden');
+      setTimeout(() => document.getElementById('edit-proj-name').focus(), 50);
+    }
+
+    function closeProjModal() {
+      document.getElementById('proj-modal').classList.add('hidden');
+      editingProjectId = null;
+    }
+
+    function handleProjBackdrop(e) {
+      if (e.target.id === 'proj-modal') closeProjModal();
+    }
+
+    async function saveProjSettings() {
+      if (!editingProjectId) return;
+      const name = document.getElementById('edit-proj-name').value.trim();
+      const group_id = Number(document.getElementById('edit-proj-group').value);
+      if (!name) return;
+
+      const res = await fetch(`/api/boards/projects/${editingProjectId}`, {
+        method: 'PATCH',
+        headers: {'Content-Type':'application/json'},
+        body: JSON.stringify({ name, group_id }),
+      });
+      const data = await res.json().catch(() => ({}));
       if (!res.ok) {
-        cards = [];
-        setMessage('board-message', 'Karten konnten nicht geladen werden.', 'error');
-        renderBoard(cards);
+        document.getElementById('proj-modal-msg').innerHTML = `<span class="msg-error">${esc(data.detail||'Fehler')}</span>`;
         return;
       }
-
-      cards = await res.json();
-      renderBoard(cards);
+      const idx = state.projects.findIndex(p => p.id === editingProjectId);
+      if (idx >= 0) state.projects[idx] = data;
+      closeProjModal();
+      renderSidebar();
+      if (state.selectedProjectId === editingProjectId) {
+        document.getElementById('toolbar-title').textContent = data.name;
+      }
     }
 
-    function renderBoard(currentCards) {
-      const root = document.getElementById('board-root');
-      const project = getSelectedProject();
+    async function deleteProjFromModal() {
+      if (!editingProjectId) return;
+      const p = getProject(editingProjectId);
+      if (!confirm(`Projekt "${p?.name}" und alle Karten löschen?`)) return;
 
-      if (!project) {
-        root.innerHTML = `<div class="empty-state">${groups.length
-          ? 'Wähle ein bestehendes Projekt oder lege oben ein neues Projekt an.'
-          : 'Es gibt noch keine Gruppen. Lege zuerst im Adminbereich eine Gruppe an.'}</div>`;
+      const res = await fetch(`/api/boards/projects/${editingProjectId}`, { method: 'DELETE' });
+      if (!res.ok) { showToast('Fehler beim Löschen', 'error'); return; }
+      state.projects = state.projects.filter(x => x.id !== editingProjectId);
+      if (state.selectedProjectId === editingProjectId) {
+        state.selectedProjectId = state.projects[0]?.id || null;
+      }
+      closeProjModal();
+      renderSidebar();
+      if (state.selectedProjectId) await loadProject(state.selectedProjectId);
+      else renderColumns();
+    }
+
+    // ── PROJECT SELECTION ──────────────────────────────────
+    async function selectProject(id) {
+      state.selectedProjectId = id;
+      renderSidebar();
+      await loadProject(id);
+    }
+
+    async function loadProject(id) {
+      const p = getProject(id);
+      document.getElementById('toolbar-title').textContent = p ? p.name : 'Kein Projekt';
+
+      const res = await fetch(`/api/boards/projects/${id}/cards`);
+      if (!res.ok) { showToast('Karten konnten nicht geladen werden', 'error'); return; }
+      state.cards = await res.json();
+      updateAssigneeFilter();
+      applyFiltersAndRender();
+    }
+
+    // ── FILTERS ────────────────────────────────────────────
+    function toggleMyCards() {
+      state.filters.myCards = !state.filters.myCards;
+      document.getElementById('btn-my-cards').classList.toggle('active', state.filters.myCards);
+      applyFiltersAndRender();
+    }
+
+    function applyFilters(cards) {
+      return cards.filter(c => {
+        if (state.filters.myCards && c.assignee !== CURRENT_USERNAME) return false;
+        if (state.filters.assignee && c.assignee !== state.filters.assignee) return false;
+        if (state.filters.priority && c.priority !== state.filters.priority) return false;
+        return true;
+      });
+    }
+
+    function applyFiltersAndRender() {
+      state.filters.assignee = document.getElementById('filter-assignee').value;
+      state.filters.priority = document.getElementById('filter-priority').value;
+      renderColumns();
+    }
+
+    function updateAssigneeFilter() {
+      const assignees = [...new Set(state.cards.map(c => c.assignee).filter(Boolean))];
+      const sel = document.getElementById('filter-assignee');
+      const current = sel.value;
+      sel.innerHTML = '<option value="">Alle Personen</option>' +
+        assignees.map(a => `<option value="${esc(a)}" ${a===current?'selected':''}>${esc(a)}</option>`).join('');
+    }
+
+    // ── COLUMNS / CARDS RENDERING ──────────────────────────
+    function renderColumns() {
+      const root = document.getElementById('board-columns');
+      if (!state.selectedProjectId) {
+        root.innerHTML = '<div class="board-empty">Wähle ein Projekt aus der Seitenleiste.</div>';
         return;
       }
 
-      root.innerHTML = `<div class="board-shell">${columns.map(column => {
-        const columnCards = currentCards
-          .filter(card => card.column === column.id)
+      const filtered = applyFilters(state.cards);
+
+      root.innerHTML = COLUMNS.map(col => {
+        const colCards = filtered
+          .filter(c => c.column === col.id)
           .sort((a, b) => a.position - b.position);
 
         return `
-          <section class="board-column">
+          <div class="board-column" data-col="${col.id}">
             <div class="column-head">
-              <h3>${column.label}</h3>
-              <span class="column-count">${columnCards.length}</span>
+              <div class="column-head-left">
+                <span class="column-title">${col.label}</span>
+                <span class="column-count">${colCards.length}</span>
+              </div>
+              <button class="column-add-btn" onclick="showInlineAdd('${col.id}')" title="Karte hinzufügen">+</button>
             </div>
             <div
-              class="column-cards"
-              data-column="${column.id}"
-              ondragover="handleDragOver(event)"
-              ondragenter="handleDragEnter(event)"
-              ondragleave="handleDragLeave(event)"
-              ondrop="handleDrop(event, '${column.id}')"
+              class="column-body"
+              data-column="${col.id}"
+              ondragover="onDragOver(event)"
+              ondragenter="onDragEnter(event)"
+              ondragleave="onDragLeave(event)"
+              ondrop="onDrop(event,'${col.id}')"
             >
-              ${columnCards.length ? columnCards.map(renderCard).join('') : '<div class="column-empty">Keine Karten.</div>'}
+              <div id="quick-add-${col.id}"></div>
+              ${colCards.length
+                ? colCards.map(c => renderCardHtml(c)).join('')
+                : '<div class="column-empty">Keine Karten.</div>'}
             </div>
-          </section>`;
-      }).join('')}</div>`;
+          </div>`;
+      }).join('');
     }
 
-    function renderCard(card) {
-      const description = card.description ? `<div class="card-description">${escapeHtml(card.description)}</div>` : '';
-      const assignee = card.assignee ? `<span class="badge">Verantwortlich: ${escapeHtml(card.assignee)}</span>` : '';
+    function renderCardHtml(card) {
+      const label = card.label_color
+        ? `<div class="card-label-strip ${card.label_color}"></div>`
+        : '';
+
+      let priorityHtml = '';
+      if (card.priority === 'high')   priorityHtml = `<span class="card-priority high"  title="Hoch">!</span>`;
+      if (card.priority === 'medium') priorityHtml = `<span class="card-priority medium" title="Mittel">~</span>`;
+
+      let dueHtml = '';
+      if (card.due_date) {
+        const df = formatDate(card.due_date);
+        if (df) dueHtml = `<span class="${df.cls}">${esc(df.label)}</span>`;
+      }
+
+      const descHtml = card.description
+        ? `<div class="card-desc-preview">${esc(card.description)}</div>`
+        : '';
+
+      let avatarHtml = '';
+      if (card.assignee) {
+        const member = state.members.find(m => m.username === card.assignee);
+        const name = member ? member.display_name : card.assignee;
+        const bg = avatarColor(card.assignee);
+        avatarHtml = `<span class="card-avatar" style="background:${bg}" title="${esc(name)}">${esc(initials(name))}</span>`;
+      }
 
       return `
         <article
           class="board-card"
-          draggable="true"
           data-card-id="${card.id}"
-          ondragstart="handleDragStart(event, ${card.id})"
-          ondragend="handleDragEnd(event)"
+          draggable="true"
+          ondragstart="onDragStart(event,${card.id})"
+          ondragend="onDragEnd(event)"
+          onclick="openDetail(${card.id})"
         >
-          <div class="card-top">
-            <div class="card-title">${escapeHtml(card.title)}</div>
-            <button class="icon-button" type="button" title="Karte löschen" onclick="deleteCard(event, ${card.id})">×</button>
+          ${label}
+          <div class="card-inner">
+            <div class="card-title">${esc(card.title)}</div>
+            ${descHtml}
+            <div class="card-footer">
+              ${priorityHtml}
+              ${dueHtml}
+              ${avatarHtml}
+            </div>
           </div>
-          ${description}
-          <div class="card-meta-row">${assignee}</div>
         </article>`;
     }
 
-    function handleDragStart(event, cardId) {
-      draggedCardId = cardId;
+    // ── INLINE QUICK ADD ────────────────────────────────────
+    function showInlineAdd(columnId) {
+      // clear others
+      COLUMNS.forEach(c => {
+        const el = document.getElementById(`quick-add-${c.id}`);
+        if (el && c.id !== columnId) el.innerHTML = '';
+      });
+      const container = document.getElementById(`quick-add-${columnId}`);
+      if (!container) return;
+      container.innerHTML = `
+        <div class="quick-add-form">
+          <input id="qa-input-${columnId}" type="text" placeholder="Titel der Karte" maxlength="140"
+            onkeydown="handleQuickAddKey(event,'${columnId}')">
+          <div class="quick-add-actions">
+            <button class="save" onclick="saveInlineAdd('${columnId}')">Speichern</button>
+            <button onclick="cancelInlineAdd('${columnId}')">Abbrechen</button>
+          </div>
+        </div>`;
+      document.getElementById(`qa-input-${columnId}`)?.focus();
+    }
+
+    function cancelInlineAdd(columnId) {
+      const el = document.getElementById(`quick-add-${columnId}`);
+      if (el) el.innerHTML = '';
+    }
+
+    function handleQuickAddKey(event, columnId) {
+      if (event.key === 'Enter') saveInlineAdd(columnId);
+      if (event.key === 'Escape') cancelInlineAdd(columnId);
+    }
+
+    async function saveInlineAdd(columnId) {
+      if (!state.selectedProjectId) return;
+      const input = document.getElementById(`qa-input-${columnId}`);
+      const title = input?.value.trim();
+      if (!title) return;
+
+      const res = await fetch(`/api/boards/projects/${state.selectedProjectId}/cards`, {
+        method: 'POST',
+        headers: {'Content-Type':'application/json'},
+        body: JSON.stringify({ title, column: columnId }),
+      });
+      if (!res.ok) { showToast('Fehler', 'error'); return; }
+      const card = await res.json();
+      state.cards.push(card);
+      updateAssigneeFilter();
+      applyFiltersAndRender();
+    }
+
+    // ── QUICK CARD MODAL ────────────────────────────────────
+    function openQuickCardModal() {
+      if (!state.selectedProjectId) { showToast('Bitte zuerst ein Projekt wählen', 'error'); return; }
+      document.getElementById('qc-title').value = '';
+      document.getElementById('qc-msg').textContent = '';
+      document.getElementById('quick-card-modal').classList.remove('hidden');
+      setTimeout(() => document.getElementById('qc-title').focus(), 50);
+    }
+
+    function closeQuickCardModal() {
+      document.getElementById('quick-card-modal').classList.add('hidden');
+    }
+
+    function handleQuickCardBackdrop(e) {
+      if (e.target.id === 'quick-card-modal') closeQuickCardModal();
+    }
+
+    async function saveQuickCard() {
+      if (!state.selectedProjectId) return;
+      const title = document.getElementById('qc-title').value.trim();
+      const column = document.getElementById('qc-column').value;
+      if (!title) { document.getElementById('qc-msg').innerHTML = '<span class="msg-error">Titel erforderlich</span>'; return; }
+
+      const res = await fetch(`/api/boards/projects/${state.selectedProjectId}/cards`, {
+        method: 'POST',
+        headers: {'Content-Type':'application/json'},
+        body: JSON.stringify({ title, column }),
+      });
+      if (!res.ok) { const d=await res.json().catch(()=>({})); document.getElementById('qc-msg').innerHTML=`<span class="msg-error">${esc(d.detail||'Fehler')}</span>`; return; }
+      const card = await res.json();
+      state.cards.push(card);
+      closeQuickCardModal();
+      updateAssigneeFilter();
+      applyFiltersAndRender();
+    }
+
+    // ── DETAIL PANEL ────────────────────────────────────────
+    function openDetail(cardId) {
+      const card = state.cards.find(c => c.id === cardId);
+      if (!card) return;
+      state.detailCardId = cardId;
+      resetDeleteConfirm();
+
+      // Populate
+      document.getElementById('detail-title-input').value = card.title;
+      document.getElementById('detail-desc').value = card.description || '';
+      document.getElementById('detail-column').value = card.column;
+
+      // Assignee
+      const asel = document.getElementById('detail-assignee');
+      asel.innerHTML = '<option value="">Niemand</option>' +
+        state.members.map(m =>
+          `<option value="${esc(m.username)}" ${m.username===card.assignee?'selected':''}>${esc(m.display_name)}</option>`
+        ).join('');
+      if (card.assignee && !state.members.find(m => m.username === card.assignee)) {
+        asel.innerHTML += `<option value="${esc(card.assignee)}" selected>${esc(card.assignee)}</option>`;
+      }
+
+      // Due date
+      document.getElementById('detail-due').value = card.due_date
+        ? card.due_date.substring(0, 10)
+        : '';
+
+      // Priority
+      updatePrioritySeg(card.priority || 'none');
+
+      // Label
+      updateLabelSwatches(card.label_color || '');
+
+      // Meta
+      const fmt = iso => iso ? new Date(iso).toLocaleString('de-DE',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'}) : '–';
+      document.getElementById('detail-meta').innerHTML =
+        `<span>Erstellt: ${fmt(card.created_at)}</span><span>Geändert: ${fmt(card.updated_at)}</span>`;
+
+      document.getElementById('detail-backdrop').classList.add('open');
+      document.getElementById('detail-panel').classList.add('open');
+    }
+
+    function closeDetail() {
+      document.getElementById('detail-backdrop').classList.remove('open');
+      document.getElementById('detail-panel').classList.remove('open');
+      state.detailCardId = null;
+      resetDeleteConfirm();
+    }
+
+    function updatePrioritySeg(priority) {
+      document.querySelectorAll('#priority-seg button').forEach(btn => {
+        btn.classList.remove('active','high','medium');
+        if (btn.dataset.p === priority) {
+          btn.classList.add('active');
+          if (priority === 'high')   btn.classList.add('high');
+          if (priority === 'medium') btn.classList.add('medium');
+        }
+      });
+    }
+
+    function updateLabelSwatches(color) {
+      document.querySelectorAll('.label-swatch').forEach(sw => {
+        sw.classList.toggle('active', sw.dataset.color === color);
+      });
+    }
+
+    async function saveDetailField(field, value) {
+      if (!state.detailCardId) return;
+      const payload = { [field]: value };
+      const res = await fetch(`/api/boards/cards/${state.detailCardId}`, {
+        method: 'PATCH',
+        headers: {'Content-Type':'application/json'},
+        body: JSON.stringify(payload),
+      });
+      if (!res.ok) { showToast('Speichern fehlgeschlagen', 'error'); return; }
+      const updated = await res.json();
+      const idx = state.cards.findIndex(c => c.id === state.detailCardId);
+      if (idx >= 0) state.cards[idx] = updated;
+      updateAssigneeFilter();
+      applyFiltersAndRender();
+    }
+
+    function setPriority(p) {
+      updatePrioritySeg(p);
+      saveDetailField('priority', p);
+    }
+
+    function setLabel(color) {
+      updateLabelSwatches(color);
+      saveDetailField('label_color', color || null);
+    }
+
+    function resetDeleteConfirm() {
+      clearTimeout(state.deleteConfirmTimer);
+      state.deleteConfirmTimer = null;
+      const btn = document.getElementById('btn-delete-card');
+      if (btn) {
+        btn.classList.remove('confirm');
+        btn.textContent = '';
+        btn.innerHTML = '<i class="ti ti-trash"></i> Karte löschen';
+      }
+    }
+
+    async function deleteDetailCard() {
+      const btn = document.getElementById('btn-delete-card');
+      if (!state.deleteConfirmTimer) {
+        btn.classList.add('confirm');
+        btn.innerHTML = '<i class="ti ti-trash"></i> Nochmal klicken zum Löschen';
+        state.deleteConfirmTimer = setTimeout(() => {
+          resetDeleteConfirm();
+        }, 2500);
+        return;
+      }
+
+      clearTimeout(state.deleteConfirmTimer);
+      state.deleteConfirmTimer = null;
+
+      const cardId = state.detailCardId;
+      const res = await fetch(`/api/boards/cards/${cardId}`, { method: 'DELETE' });
+      if (!res.ok) { showToast('Fehler beim Löschen', 'error'); return; }
+      state.cards = state.cards.filter(c => c.id !== cardId);
+      closeDetail();
+      updateAssigneeFilter();
+      applyFiltersAndRender();
+      showToast('Karte gelöscht', 'success');
+    }
+
+    // ── DRAG & DROP ─────────────────────────────────────────
+    let dragCardId = null;
+    let dragPlaceholder = null;
+
+    function onDragStart(event, cardId) {
+      dragCardId = cardId;
       event.currentTarget.classList.add('dragging');
+      event.dataTransfer.effectAllowed = 'move';
     }
 
-    function handleDragEnd(event) {
-      draggedCardId = null;
+    function onDragEnd(event) {
+      dragCardId = null;
       event.currentTarget.classList.remove('dragging');
-      document.querySelectorAll('.column-cards').forEach(el => el.classList.remove('drag-over'));
+      document.querySelectorAll('.column-body').forEach(el => el.classList.remove('drag-over'));
+      if (dragPlaceholder) { dragPlaceholder.remove(); dragPlaceholder = null; }
     }
 
-    function handleDragOver(event) {
+    function onDragOver(event) {
       event.preventDefault();
+      event.dataTransfer.dropEffect = 'move';
     }
 
-    function handleDragEnter(event) {
+    function onDragEnter(event) {
       event.currentTarget.classList.add('drag-over');
     }
 
-    function handleDragLeave(event) {
+    function onDragLeave(event) {
       if (!event.currentTarget.contains(event.relatedTarget)) {
         event.currentTarget.classList.remove('drag-over');
       }
@@ -913,75 +1759,66 @@
 
     function getDropPosition(container, clientY) {
       const items = [...container.querySelectorAll('.board-card:not(.dragging)')];
-      for (let index = 0; index < items.length; index += 1) {
-        const box = items[index].getBoundingClientRect();
-        if (clientY < box.top + box.height / 2) {
-          return index;
-        }
+      for (let i = 0; i < items.length; i++) {
+        const box = items[i].getBoundingClientRect();
+        if (clientY < box.top + box.height / 2) return i;
       }
       return items.length;
     }
 
-    async function handleDrop(event, columnId) {
+    async function onDrop(event, columnId) {
       event.preventDefault();
-      const container = event.currentTarget;
-      container.classList.remove('drag-over');
-      if (!draggedCardId) return;
+      event.currentTarget.classList.remove('drag-over');
+      if (!dragCardId) return;
 
-      const position = getDropPosition(container, event.clientY);
-      const res = await fetch(`/api/boards/cards/${draggedCardId}`, {
+      const position = getDropPosition(event.currentTarget, event.clientY);
+      const res = await fetch(`/api/boards/cards/${dragCardId}`, {
         method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {'Content-Type':'application/json'},
         body: JSON.stringify({ column: columnId, position }),
       });
-      if (!res.ok) {
-        setMessage('board-message', 'Karte konnte nicht verschoben werden.', 'error');
-        return;
-      }
-
-      setMessage('board-message', '');
-      await loadCards();
+      if (!res.ok) { showToast('Karte konnte nicht verschoben werden', 'error'); return; }
+      const updated = await res.json();
+      const idx = state.cards.findIndex(c => c.id === dragCardId);
+      if (idx >= 0) state.cards[idx] = updated;
+      applyFiltersAndRender();
     }
 
-    async function deleteCard(event, cardId) {
-      event.stopPropagation();
-      if (!confirm('Karte wirklich löschen?')) return;
-
-      const res = await fetch(`/api/boards/cards/${cardId}`, { method: 'DELETE' });
-      if (!res.ok) {
-        setMessage('board-message', 'Karte konnte nicht gelöscht werden.', 'error');
-        return;
-      }
-
-      setMessage('board-message', 'Karte gelöscht.', 'success');
-      await loadCards();
+    // ── MEMBERS ────────────────────────────────────────────
+    async function loadMembers() {
+      const res = await fetch('/api/boards/members');
+      if (!res.ok) return;
+      state.members = await res.json();
     }
 
-    document.addEventListener('keydown', event => {
-      if (event.key !== 'Escape') {
-        return;
-      }
-      if (!document.getElementById('card-modal').classList.contains('hidden')) {
-        closeCardModal();
-      }
-      if (!document.getElementById('project-settings-modal').classList.contains('hidden')) {
-        closeProjectSettingsModal();
+    // ── KEYBOARD ───────────────────────────────────────────
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Escape') {
+        closeDetail();
+        closeGroupModal();
+        closeProjModal();
+        closeQuickCardModal();
+        COLUMNS.forEach(c => cancelInlineAdd(c.id));
       }
     });
 
-    loadCards();
-  </script>
-  <div id="toast-container"></div>
-  <script>
-  function showToast(msg, type = 'info') {
-    const c = document.getElementById('toast-container');
-    if (!c) return;
-    const t = document.createElement('div');
-    t.className = 'toast' + (type === 'error' ? ' toast-error' : type === 'success' ? ' toast-success' : '');
-    t.textContent = msg;
-    c.appendChild(t);
-    setTimeout(() => t.remove(), 4000);
-  }
+    // ── INIT ───────────────────────────────────────────────
+    async function init() {
+      await loadMembers();
+      renderSidebar();
+
+      if (state.selectedProjectId) {
+        await loadProject(state.selectedProjectId);
+      } else if (state.projects.length) {
+        state.selectedProjectId = state.projects[0].id;
+        renderSidebar();
+        await loadProject(state.selectedProjectId);
+      } else {
+        renderColumns();
+      }
+    }
+
+    init();
   </script>
 </body>
 </html>

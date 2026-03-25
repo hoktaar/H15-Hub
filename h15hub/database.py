@@ -17,9 +17,10 @@ async def init_db() -> None:
     os.makedirs("data", exist_ok=True)
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
-        from h15hub.models.board import migrate_board_schema
+        from h15hub.models.board import migrate_board_schema, migrate_board_cards_v2
 
         await migrate_board_schema(conn)
+        await migrate_board_cards_v2(conn)
 
 
 async def get_db() -> AsyncSession:

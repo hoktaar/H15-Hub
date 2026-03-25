@@ -253,6 +253,7 @@ async def boards_page(
 
     return templates.TemplateResponse(request, "boards.html", template_context(
         current_user=current_user,
+        current_username=current_user.username if current_user else None,
         groups=groups,
         groups_payload=groups_payload,
         projects=projects,
