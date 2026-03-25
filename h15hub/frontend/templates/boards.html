@@ -7,6 +7,7 @@
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90' fill='%23f0a020'>⚙</text></svg>">
   <link rel="stylesheet" href="/static/base.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
   <style>
     :root {
       --bg: #0d0b08;
@@ -900,6 +901,117 @@
 
     /* hidden */
     .hidden { display: none !important; }
+
+    /* ── MARKDOWN EDITOR ── */
+    .md-editor { display: flex; flex-direction: column; border: 1px solid var(--border); border-radius: 2px; }
+    .md-editor:focus-within { border-color: var(--amber); }
+    .md-toolbar {
+      display: flex;
+      gap: 1px;
+      padding: 4px 6px;
+      border-bottom: 1px solid var(--border);
+      background: var(--surf2);
+      flex-wrap: wrap;
+    }
+    .md-toolbar button {
+      background: none;
+      border: none;
+      color: var(--muted);
+      padding: 3px 6px;
+      font-size: 11px;
+      font-family: 'JetBrains Mono', monospace;
+      cursor: pointer;
+      border-radius: 2px;
+      line-height: 1.4;
+      min-height: unset;
+    }
+    .md-toolbar button:hover { background: rgba(255,255,255,0.06); color: var(--text); }
+    .md-toolbar .md-tb-sep { width: 1px; background: var(--border); margin: 3px 4px; }
+    .md-tabs { display: flex; border-bottom: 1px solid var(--border); background: var(--surf2); }
+    .md-tab {
+      padding: 4px 12px;
+      font-size: 10px;
+      font-family: 'JetBrains Mono', monospace;
+      color: var(--muted);
+      cursor: pointer;
+      border: none;
+      background: none;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      border-bottom: 2px solid transparent;
+      min-height: unset;
+    }
+    .md-tab.active { color: var(--amber); border-bottom-color: var(--amber); }
+    .md-textarea {
+      background: var(--bg);
+      border: none;
+      color: var(--text);
+      padding: 8px 10px;
+      font-size: 12px;
+      font-family: 'JetBrains Mono', monospace;
+      width: 100%;
+      box-sizing: border-box;
+      min-height: 120px;
+      resize: vertical;
+      outline: none;
+    }
+    .md-preview {
+      padding: 8px 10px;
+      min-height: 120px;
+      font-size: 12px;
+      color: var(--text);
+      line-height: 1.6;
+      overflow-y: auto;
+      background: var(--bg);
+    }
+    .md-preview h1,.md-preview h2,.md-preview h3 {
+      font-family: 'Bebas Neue', sans-serif;
+      letter-spacing: 0.04em;
+      color: var(--text);
+      margin: 8px 0 4px;
+    }
+    .md-preview h1 { font-size: 20px; }
+    .md-preview h2 { font-size: 17px; }
+    .md-preview h3 { font-size: 14px; }
+    .md-preview p { margin: 0 0 6px; }
+    .md-preview ul,.md-preview ol { padding-left: 18px; margin: 0 0 6px; }
+    .md-preview li { margin: 2px 0; }
+    .md-preview code {
+      background: var(--surf2);
+      border: 1px solid var(--border);
+      padding: 1px 4px;
+      border-radius: 2px;
+      font-size: 11px;
+    }
+    .md-preview pre {
+      background: var(--surf2);
+      border: 1px solid var(--border);
+      padding: 8px 10px;
+      border-radius: 2px;
+      overflow-x: auto;
+      margin: 0 0 6px;
+    }
+    .md-preview pre code { background: none; border: none; padding: 0; }
+    .md-preview blockquote {
+      border-left: 3px solid var(--amber);
+      margin: 0 0 6px;
+      padding: 2px 10px;
+      color: var(--muted);
+    }
+    .md-preview a { color: var(--amber); }
+    .md-preview strong { color: var(--text); }
+    .md-preview hr { border: none; border-top: 1px solid var(--border); margin: 8px 0; }
+    .md-preview table { border-collapse: collapse; width: 100%; margin-bottom: 6px; font-size: 11px; }
+    .md-preview th,.md-preview td { border: 1px solid var(--border); padding: 4px 8px; }
+    .md-preview th { background: var(--surf2); color: var(--muted); }
+
+    /* Card description preview renders markdown */
+    .card-desc-preview { font-size: 11px; color: var(--muted); margin-top: 5px; line-height: 1.4; }
+    .card-desc-preview p { margin: 0; }
+    .card-desc-preview code { background: var(--surf2); padding: 1px 3px; border-radius: 2px; font-size: 10px; }
+    .card-desc-preview strong,.card-desc-preview em { color: var(--text); }
+    /* limit preview to 3 lines */
+    .card-desc-preview { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
   </style>
 </head>
 <body>
@@ -979,12 +1091,36 @@
     <div class="detail-body">
       <div>
         <div class="detail-section-label">Beschreibung</div>
-        <textarea
-          class="detail-textarea"
-          id="detail-desc"
-          placeholder="Beschreibung hinzufügen…"
-          onblur="saveDetailField('description', this.value || null)"
-        ></textarea>
+        <div class="md-editor" id="md-editor">
+          <div class="md-tabs">
+            <button class="md-tab active" id="md-tab-edit" onclick="switchMdTab('edit')">Bearbeiten</button>
+            <button class="md-tab" id="md-tab-preview" onclick="switchMdTab('preview')">Vorschau</button>
+          </div>
+          <div class="md-toolbar" id="md-toolbar">
+            <button onclick="mdFormat('bold')"       title="Fett (Strg+B)"><b>B</b></button>
+            <button onclick="mdFormat('italic')"     title="Kursiv (Strg+I)"><i>I</i></button>
+            <button onclick="mdFormat('strike')"     title="Durchgestrichen"><s>S</s></button>
+            <div class="md-tb-sep"></div>
+            <button onclick="mdFormat('h2')"         title="Überschrift">H</button>
+            <button onclick="mdFormat('ul')"         title="Liste">• Liste</button>
+            <button onclick="mdFormat('ol')"         title="Nummerierte Liste">1. Liste</button>
+            <div class="md-tb-sep"></div>
+            <button onclick="mdFormat('code')"       title="Code">`Code`</button>
+            <button onclick="mdFormat('codeblock')"  title="Codeblock">```</button>
+            <button onclick="mdFormat('quote')"      title="Zitat">&gt; Zitat</button>
+            <button onclick="mdFormat('link')"       title="Link">🔗</button>
+            <div class="md-tb-sep"></div>
+            <button onclick="mdFormat('hr')"         title="Trennlinie">―</button>
+          </div>
+          <textarea
+            id="detail-desc"
+            class="md-textarea"
+            placeholder="Beschreibung in Markdown…"
+            onblur="saveDetailField('description', this.value || null)"
+            oninput="if(document.getElementById('md-tab-preview').classList.contains('active')) updateMdPreview()"
+          ></textarea>
+          <div class="md-preview hidden" id="md-preview-pane"></div>
+        </div>
       </div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
         <div>
@@ -1480,7 +1616,7 @@
       }
 
       const descHtml = card.description
-        ? `<div class="card-desc-preview">${esc(card.description)}</div>`
+        ? `<div class="card-desc-preview">${mdToCardPreview(card.description)}</div>`
         : '';
 
       let avatarHtml = '';
@@ -1498,7 +1634,8 @@
           draggable="true"
           ondragstart="onDragStart(event,${card.id})"
           ondragend="onDragEnd(event)"
-          onclick="openDetail(${card.id})"
+          ondragover="event.preventDefault()"
+          onclick="onCardClick(event,${card.id})"
         >
           ${label}
           <div class="card-inner">
@@ -1608,6 +1745,7 @@
       // Populate
       document.getElementById('detail-title-input').value = card.title;
       document.getElementById('detail-desc').value = card.description || '';
+      switchMdTab('edit');  // always open in edit tab
       document.getElementById('detail-column').value = card.column;
 
       // Assignee
@@ -1727,19 +1865,28 @@
 
     // ── DRAG & DROP ─────────────────────────────────────────
     let dragCardId = null;
-    let dragPlaceholder = null;
+    let didDrag = false;  // distinguish drag from click
 
     function onDragStart(event, cardId) {
       dragCardId = cardId;
+      didDrag = false;
       event.currentTarget.classList.add('dragging');
       event.dataTransfer.effectAllowed = 'move';
+      // Required by Firefox to actually initiate the drag
+      event.dataTransfer.setData('text/plain', String(cardId));
     }
 
     function onDragEnd(event) {
-      dragCardId = null;
+      didDrag = true;
       event.currentTarget.classList.remove('dragging');
       document.querySelectorAll('.column-body').forEach(el => el.classList.remove('drag-over'));
-      if (dragPlaceholder) { dragPlaceholder.remove(); dragPlaceholder = null; }
+      // Reset didDrag after a tick so the click handler can check it
+      setTimeout(() => { didDrag = false; dragCardId = null; }, 100);
+    }
+
+    function onCardClick(event, cardId) {
+      if (didDrag) return;  // was a drag, not a click
+      openDetail(cardId);
     }
 
     function onDragOver(event) {
@@ -1769,17 +1916,18 @@
     async function onDrop(event, columnId) {
       event.preventDefault();
       event.currentTarget.classList.remove('drag-over');
-      if (!dragCardId) return;
+      const cardId = dragCardId || parseInt(event.dataTransfer.getData('text/plain'));
+      if (!cardId) return;
 
       const position = getDropPosition(event.currentTarget, event.clientY);
-      const res = await fetch(`/api/boards/cards/${dragCardId}`, {
+      const res = await fetch(`/api/boards/cards/${cardId}`, {
         method: 'PATCH',
         headers: {'Content-Type':'application/json'},
         body: JSON.stringify({ column: columnId, position }),
       });
       if (!res.ok) { showToast('Karte konnte nicht verschoben werden', 'error'); return; }
       const updated = await res.json();
-      const idx = state.cards.findIndex(c => c.id === dragCardId);
+      const idx = state.cards.findIndex(c => c.id === cardId);
       if (idx >= 0) state.cards[idx] = updated;
       applyFiltersAndRender();
     }
@@ -1799,6 +1947,114 @@
         closeProjModal();
         closeQuickCardModal();
         COLUMNS.forEach(c => cancelInlineAdd(c.id));
+      }
+    });
+
+    // ── MARKDOWN EDITOR ────────────────────────────────────
+    // Configure marked
+    marked.setOptions({ breaks: true, gfm: true });
+
+    function mdToCardPreview(text) {
+      // Render markdown but strip dangerous tags for preview
+      const html = marked.parse(text || '');
+      // Basic sanitization: remove script/on* attributes
+      const div = document.createElement('div');
+      div.innerHTML = html;
+      div.querySelectorAll('script,iframe,object,embed').forEach(el => el.remove());
+      div.querySelectorAll('*').forEach(el => {
+        [...el.attributes].forEach(a => { if (a.name.startsWith('on')) el.removeAttribute(a.name); });
+      });
+      return div.innerHTML;
+    }
+
+    function updateMdPreview() {
+      const textarea = document.getElementById('detail-desc');
+      const preview = document.getElementById('md-preview-pane');
+      if (!textarea || !preview) return;
+      preview.innerHTML = mdToCardPreview(textarea.value);
+    }
+
+    function switchMdTab(tab) {
+      const textarea = document.getElementById('detail-desc');
+      const preview  = document.getElementById('md-preview-pane');
+      const toolbar  = document.getElementById('md-toolbar');
+      const editTab  = document.getElementById('md-tab-edit');
+      const prevTab  = document.getElementById('md-tab-preview');
+      if (!textarea) return;
+      if (tab === 'preview') {
+        updateMdPreview();
+        textarea.classList.add('hidden');
+        toolbar.classList.add('hidden');
+        preview.classList.remove('hidden');
+        editTab.classList.remove('active');
+        prevTab.classList.add('active');
+      } else {
+        textarea.classList.remove('hidden');
+        toolbar.classList.remove('hidden');
+        preview.classList.add('hidden');
+        editTab.classList.add('active');
+        prevTab.classList.remove('active');
+        textarea.focus();
+      }
+    }
+
+    function mdFormat(type) {
+      const ta = document.getElementById('detail-desc');
+      if (!ta) return;
+      const start = ta.selectionStart;
+      const end   = ta.selectionEnd;
+      const sel   = ta.value.slice(start, end);
+      const before = ta.value.slice(0, start);
+      const after  = ta.value.slice(end);
+
+      let insert = '';
+      let newCursorOffset = 0;
+
+      const wrap = (open, close) => {
+        if (sel) { insert = open + sel + close; newCursorOffset = insert.length; }
+        else { insert = open + close; newCursorOffset = open.length; }
+      };
+      const prefix = (pfx) => {
+        // Check if line already starts with prefix — toggle off
+        const lineStart = before.lastIndexOf('\n') + 1;
+        const line = ta.value.slice(lineStart, end || ta.value.length);
+        if (line.startsWith(pfx)) {
+          ta.setRangeText(line.slice(pfx.length), lineStart, lineStart + line.length, 'end');
+          return;
+        }
+        const gap = before.length === 0 || before.endsWith('\n') ? '' : '\n';
+        insert = gap + pfx + (sel || '');
+        newCursorOffset = insert.length;
+      };
+
+      if (type === 'bold')      { wrap('**', '**'); }
+      else if (type === 'italic')    { wrap('*', '*'); }
+      else if (type === 'strike')    { wrap('~~', '~~'); }
+      else if (type === 'code')      { wrap('`', '`'); }
+      else if (type === 'codeblock') { wrap('```\n', '\n```'); }
+      else if (type === 'quote')     { prefix('> '); return; }
+      else if (type === 'h2')        { prefix('## '); return; }
+      else if (type === 'ul')        { prefix('- '); return; }
+      else if (type === 'ol')        { prefix('1. '); return; }
+      else if (type === 'hr')        { insert = (before.endsWith('\n') || !before ? '' : '\n') + '---\n'; newCursorOffset = insert.length; }
+      else if (type === 'link') {
+        insert = sel ? `[${sel}](url)` : '[Text](url)';
+        newCursorOffset = insert.length - 1;
+      }
+
+      if (!insert) return;
+      ta.setRangeText(insert, start, end, 'end');
+      ta.selectionStart = start + newCursorOffset;
+      ta.selectionEnd   = start + newCursorOffset;
+      ta.focus();
+    }
+
+    // Keyboard shortcuts inside the description textarea
+    document.addEventListener('keydown', e => {
+      if (e.target.id === 'detail-desc') {
+        if ((e.ctrlKey || e.metaKey) && e.key === 'b') { e.preventDefault(); mdFormat('bold'); }
+        if ((e.ctrlKey || e.metaKey) && e.key === 'i') { e.preventDefault(); mdFormat('italic'); }
+        if ((e.ctrlKey || e.metaKey) && e.key === 'k') { e.preventDefault(); mdFormat('link'); }
       }
     });
 
