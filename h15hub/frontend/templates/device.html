@@ -4,60 +4,81 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>{{ device.name }} – H15-Hub</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
   <style>
     :root {
       color-scheme: dark;
-      --bg: #19191d;
-      --surface: #232329;
-      --surface-alt: #1d1d22;
-      --border: #36363f;
-      --border-strong: #4a4a55;
-      --text: #ececf1;
-      --muted: #a2a2ad;
-      --accent: #e94560;
-      --danger: #ff9aa8;
-      --success: #83d39a;
-      --warning: #e4b35d;
+      --bg:        #0d0b08;
+      --surface:   #161310;
+      --surf2:     #1d1a15;
+      --border:    #2e2519;
+      --border2:   #4a3c28;
+      --text:      #ede8dd;
+      --muted:     #887a64;
+      --dim:       #524638;
+      --amber:     #f0a020;
+      --green:     #5ecc80;
+      --red:       #e84040;
+      --yellow:    #f0c040;
+      --accent:        var(--amber);
+      --success:       var(--green);
+      --danger:        var(--red);
+      --warning:       var(--yellow);
+      --surface-alt:   var(--surf2);
+      --border-strong: var(--border2);
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
 
     body {
-      font-family: "SF Pro Text", "Helvetica Neue", Helvetica, sans-serif;
+      font-family: 'JetBrains Mono', 'Courier New', monospace;
       background: var(--bg);
       color: var(--text);
       min-height: 100vh;
+      font-size: 13px;
     }
 
     header {
-      background: var(--surface);
-      border-bottom: 1px solid var(--border);
-      padding: 14px 24px;
+      border-bottom: 1px solid var(--border2);
+      padding: 0 28px;
+      height: 56px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
     }
 
-    header h1 { font-size: 16px; font-weight: 600; }
+    .logo { display: flex; align-items: baseline; gap: 10px; }
+    .logo-mark { font-family: 'Bebas Neue', sans-serif; font-size: 30px; letter-spacing: 0.06em; color: var(--amber); line-height: 1; }
+    .logo-sub { font-size: 9px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.2em; }
 
     nav {
-      display: flex;
-      gap: 20px;
-      padding: 12px 24px;
       border-bottom: 1px solid var(--border);
-      background: var(--bg);
+      padding: 0 28px;
+      display: flex;
     }
 
     nav a {
-      font-size: 14px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
       color: var(--muted);
       text-decoration: none;
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+      padding: 13px 16px;
+      border-bottom: 2px solid transparent;
+      transition: color 120ms, border-color 120ms;
     }
 
-    nav a:hover,
-    nav a.active { color: var(--text); }
+    nav a:hover { color: var(--text); }
+    nav a.active { color: var(--amber); border-bottom-color: var(--amber); }
 
     main {
       max-width: 980px;
       margin: 0 auto;
-      padding: 24px;
+      padding: 24px 28px;
     }
 
     .back {
@@ -65,7 +86,9 @@
       margin-bottom: 14px;
       color: var(--muted);
       text-decoration: none;
-      font-size: 14px;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
     }
 
     .back:hover { color: var(--text); }
@@ -80,71 +103,77 @@
     }
 
     .page-header h2 {
-      font-size: 16px;
-      font-weight: 600;
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 28px;
+      letter-spacing: 0.06em;
+      color: var(--text);
     }
 
+    /* Status badge */
     .status-badge {
       display: inline-flex;
       align-items: center;
       gap: 8px;
-      padding: 5px 10px;
-      border-radius: 6px;
-      font-size: 13px;
+      padding: 4px 10px;
+      border-radius: 2px;
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
       border: 1px solid var(--border);
     }
 
-    .status-badge.free { background: #203025; color: var(--success); border-color: #35523d; }
-    .status-badge.in_use { background: #2f2b24; color: var(--warning); border-color: #5d5138; }
-    .status-badge.offline { background: #2a2a30; color: #b1b1ba; border-color: #45454f; }
-    .status-badge.error { background: #342328; color: var(--danger); border-color: #68404a; }
+    .status-badge.free    { background: #152017; color: var(--green);  border-color: #2a4030; }
+    .status-badge.in_use  { background: #1e1a0e; color: var(--yellow); border-color: #3a3015; }
+    .status-badge.offline { background: var(--surf2); color: var(--dim); border-color: var(--border); }
+    .status-badge.error   { background: #1e1010; color: var(--red);    border-color: #4a2020; }
 
-    .dot {
-      width: 6px;
-      height: 6px;
-      border-radius: 50%;
-      background: currentColor;
-    }
+    .dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
 
+    /* Panels */
     .panel {
       background: var(--surface);
       border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: 16px;
-      margin-bottom: 16px;
-    }
-
-    .panel h3 {
-      font-size: 16px;
-      font-weight: 600;
+      border-radius: 2px;
+      padding: 18px 20px;
       margin-bottom: 14px;
     }
 
+    .panel h3 {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 18px;
+      letter-spacing: 0.06em;
+      color: var(--muted);
+      margin-bottom: 14px;
+    }
+
+    /* Info rows */
     .info-row {
       display: flex;
       justify-content: space-between;
       gap: 16px;
-      padding: 10px 0;
+      padding: 9px 0;
       border-bottom: 1px solid var(--border);
-      font-size: 14px;
+      font-size: 12px;
     }
 
     .info-row:last-child { border-bottom: none; }
-    .info-row .label { color: var(--muted); }
+    .info-row .label { color: var(--muted); text-transform: uppercase; font-size: 10px; letter-spacing: 0.1em; }
 
+    /* Progress */
     .progress-bar {
-      background: var(--surface-alt);
-      height: 6px;
+      background: var(--surf2);
+      height: 3px;
       margin-top: 10px;
-      border-radius: 999px;
       overflow: hidden;
     }
 
     .progress-fill {
       height: 100%;
-      background: var(--accent);
+      background: var(--amber);
+      transition: width 500ms ease;
     }
 
+    /* Buttons */
     .btn-group {
       display: flex;
       gap: 10px;
@@ -153,52 +182,265 @@
     }
 
     button {
-      padding: 10px 14px;
-      border: 1px solid transparent;
-      border-radius: 8px;
-      font-size: 14px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
       cursor: pointer;
-      transition: background-color 150ms ease, border-color 150ms ease, color 150ms ease;
+      border-radius: 2px;
+      border: 1px solid transparent;
+      padding: 9px 14px;
+      transition: background 120ms, color 120ms, border-color 120ms;
     }
 
     button:disabled { opacity: 0.4; cursor: not-allowed; }
 
-    .btn-primary { background: var(--accent); color: #fff; border-color: var(--accent); }
-    .btn-primary:hover { background: #d43a55; }
-    .btn-secondary { background: var(--surface-alt); color: var(--text); border-color: var(--border-strong); }
-    .btn-danger { background: transparent; color: var(--danger); border-color: #6a3b45; }
+    .btn-primary  { background: var(--amber); color: #0d0b08; border-color: var(--amber); font-weight: 600; }
+    .btn-primary:hover { background: #d4911a; border-color: #d4911a; }
+    .btn-secondary { background: var(--surf2); color: var(--text); border-color: var(--border2); }
+    .btn-danger   { background: transparent; color: var(--red); border-color: #6a2a2a; }
+    .btn-danger:hover { background: rgba(232,64,64,0.08); }
 
+    /* Results */
     .result {
       margin-top: 12px;
       padding: 10px 12px;
-      border-radius: 8px;
-      font-size: 14px;
+      border-radius: 2px;
+      font-size: 12px;
+      border: 1px solid transparent;
     }
 
-    .result.ok { background: #203025; color: var(--success); border: 1px solid #35523d; }
-    .result.err { background: #342328; color: var(--danger); border: 1px solid #68404a; }
+    .result.ok  { background: #152017; color: var(--green); border-color: #2a4030; }
+    .result.err { background: #1e1010; color: var(--red);   border-color: #4a2020; }
 
     label {
       display: block;
-      font-size: 13px;
+      font-size: 10px;
       color: var(--muted);
-      margin-bottom: 6px;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      margin-bottom: 5px;
     }
 
-    input {
+    input, textarea, select {
       width: 100%;
-      background: var(--surface-alt);
+      background: var(--surf2);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 9px 11px;
+      border-radius: 2px;
+      font-size: 13px;
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    input:focus, textarea:focus, select:focus {
+      outline: none;
+      border-color: var(--amber);
+    }
+
+    textarea { resize: vertical; min-height: 72px; }
+    select option { background: var(--surface); }
+    input[type=range] { padding: 4px 0; accent-color: var(--amber); }
+
+    /* ── Label Designer ── */
+    .ld-grid {
+      display: grid;
+      grid-template-columns: 1fr 240px;
+      gap: 16px;
+      align-items: start;
+    }
+
+    @media (max-width: 700px) { .ld-grid { grid-template-columns: 1fr; } }
+
+    .ld-panel {
+      background: var(--surf2);
+      border: 1px solid var(--border);
+      border-radius: 2px;
+      overflow: hidden;
+      margin-bottom: 8px;
+    }
+
+    .ld-panel:last-child { margin-bottom: 0; }
+
+    .ld-panel-hd {
+      padding: 9px 13px;
+      font-size: 10px;
+      font-weight: 600;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      border-bottom: 1px solid var(--border);
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      user-select: none;
+    }
+
+    .ld-panel-hd:hover { color: var(--text); }
+    .ld-panel-hd.collapsed + .ld-panel-bd { display: none; }
+    .ld-panel-hd .chev { transition: transform 180ms; }
+    .ld-panel-hd.collapsed .chev { transform: rotate(-90deg); }
+    .ld-panel-bd { padding: 12px 13px; display: flex; flex-direction: column; gap: 10px; }
+
+    .ld-field { display: flex; flex-direction: column; gap: 4px; }
+    .ld-label { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.1em; }
+
+    /* Segment buttons */
+    .seg-row { display: flex; gap: 3px; }
+
+    .seg-btn {
+      flex: 1;
+      padding: 6px 4px;
+      text-align: center;
+      font-size: 11px;
+      border-radius: 2px;
+      cursor: pointer;
+      background: var(--surface);
+      color: var(--muted);
+      border: 1px solid var(--border);
+      font-family: 'JetBrains Mono', monospace;
+      transition: background 100ms, color 100ms, border-color 100ms;
+      white-space: nowrap;
+    }
+
+    .seg-btn:hover { color: var(--text); border-color: var(--border2); }
+    .seg-btn.active { background: var(--amber); color: #0d0b08; border-color: var(--amber); }
+
+    .tog-btn {
+      padding: 6px 12px;
+      font-size: 11px;
+      font-weight: 700;
+      border-radius: 2px;
+      cursor: pointer;
+      background: var(--surface);
+      color: var(--muted);
+      border: 1px solid var(--border);
+      font-family: 'JetBrains Mono', monospace;
+      transition: background 100ms, color 100ms, border-color 100ms;
+    }
+
+    .tog-btn.active { background: var(--amber); color: #0d0b08; border-color: var(--amber); }
+
+    /* Label textarea */
+    .ld-textarea {
+      width: 100%;
+      min-height: 160px;
+      resize: vertical;
+      background: var(--surf2);
       border: 1px solid var(--border);
       color: var(--text);
       padding: 10px 12px;
-      border-radius: 8px;
-      font-size: 14px;
+      border-radius: 2px;
+      font-size: 13px;
+      font-family: 'JetBrains Mono', monospace;
+      line-height: 1.5;
     }
 
-    input:focus {
-      outline: none;
-      border-color: var(--accent);
+    .ld-textarea:focus { outline: none; border-color: var(--amber); }
+
+    /* Preview box */
+    .ld-preview-box {
+      background: #0a0908;
+      border: 1px solid var(--border);
+      border-radius: 2px;
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      min-height: 120px;
+      justify-content: center;
+      margin-bottom: 10px;
     }
+
+    #ld-preview-img {
+      max-width: 100%;
+      max-height: 240px;
+      border-radius: 2px;
+      image-rendering: pixelated;
+      box-shadow: 0 2px 10px rgba(0,0,0,.6);
+    }
+
+    #ld-preview-status { font-size: 11px; color: var(--muted); }
+
+    /* QR sub-fields */
+    .ld-qr-sub { display: flex; flex-direction: column; gap: 8px; margin-top: 6px; }
+    .ld-qr-sub.hidden { display: none; }
+
+    .ld-checkbox { display: flex; align-items: center; gap: 7px; font-size: 12px; cursor: pointer; }
+    .ld-checkbox input { width: 14px; height: 14px; accent-color: var(--amber); cursor: pointer; }
+
+    .result-icon { margin-right: 6px; }
+
+    /* Icon picker */
+    .icon-grid { display: flex; flex-wrap: wrap; gap: 5px; }
+
+    .icon-btn {
+      width: 34px;
+      height: 34px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 2px;
+      cursor: pointer;
+      font-size: 17px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--muted);
+      transition: background 100ms, color 100ms, border-color 100ms;
+      position: relative;
+    }
+
+    .icon-btn:hover { color: var(--text); border-color: var(--border2); }
+    .icon-btn.active { background: var(--amber); color: #0d0b08; border-color: var(--amber); }
+
+    .icon-btn[title]:hover::after {
+      content: attr(title);
+      position: absolute;
+      bottom: 100%;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #000;
+      color: #fff;
+      padding: 3px 6px;
+      border-radius: 2px;
+      font-size: 9px;
+      white-space: nowrap;
+      pointer-events: none;
+      margin-bottom: 4px;
+      z-index: 10;
+    }
+
+    .icon-search { margin-bottom: 6px; }
+
+    .icon-none-btn {
+      padding: 5px 8px;
+      font-size: 10px;
+      border-radius: 2px;
+      cursor: pointer;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--muted);
+      font-family: 'JetBrains Mono', monospace;
+      margin-bottom: 6px;
+      transition: background 100ms, color 100ms, border-color 100ms;
+    }
+
+    .icon-none-btn.active { background: var(--amber); color: #0d0b08; border-color: var(--amber); }
+
+    /* Laser section select */
+    .ld-sel {
+      width: 100%;
+      background: var(--surf2);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 8px 10px;
+      border-radius: 2px;
+      font-size: 12px;
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .ld-sel:focus { outline: none; border-color: var(--amber); }
+
+    .ld-main { display: flex; flex-direction: column; gap: 0; }
 
     @media (max-width: 760px) {
       main { padding: 16px; }
@@ -207,7 +449,12 @@
   </style>
 </head>
 <body>
-  <header><h1>H15-Hub</h1></header>
+  <header>
+    <div class="logo">
+      <span class="logo-mark">H15-HUB</span>
+      <span class="logo-sub">Hebewerk e.V. Eberswalde</span>
+    </div>
+  </header>
   <nav>
     <a href="/" class="active">Dashboard</a>
     <a href="/bookings">Buchungen</a>
@@ -227,6 +474,7 @@
       </span>
     </div>
 
+    {% if device.type != 'printer' %}
     <section class="panel">
       <h3>Informationen</h3>
       <div class="info-row"><span class="label">Typ</span><span>{{ device.type }}</span></div>
@@ -256,49 +504,709 @@
       <div id="action-result" style="display:none" class="result"></div>
     </section>
     {% endif %}
+    {% endif %}
+
+    {% if device.type == '3d_printer' %}
+    {% if device.raw and device.raw.temperatures %}
+    <section class="panel">
+      <h3>Temperaturen</h3>
+      <div class="info-row">
+        <span class="label">Düse</span>
+        <span>{{ "%.1f"|format(device.raw.temperatures.nozzle) }} °C
+          {% if device.raw.temperatures.nozzle_target > 0 %}
+          → {{ "%.0f"|format(device.raw.temperatures.nozzle_target) }} °C
+          {% endif %}
+        </span>
+      </div>
+      <div class="info-row">
+        <span class="label">Bett</span>
+        <span>{{ "%.1f"|format(device.raw.temperatures.bed) }} °C
+          {% if device.raw.temperatures.bed_target > 0 %}
+          → {{ "%.0f"|format(device.raw.temperatures.bed_target) }} °C
+          {% endif %}
+        </span>
+      </div>
+      {% if device.raw.layer %}
+      <div class="info-row"><span class="label">Schicht</span><span>{{ device.raw.layer }}</span></div>
+      {% endif %}
+      {% if device.raw.hms_errors %}
+      <div class="info-row">
+        <span class="label">Fehler</span>
+        <span style="color:var(--red)">{{ device.raw.hms_errors | length }} HMS-Fehler</span>
+      </div>
+      {% endif %}
+    </section>
+    {% endif %}
+
+    <section class="panel" id="camera-panel">
+      <h3 style="display:flex;justify-content:space-between;align-items:center">
+        Kamera
+        <span id="cam-status" style="font-size:11px;color:var(--muted);font-weight:400;font-family:'JetBrains Mono',monospace;text-transform:uppercase;letter-spacing:0.1em"></span>
+      </h3>
+      <div style="background:#0a0908;border-radius:2px;overflow:hidden;line-height:0">
+        <img id="cam-img" src="/api/devices/{{ device.id }}/camera"
+             style="width:100%;display:block;border-radius:2px"
+             onerror="this.style.display='none';document.getElementById('cam-err').style.display='block'">
+        <div id="cam-err" style="display:none;padding:20px;text-align:center;font-size:12px;color:var(--muted)">
+          Kamera nicht verfügbar
+        </div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h3>Druckdateien (SD-Karte)</h3>
+      <div id="file-list-wrap">
+        <button class="btn-secondary" onclick="loadFiles()" id="load-files-btn" style="font-size:11px">Dateien laden</button>
+      </div>
+      <div id="file-result" style="display:none" class="result" style="margin-top:8px"></div>
+    </section>
+    {% endif %}
+
+    {% if device.type == 'printer' and device.raw and device.raw.toner %}
+    <section class="panel">
+      <h3>Tonerfüllstand</h3>
+      <div style="display:flex;gap:12px;align-items:flex-end;flex-wrap:wrap">
+        {% for t in device.raw.toner %}
+        {% set pct = [0, [100, t.level] | min] | max %}
+        {% set low = t.low | default(15) %}
+        {% set fill_h = (pct * 60 / 100) | round | int %}
+        {% set fill_color = '#555' if t.color == '#000000' else t.color %}
+        <div style="display:flex;flex-direction:column;align-items:center;gap:4px;min-width:52px">
+          <div style="font-size:10px;color:var(--muted)">{{ pct }}%</div>
+          <div style="width:36px;height:60px;background:var(--surf2);border-radius:2px;overflow:hidden;display:flex;flex-direction:column;justify-content:flex-end">
+            <div style="width:100%;height:{{ fill_h }}px;background:{{ fill_color }};border-radius:2px;transition:height 500ms"></div>
+          </div>
+          <div style="font-size:10px;font-weight:600;color:{% if pct <= low %}var(--red){% else %}var(--muted){% endif %}">{{ t.name }}</div>
+        </div>
+        {% endfor %}
+        {% if device.raw.page_count is defined %}
+        <div style="margin-left:auto;font-size:12px;color:var(--muted);align-self:center;text-align:right">
+          <div style="font-size:10px;color:var(--muted);margin-bottom:2px;text-transform:uppercase;letter-spacing:0.1em">Seiten gesamt</div>
+          <div style="font-family:'Bebas Neue',sans-serif;font-size:24px;color:var(--text);letter-spacing:0.04em">{{ "{:,}".format(device.raw.page_count | int).replace(",", ".") }}</div>
+          {% if device.raw.page_count_color is defined %}
+          <div style="font-size:10px;color:var(--muted);margin-top:2px">Farbe {{ device.raw.page_count_color }} · S/W {{ device.raw.page_count_bw }}</div>
+          {% endif %}
+        </div>
+        {% endif %}
+      </div>
+
+      {% if device.raw.consumables %}
+      <div style="margin-top:16px;border-top:1px solid var(--border);padding-top:14px">
+        <div style="font-size:9px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:0.12em;margin-bottom:10px">Verbrauchsmaterial</div>
+        <div style="display:flex;flex-direction:column;gap:8px">
+          {% for c in device.raw.consumables %}
+          {% set pct = c.level | round | int %}
+          {% set bar_color = '#555' if c.color == '#000000' else (c.color if c.color != '#888888' else 'var(--accent)') %}
+          <div>
+            <div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:3px">
+              <span style="color:var(--muted)">{{ c.name }}</span>
+              <span style="color:{% if pct <= 20 %}var(--red){% elif pct <= 40 %}var(--yellow){% else %}var(--text){% endif %};font-weight:600">{{ pct }}%</span>
+            </div>
+            <div style="height:3px;background:var(--surf2);overflow:hidden">
+              <div style="height:100%;width:{{ pct }}%;background:{% if pct <= 20 %}var(--red){% elif pct <= 40 %}var(--yellow){% else %}var(--green){% endif %};transition:width 500ms"></div>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+      {% endif %}
+
+      {% if device.raw.model %}
+      <div style="margin-top:14px;border-top:1px solid var(--border);padding-top:12px;display:flex;flex-wrap:wrap;gap:16px">
+        {% if device.raw.model %}
+        <div><div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:0.1em">Modell</div><div style="font-size:12px;margin-top:3px">{{ device.raw.model }}</div></div>
+        {% endif %}
+        {% if device.raw.location %}
+        <div><div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:0.1em">Standort</div><div style="font-size:12px;margin-top:3px">{{ device.raw.location }}</div></div>
+        {% endif %}
+        {% if device.raw.state_msg %}
+        <div><div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:0.1em">Status</div><div style="font-size:12px;margin-top:3px">{{ device.raw.state_msg }}</div></div>
+        {% endif %}
+      </div>
+      {% endif %}
+    </section>
+    {% endif %}
 
     {% if 'print' in device.capabilities %}
     <section class="panel">
       <h3>Label drucken</h3>
-      <label for="label-text">Text</label>
-      <input type="text" id="label-text" placeholder="z. B. Hebewerk e.V. – Max Mustermann">
-      <div class="btn-group">
-        <button class="btn-primary" onclick="printLabel()">Drucken</button>
+      <div class="ld-grid">
+
+        <!-- Linke Spalte: Text + Vorschau -->
+        <div class="ld-main">
+          <textarea class="ld-textarea" id="label-text" placeholder="Hebewerk e.V.&#10;Dein Name"></textarea>
+          <div class="ld-preview-box" style="margin-top:12px">
+            <img id="ld-preview-img" alt="Vorschau" style="display:none">
+            <div id="ld-preview-status">…</div>
+          </div>
+        </div>
+
+        <!-- Rechte Spalte: Einstellungen + Drucken -->
+        <div class="ld-sidebar">
+          <div class="ld-panel">
+            <div class="ld-panel-hd" onclick="ldToggle(this)">Labelgröße <span class="chev">▾</span></div>
+            <div class="ld-panel-bd">
+              <div class="ld-field">
+                <select id="label-size" class="ld-sel">
+                  <option value="62">62 mm Endlos</option>
+                  <option value="29">29 mm Endlos</option>
+                  <option value="38">38 mm Endlos</option>
+                  <option value="50">50 mm Endlos</option>
+                  <option value="54">54 mm Endlos</option>
+                  <option value="62x29">62 × 29 mm</option>
+                  <option value="62x100">62 × 100 mm</option>
+                  <option value="29x90">29 × 90 mm</option>
+                  <option value="23x23">23 × 23 mm</option>
+                </select>
+              </div>
+              <div class="ld-field">
+                <div class="ld-label">Orientierung</div>
+                <div class="seg-row">
+                  <button class="seg-btn rotate-btn active" data-rotate="0">Standard</button>
+                  <button class="seg-btn rotate-btn"        data-rotate="90">Gedreht</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="ld-panel">
+            <div class="ld-panel-hd" onclick="ldToggle(this)">Schrift <span class="chev">▾</span></div>
+            <div class="ld-panel-bd">
+              <div class="ld-field">
+                <div class="ld-label">Schriftart</div>
+                <select id="label-font">
+                  <option value="dejavu_sans">DejaVu Sans</option>
+                  <option value="dejavu_mono">DejaVu Mono</option>
+                  <option value="dejavu_serif">DejaVu Serif</option>
+                </select>
+              </div>
+              <div class="ld-field">
+                <div class="ld-label">Größe (px)</div>
+                <input type="number" id="label-fontsize" value="72" min="10" max="400" step="2">
+              </div>
+              <div class="ld-field">
+                <div class="ld-label">Ausrichtung</div>
+                <div class="seg-row">
+                  <button class="seg-btn align-btn active" data-align="left">L</button>
+                  <button class="seg-btn align-btn"        data-align="center">M</button>
+                  <button class="seg-btn align-btn"        data-align="right">R</button>
+                </div>
+              </div>
+              <div class="ld-field">
+                <button id="bold-toggle" class="tog-btn active">B Fett</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="ld-panel">
+            <div class="ld-panel-hd collapsed" onclick="ldToggle(this)">Erweitert <span class="chev">▾</span></div>
+            <div class="ld-panel-bd">
+              <div class="ld-field">
+                <div class="ld-label">Inhalt-Rotation</div>
+                <div class="seg-row">
+                  <button class="seg-btn textrotate-btn active" data-textrotate="0">0°</button>
+                  <button class="seg-btn textrotate-btn"        data-textrotate="90">90°</button>
+                  <button class="seg-btn textrotate-btn"        data-textrotate="180">180°</button>
+                  <button class="seg-btn textrotate-btn"        data-textrotate="270">270°</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="ld-panel">
+            <div class="ld-panel-hd" onclick="ldToggle(this)">QR-Code <span class="chev">▾</span></div>
+            <div class="ld-panel-bd">
+              <label class="ld-checkbox">
+                <input type="checkbox" id="qr-toggle"> QR-Code einbetten
+              </label>
+              <div class="ld-qr-sub hidden" id="qr-fields">
+                <div class="ld-field">
+                  <div class="ld-label">Typ</div>
+                  <select id="qr-type">
+                    <option value="text">Text</option>
+                    <option value="url">URL</option>
+                    <option value="phone">Telefon (tel:)</option>
+                    <option value="sms">SMS (sms:)</option>
+                    <option value="email">E-Mail (mailto:)</option>
+                  </select>
+                </div>
+                <input type="text" id="qr-text" placeholder="Inhalt eingeben…">
+                <div class="ld-field">
+                  <div class="ld-label">Größe (<span id="qr-size-val">80</span>%)</div>
+                  <input type="range" id="qr-size" min="20" max="100" value="80" step="5">
+                </div>
+                <div class="ld-field">
+                  <div class="ld-label">Position</div>
+                  <div class="seg-row">
+                    <button class="seg-btn qrpos-btn active" data-qrpos="left">Links</button>
+                    <button class="seg-btn qrpos-btn"        data-qrpos="right">Rechts</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="ld-panel">
+            <div class="ld-panel-hd collapsed" onclick="ldToggle(this)">Icon <span class="chev">▾</span></div>
+            <div class="ld-panel-bd">
+              <button class="icon-none-btn active" id="icon-none-btn" onclick="selectIcon('')">Kein Icon</button>
+              <div class="ld-label" style="margin-bottom:4px">Schnellauswahl</div>
+              <div class="icon-grid" id="icon-quick">
+                <button class="icon-btn" data-icon="wifi"          title="wifi">          <i class="ti ti-wifi"></i></button>
+                <button class="icon-btn" data-icon="printer"       title="printer">       <i class="ti ti-printer"></i></button>
+                <button class="icon-btn" data-icon="tool"          title="tool">          <i class="ti ti-tool"></i></button>
+                <button class="icon-btn" data-icon="scissors"      title="scissors">      <i class="ti ti-scissors"></i></button>
+                <button class="icon-btn" data-icon="home"          title="home">          <i class="ti ti-home"></i></button>
+                <button class="icon-btn" data-icon="qrcode"        title="qrcode">        <i class="ti ti-qrcode"></i></button>
+              </div>
+              <div class="ld-label" style="margin:8px 0 4px">Suchen</div>
+              <input type="text" class="icon-search" id="icon-search" placeholder="z.B. mail, lock, star …">
+              <div class="icon-grid" id="icon-results" style="max-height:120px;overflow-y:auto"></div>
+              <div class="ld-field" style="margin-top:8px">
+                <div class="ld-label">Position</div>
+                <div class="seg-row">
+                  <button class="seg-btn iconpos-btn active" data-iconpos="right">Rechts</button>
+                  <button class="seg-btn iconpos-btn"        data-iconpos="left">Links</button>
+                </div>
+              </div>
+              <div class="ld-field">
+                <div class="ld-label">Größe (<span id="icon-size-val">80</span>%)</div>
+                <input type="range" id="icon-size" min="20" max="100" value="80" step="5">
+              </div>
+            </div>
+          </div>
+
+          <button class="btn-primary" id="print-btn" onclick="printLabel()" style="width:100%;padding:11px;margin-top:4px">Drucken</button>
+          <div id="print-result" style="display:none;margin-top:8px" class="result"></div>
+        </div>
+
       </div>
-      <div id="print-result" style="display:none" class="result"></div>
     </section>
     {% endif %}
   </main>
 
   <script>
-    const deviceId = "{{ device.id }}";
+    const deviceId    = "{{ device.id }}";
     const statusLabels = { free: 'Frei', in_use: 'In Benutzung', offline: 'Offline', error: 'Fehler' };
+    const PUBLIC_API  = `/api/public/devices/${deviceId}`;
+    const AUTH_API    = `/api/devices/${deviceId}`;
 
+    // ── Fehlermeldungen ──────────────────────────────────────────────────
+    function showResult(elId, success, message) {
+      const el = document.getElementById(elId);
+      el.style.display = 'block';
+      el.className = 'result ' + (success ? 'ok' : 'err');
+      el.innerHTML = `<span class="result-icon">${success ? '✓' : '✗'}</span>${message}`;
+    }
+    function networkErrorMsg(err) {
+      if (!navigator.onLine) return 'Kein Netzwerk – bitte Verbindung prüfen.';
+      return `Verbindungsfehler: ${err.message}`;
+    }
+
+    // Auth-geschützter API-Aufruf (3D-Drucker, Buchungen …)
+    async function apiAction(action, params = {}) {
+      const res = await fetch(`${AUTH_API}/action`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action, params }),
+      });
+      if (!res.ok) {
+        const text = await res.text().catch(() => '');
+        throw new Error(`Server antwortete mit ${res.status}${text ? ': ' + text : ''}`);
+      }
+      return res.json();
+    }
+
+    // ── Geräte-Aktionen (Pause, Abbrechen …) ────────────────────────────
     async function action(act) {
-      const res = await fetch(`/api/devices/${deviceId}/action`, {
-        method: 'POST', headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({ action: act })
-      });
-      const data = await res.json();
-      const el = document.getElementById('action-result');
-      el.style.display = 'block';
-      el.className = 'result ' + (data.success ? 'ok' : 'err');
-      el.textContent = data.message;
+      const btn = event.target;
+      btn.disabled = true;
+      try {
+        const data = await apiAction(act);
+        showResult('action-result', data.success, data.message);
+      } catch (err) {
+        showResult('action-result', false, networkErrorMsg(err));
+      } finally {
+        btn.disabled = false;
+      }
     }
 
-    async function printLabel() {
-      const text = document.getElementById('label-text').value;
-      const res = await fetch(`/api/devices/${deviceId}/action`, {
-        method: 'POST', headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({ action: 'print', params: { text } })
+    // ── Label-Editor ─────────────────────────────────────────────────────
+    const LD_IMG    = document.getElementById('ld-preview-img');
+    if (LD_IMG) {
+      const LS_KEY        = 'h15hub_label_' + deviceId;
+      const qrToggle      = document.getElementById('qr-toggle');
+      const qrInput       = document.getElementById('qr-text');
+      const qrSlider      = document.getElementById('qr-size');
+      const qrSizeVal     = document.getElementById('qr-size-val');
+      const qrFields      = document.getElementById('qr-fields');
+      const qrTypeSelect  = document.getElementById('qr-type');
+      const LD_STATUS     = document.getElementById('ld-preview-status');
+
+      let currentAlign      = 'left';
+      let isBold            = true;
+      let currentRotate     = 0;
+      let currentTextRotate = 0;
+      let currentQrPos      = 'left';
+      let currentFont       = 'dejavu_sans';
+      let previewDebounce   = null;
+      let saveDebounce      = null;
+
+      // ── Accordion ──────────────────────────────────────────────────────
+      function ldToggle(hd) { hd.classList.toggle('collapsed'); }
+
+      // ── Einstellungen aus Objekt auf UI anwenden ───────────────────────
+      function applySettings(s) {
+        if (!s || !Object.keys(s).length) return;
+        if (s.text     != null) { const el = document.getElementById('label-text');     if (el) el.value = s.text; }
+        if (s.label    != null) { const el = document.getElementById('label-size');     if (el) el.value = s.label; }
+        if (s.fontSize != null) { const el = document.getElementById('label-fontsize'); if (el) el.value = s.fontSize; }
+        if (s.font     != null) { const el = document.getElementById('label-font');     if (el) el.value = s.font; currentFont = s.font; }
+        if (s.align    != null) currentAlign      = s.align;
+        if (s.bold     != null) isBold            = s.bold;
+        if (s.rotate   != null) currentRotate     = s.rotate;
+        if (s.textRotate != null) currentTextRotate = s.textRotate;
+        if (s.qrPos    != null) currentQrPos      = s.qrPos;
+        activateBtn('.align-btn',      'align',      currentAlign);
+        activateBtn('.rotate-btn',     'rotate',     currentRotate);
+        activateBtn('.textrotate-btn', 'textrotate', currentTextRotate);
+        activateBtn('.qrpos-btn',      'qrpos',      currentQrPos);
+        const boldBtn = document.getElementById('bold-toggle');
+        if (boldBtn) boldBtn.classList.toggle('active', isBold);
+        if (s.qrActive && qrToggle) { qrToggle.checked = true; setQrVisible(true); }
+        if (s.qrText   && qrInput)  qrInput.value  = s.qrText;
+        if (s.qrSize   && qrSlider) { qrSlider.value = s.qrSize; if (qrSizeVal) qrSizeVal.textContent = s.qrSize; }
+        if (s.qrType   && qrTypeSelect) qrTypeSelect.value = s.qrType;
+        if (s.icon     != null) { currentIcon = s.icon; selectIcon(s.icon); }
+        if (s.iconPos  != null) { currentIconPos = s.iconPos; activateBtn('.iconpos-btn', 'iconpos', s.iconPos); }
+        if (s.iconSize != null) { const sl = document.getElementById('icon-size'); if (sl) { sl.value = s.iconSize; const v = document.getElementById('icon-size-val'); if (v) v.textContent = s.iconSize; } }
+      }
+
+      function collectSettings() {
+        return {
+          text:       document.getElementById('label-text')?.value    || '',
+          label:      document.getElementById('label-size')?.value    || '62',
+          fontSize:   document.getElementById('label-fontsize')?.value || '72',
+          font:       currentFont,
+          align:      currentAlign,
+          bold:       isBold,
+          rotate:     currentRotate,
+          textRotate: currentTextRotate,
+          qrActive:   qrToggle?.checked || false,
+          qrText:     qrInput?.value    || '',
+          qrSize:     qrSlider?.value   || '80',
+          qrPos:      currentQrPos,
+          qrType:     qrTypeSelect?.value || 'text',
+          icon:       currentIcon,
+          iconPos:    currentIconPos,
+          iconSize:   document.getElementById('icon-size')?.value || '80',
+        };
+      }
+
+      function activateBtn(selector, dataKey, value) {
+        document.querySelectorAll(selector).forEach(b => {
+          b.classList.toggle('active', b.dataset[dataKey] === String(value));
+        });
+      }
+
+      function setQrVisible(on) {
+        if (qrFields) qrFields.classList.toggle('hidden', !on);
+      }
+
+      // ── Einstellungen laden (Server → localStorage-Fallback) ──────────
+      async function loadSettings() {
+        // Erst localStorage für sofortiges Rendering
+        try {
+          const cached = JSON.parse(localStorage.getItem(LS_KEY) || 'null');
+          if (cached) applySettings(cached);
+        } catch {}
+        // Dann Server (hat Vorrang)
+        try {
+          const res = await fetch(`${PUBLIC_API}/settings`);
+          if (res.ok) {
+            const srv = await res.json();
+            if (srv && Object.keys(srv).length) {
+              applySettings(srv);
+              localStorage.setItem(LS_KEY, JSON.stringify(srv));
+            }
+          }
+        } catch {}
+        schedulePreview();
+      }
+
+      // ── Einstellungen speichern ───────────────────────────────────────
+      function scheduleSave() {
+        clearTimeout(saveDebounce);
+        saveDebounce = setTimeout(persistSettings, 800);
+      }
+
+      async function persistSettings() {
+        const s = collectSettings();
+        localStorage.setItem(LS_KEY, JSON.stringify(s));
+        try {
+          await fetch(`${PUBLIC_API}/settings`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(s),
+          });
+        } catch {}
+      }
+
+      function onChanged() { scheduleSave(); schedulePreview(); }
+
+      // ── Button-Gruppen verdrahten ─────────────────────────────────────
+      function makeBtnGroup(selector, dataKey, setter) {
+        document.querySelectorAll(selector).forEach(btn => {
+          btn.addEventListener('click', () => {
+            document.querySelectorAll(selector).forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            setter(btn.dataset[dataKey]);
+            onChanged();
+          });
+        });
+      }
+
+      makeBtnGroup('.align-btn',      'align',      v => { currentAlign = v; });
+      makeBtnGroup('.rotate-btn',     'rotate',     v => { currentRotate = parseInt(v); });
+      makeBtnGroup('.textrotate-btn', 'textrotate', v => { currentTextRotate = parseInt(v); });
+      makeBtnGroup('.qrpos-btn',      'qrpos',      v => { currentQrPos = v; });
+
+      const boldBtn = document.getElementById('bold-toggle');
+      if (boldBtn) {
+        boldBtn.addEventListener('click', () => {
+          isBold = !isBold;
+          boldBtn.classList.toggle('active', isBold);
+          onChanged();
+        });
+      }
+
+      document.getElementById('label-font')?.addEventListener('change', e => {
+        currentFont = e.target.value;
+        onChanged();
       });
-      const data = await res.json();
-      const el = document.getElementById('print-result');
-      el.style.display = 'block';
-      el.className = 'result ' + (data.success ? 'ok' : 'err');
-      el.textContent = data.message;
+
+      if (qrToggle) {
+        qrToggle.addEventListener('change', () => { setQrVisible(qrToggle.checked); onChanged(); });
+      }
+      if (qrSlider) {
+        qrSlider.addEventListener('input', () => {
+          if (qrSizeVal) qrSizeVal.textContent = qrSlider.value;
+          onChanged();
+        });
+      }
+      if (qrTypeSelect) qrTypeSelect.addEventListener('change', onChanged);
+
+      ['label-text', 'label-size', 'label-fontsize', 'qr-text'].forEach(id => {
+        document.getElementById(id)?.addEventListener('input', onChanged);
+      });
+
+      // ── Icon Picker ───────────────────────────────────────────────────
+      let currentIcon    = '';
+      let currentIconPos = 'right';
+
+      // Vollständige Icon-Namensliste (Tabler ~300 gebräuchliche Namen)
+      const ICON_LIST = [
+        'activity','adjustments','alert-circle','alert-triangle','anchor','archive',
+        'arrow-down','arrow-left','arrow-right','arrow-up','at','award',
+        'badge','ban','battery','bell','bluetooth','bolt',
+        'book','bookmark','box','brand-github','brand-instagram','briefcase',
+        'brush','building','bulb','calendar','camera','car',
+        'chart-bar','check','chevron-down','chevron-right','circle','clipboard',
+        'clock','cloud','code','coffee','coin','color-picker',
+        'compass','copy','cpu','credit-card','crop','cut',
+        'dashboard','database','device-desktop','device-mobile','devices','dots',
+        'download','drag-drop','edit','emergency-bed','eye','face-id',
+        'file','filter','fingerprint','flag','flame','flask',
+        'folder','forklift','gauge','gift','globe','hammer',
+        'headphones','heart','help','history','home','info',
+        'key','keyboard','layers','layout','leaf','link',
+        'list','lock','login','logout','mail','map',
+        'map-pin','maximize','menu','message','microphone','minus',
+        'monitor','moon','music','network','news','package',
+        'paint','pencil','phone','photo','plug','plus',
+        'pointer','power','printer','qrcode','refresh','robot',
+        'rocket','ruler','satellite','scissors','search','send',
+        'server','settings','share','shield','shopping-cart','signal',
+        'star','sun','switch','tag','terminal','thumb-up',
+        'ticket','tool','trash','trending-up','truck','upload',
+        'usb','user','users','video','wallet','wifi',
+        'wind','world','wrench','x','zoom-in','zoom-out',
+        '3d-cube-sphere','air-conditioning','ambulance','anchor-off','antenna-bars-5',
+        'atom','backpack','badge-check','battery-charging','bike','biohazard',
+        'blender','bone','brain','bus','calculator','certificate',
+        'chemistry','chess','chefhat','circle-check','circuit-board','code-dots',
+      ];
+
+      function selectIcon(name) {
+        currentIcon = name;
+        document.querySelectorAll('.icon-btn').forEach(b => b.classList.toggle('active', b.dataset.icon === name));
+        const noneBtn = document.getElementById('icon-none-btn');
+        if (noneBtn) noneBtn.classList.toggle('active', !name);
+        onChanged();
+      }
+
+      function renderIconGrid(container, names) {
+        container.innerHTML = names.map(n =>
+          `<button class="icon-btn${n === currentIcon ? ' active' : ''}" data-icon="${n}" title="${n}" onclick="selectIcon('${n}')">
+             <i class="ti ti-${n}"></i>
+           </button>`
+        ).join('');
+      }
+
+      window.selectIcon = selectIcon;
+
+      // Quick-select buttons
+      document.querySelectorAll('#icon-quick .icon-btn').forEach(btn => {
+        btn.addEventListener('click', () => selectIcon(btn.dataset.icon));
+      });
+
+      // Suche
+      const iconSearch = document.getElementById('icon-search');
+      const iconResults = document.getElementById('icon-results');
+      if (iconSearch && iconResults) {
+        iconSearch.addEventListener('input', () => {
+          const q = iconSearch.value.trim().toLowerCase();
+          if (!q) { iconResults.innerHTML = ''; return; }
+          const matches = ICON_LIST.filter(n => n.includes(q)).slice(0, 40);
+          renderIconGrid(iconResults, matches);
+        });
+      }
+
+      // Icon-Position
+      makeBtnGroup('.iconpos-btn', 'iconpos', v => { currentIconPos = v; });
+
+      const iconSizeSlider = document.getElementById('icon-size');
+      const iconSizeVal    = document.getElementById('icon-size-val');
+      if (iconSizeSlider) {
+        iconSizeSlider.addEventListener('input', () => {
+          if (iconSizeVal) iconSizeVal.textContent = iconSizeSlider.value;
+          onChanged();
+        });
+      }
+
+      // ── Vorschau ─────────────────────────────────────────────────────
+      function schedulePreview() {
+        clearTimeout(previewDebounce);
+        previewDebounce = setTimeout(updatePreview, 350);
+      }
+
+      function updatePreview() {
+        if (!LD_IMG) return;
+        const text     = document.getElementById('label-text')?.value    || '';
+        const labelId  = document.getElementById('label-size')?.value    || '62';
+        const fontSize = parseInt(document.getElementById('label-fontsize')?.value) || 72;
+        const qrActive = qrToggle?.checked;
+        const qrText   = qrActive ? (qrInput?.value || '') : '';
+        const qrType   = qrTypeSelect?.value || 'text';
+
+        const params = new URLSearchParams({
+          text, qr_text: qrText, qr_type: qrType,
+          label: labelId, font_size: fontSize, font_family: currentFont,
+          align: currentAlign, bold: isBold ? 1 : 0,
+          rotate: currentRotate, text_rotate: currentTextRotate,
+          qr_size: qrSlider?.value || 80, qr_pos: currentQrPos,
+          icon: currentIcon, icon_size: document.getElementById('icon-size')?.value || 80,
+          icon_pos: currentIconPos,
+        });
+
+        if (LD_STATUS) LD_STATUS.textContent = '…';
+        const tmp = new Image();
+        tmp.onload = () => {
+          LD_IMG.src = tmp.src;
+          LD_IMG.style.display = 'block';
+          if (LD_STATUS) LD_STATUS.textContent = '';
+        };
+        tmp.onerror = () => {
+          LD_IMG.style.display = 'none';
+          if (LD_STATUS) LD_STATUS.textContent = 'Vorschau-Fehler';
+        };
+        tmp.src = `${PUBLIC_API}/preview?${params}&_t=${Date.now()}`;
+      }
+
+      // ── Drucken ───────────────────────────────────────────────────────
+      async function printLabel() {
+        const text    = document.getElementById('label-text')?.value?.trim() || '';
+        const qrActive = qrToggle?.checked;
+        const qrText  = (qrActive ? qrInput?.value?.trim() : '') || '';
+        const qrType  = qrTypeSelect?.value || 'text';
+
+        if (!text && !qrText) {
+          showResult('print-result', false, 'Bitte Text eingeben oder QR-Code aktivieren.');
+          return;
+        }
+        const btn = document.getElementById('print-btn');
+        btn.disabled = true;
+        btn.textContent = 'Drucke…';
+        try {
+          const res = await fetch(`${PUBLIC_API}/action`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ action: 'print', params: {
+              text,
+              qr_text:     qrText,
+              qr_type:     qrType,
+              label:       document.getElementById('label-size')?.value    || '62',
+              font_size:   parseInt(document.getElementById('label-fontsize')?.value) || 72,
+              font_family: currentFont,
+              align:       currentAlign,
+              bold:        isBold,
+              rotate:      currentRotate,
+              text_rotate: currentTextRotate,
+              qr_size:     parseInt(qrSlider?.value || 80),
+              qr_pos:      currentQrPos,
+              icon:        currentIcon,
+              icon_size:   parseInt(document.getElementById('icon-size')?.value || 80),
+              icon_pos:    currentIconPos,
+            }}),
+          });
+          const data = await res.json();
+          showResult('print-result', data.success, data.message);
+        } catch (err) {
+          showResult('print-result', false, networkErrorMsg(err));
+        } finally {
+          btn.disabled = false;
+          btn.textContent = 'Drucken';
+        }
+      }
+
+      window.printLabel = printLabel;
+      window.ldToggle   = ldToggle;
+
+      loadSettings();
+    } // end if(LD_IMG)
+
+    // ── 3D-Drucker: Dateien laden ────────────────────────────────────────
+    async function loadFiles() {
+      const btn  = document.getElementById('load-files-btn');
+      const wrap = document.getElementById('file-list-wrap');
+      if (btn) btn.disabled = true;
+      try {
+        const data = await apiAction('get_files', { path: '/model' });
+        if (data.success && data.data?.files?.length) {
+          const files = data.data.files;
+          wrap.innerHTML = `
+            <div style="font-size:11px;color:var(--muted);margin-bottom:8px;text-transform:uppercase;letter-spacing:0.1em">${files.length} Datei(en) auf SD-Karte</div>
+            ${files.map(f => `
+              <div style="display:flex;justify-content:space-between;align-items:center;
+                          padding:8px 0;border-bottom:1px solid var(--border);font-size:12px">
+                <span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:80%"
+                      title="${f.name}">${f.name}</span>
+                <span style="color:var(--muted);flex-shrink:0;margin-left:8px">
+                  ${(f.size / 1024 / 1024).toFixed(1)} MB
+                </span>
+              </div>
+            `).join('')}
+          `;
+        } else {
+          wrap.innerHTML = '<div style="font-size:12px;color:var(--muted)">Keine Dateien gefunden.</div>';
+        }
+        if (data.message) showResult('file-result', data.success, data.message);
+      } catch (err) {
+        wrap.innerHTML = `<div style="font-size:12px;color:var(--red)">✗ ${networkErrorMsg(err)}</div>`;
+      }
     }
 
+    // ── WebSocket Status-Updates ─────────────────────────────────────────
     const ws = new WebSocket(`ws://${location.host}/ws/status`);
     ws.onmessage = (e) => {
       const msg = JSON.parse(e.data);
@@ -310,12 +1218,34 @@
       const cu = document.getElementById('current-user');
       if (cu) cu.textContent = d.current_user || '–';
       if (d.progress !== null && d.progress !== undefined) {
-        const pct = document.getElementById('progress-pct');
+        const pct  = document.getElementById('progress-pct');
         const fill = document.getElementById('progress-fill');
-        if (pct) pct.textContent = d.progress + '%';
+        if (pct)  pct.textContent  = d.progress + '%';
         if (fill) fill.style.width = d.progress + '%';
       }
     };
+
+    // ── Kamera-Refresh (nur für 3D-Drucker) ─────────────────────────────
+    const camImg = document.getElementById('cam-img');
+    if (camImg) {
+      const camStatus = document.getElementById('cam-status');
+      function refreshCamera() {
+        const ts  = Date.now();
+        const img = new Image();
+        img.onload = () => {
+          camImg.src = img.src;
+          camImg.style.display = 'block';
+          document.getElementById('cam-err').style.display = 'none';
+          if (camStatus) camStatus.textContent = 'Live · ' + new Date().toLocaleTimeString('de-DE', {hour:'2-digit', minute:'2-digit', second:'2-digit'});
+        };
+        img.onerror = () => {
+          if (camStatus) camStatus.textContent = 'Nicht verfügbar';
+        };
+        img.src = `/api/devices/${deviceId}/camera?t=${ts}`;
+      }
+      refreshCamera();
+      setInterval(refreshCamera, 5000);
+    }
   </script>
 </body>
 </html>

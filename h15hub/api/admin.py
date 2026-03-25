@@ -266,6 +266,104 @@ async def update_runtime_config(
     return RuntimeConfigResponse(path=str(config_path), content=content)
 
 
+@router.get("/api/admin/ha-entities")
+async def get_ha_entities(_admin: User = Depends(require_admin_user)) -> list[dict]:
+    """Gibt alle HA-Entitäten vom konfigurierten Home Assistant zurück."""
+    import httpx
+    from h15hub.configuration import load_config
+    import logging
+    log = logging.getLogger(__name__)
+
+    try:
+        config = load_config()
+    except Exception as exc:
+        log.error("ha-entities: config load failed: %s", exc)
+        raise HTTPException(status_code=500, detail=f"Konfiguration konnte nicht geladen werden: {exc}") from exc
+
+    ha_cfg = next(
+        (cfg for cfg in config.get("devices", {}).values() if cfg.get("adapter") == "homeassistant"),
+        None,
+    )
+    if not ha_cfg:
+        raise HTTPException(status_code=404, detail="Kein Home Assistant Adapter konfiguriert.")
+
+    url   = ha_cfg["url"].rstrip("/")
+    token = ha_cfg.get("token", "")
+    log.info("ha-entities: fetching from %s", url)
+    try:
+        async with httpx.AsyncClient(timeout=8.0) as client:
+            r = await client.get(
+                f"{url}/api/states",
+                headers={"Authorization": f"Bearer {token}"},
+            )
+            r.raise_for_status()
+    except Exception as exc:
+        log.error("ha-entities: HA request failed: %s", exc)
+        raise HTTPException(status_code=502, detail=f"Home Assistant nicht erreichbar: {exc}") from exc
+
+    try:
+        states = r.json()
+    except Exception as exc:
+        log.error("ha-entities: JSON parse failed: %s", exc)
+        raise HTTPException(status_code=502, detail=f"Ungültige Antwort von Home Assistant: {exc}") from exc
+
+    log.info("ha-entities: returning %d entities", len(states))
+    return sorted(
+        [
+            {
+                "entity_id": s["entity_id"],
+                "name":      (s.get("attributes") or {}).get("friendly_name") or s["entity_id"],
+                "state":     s.get("state"),
+                "domain":    s["entity_id"].split(".")[0],
+            }
+            for s in states
+        ],
+        key=lambda x: x["entity_id"],
+    )
+
+
+@router.post("/api/admin/reload", status_code=200)
+async def reload_config(
+    request: Request,
+    _admin: User = Depends(require_admin_user),
+) -> dict:
+    """Lädt die Konfiguration neu und startet die DeviceRegistry ohne Neustart."""
+    from h15hub.configuration import load_config
+    from h15hub.engine.device_registry import build_registry_from_config
+    from h15hub.engine.automation import AutomationEngine
+    from h15hub.api.ws import notify_status_change
+    from h15hub.adapters.labelprinter import LabelprinterAdapter
+
+    try:
+        config = load_config()
+    except ValueError as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
+
+    old_registry = request.app.state.registry
+    await old_registry.stop()
+
+    automations = config.get("automations", [])
+    try:
+        request.app.state.automations = AutomationEngine(automations)
+    except ValueError as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
+
+    registry = build_registry_from_config(config)
+    registry.on_status_change(notify_status_change)
+    registry.on_status_change(request.app.state.automations.on_status_change)
+    await registry.start()
+    request.app.state.registry = registry
+
+    public: set[str] = set()
+    for adapter in registry._adapters.values():
+        if isinstance(adapter, LabelprinterAdapter) and adapter.public:
+            for d in await adapter.get_status():
+                public.add(d.id)
+    request.app.state.public_devices = public
+
+    return {"status": "ok", "devices": len(config.get("devices", {}))}
+
+
 @router.post("/api/admin/users", response_model=UserResponse, status_code=status.HTTP_201_CREATED)
 async def create_user(
     data: AdminUserCreate,

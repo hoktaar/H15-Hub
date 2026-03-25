@@ -4,47 +4,553 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Admin – H15-Hub</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/js-yaml@4/dist/js-yaml.min.js"></script>
   <style>
-    :root { color-scheme: dark; --bg:#19191d; --surface:#232329; --surface-alt:#1d1d22; --border:#36363f; --text:#ececf1; --muted:#a2a2ad; --accent:#e94560; --danger:#ff9aa8; --success:#83d39a; }
+    :root {
+      color-scheme: dark;
+      --bg:        #0d0b08;
+      --surface:   #161310;
+      --surf2:     #1d1a15;
+      --border:    #2e2519;
+      --border2:   #4a3c28;
+      --text:      #ede8dd;
+      --muted:     #887a64;
+      --dim:       #524638;
+      --amber:     #f0a020;
+      --green:     #5ecc80;
+      --red:       #e84040;
+      --yellow:    #f0c040;
+      --accent:        var(--amber);
+      --success:       var(--green);
+      --danger:        var(--red);
+      --warning:       var(--yellow);
+      --surface-alt:   var(--surf2);
+      --border-strong: var(--border2);
+    }
+
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { background: var(--bg); color: var(--text); font-family: "SF Pro Text", "Helvetica Neue", Helvetica, sans-serif; }
-    header { display:flex; justify-content:space-between; align-items:center; gap:16px; padding:16px 24px; border-bottom:1px solid var(--border); background:var(--surface); }
-    nav { display:flex; gap:18px; padding:12px 24px; border-bottom:1px solid var(--border); }
-    nav a, nav button { color:var(--muted); background:none; border:none; cursor:pointer; text-decoration:none; font-size:14px; }
-    nav a.active, nav a:hover, nav button:hover { color:var(--text); }
-    main { max-width:1200px; margin:0 auto; padding:24px; display:grid; gap:18px; }
-    .grid { display:grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap:18px; }
-    .panel { background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:18px; }
-    h1, h2 { font-size:18px; }
-    p, .muted { color:var(--muted); font-size:14px; }
-    label { display:block; margin:12px 0 6px; font-size:13px; color:var(--muted); }
-    input, select, textarea { width:100%; padding:10px 12px; border-radius:8px; border:1px solid var(--border); background:var(--surface-alt); color:var(--text); }
-    textarea { min-height:320px; resize:vertical; font-family:"SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace; }
-    .row { display:grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap:12px; }
-    .actions { display:flex; gap:10px; align-items:center; flex-wrap:wrap; margin-top:14px; }
-    button.primary, button.secondary, button.danger { border-radius:8px; padding:10px 14px; cursor:pointer; }
-    button.primary { border:1px solid var(--accent); background:var(--accent); color:#fff; }
-    button.secondary { border:1px solid var(--border); background:var(--surface-alt); color:var(--text); }
-    button.danger { border:1px solid #6a3b45; background:transparent; color:var(--danger); }
-    .message { min-height:20px; margin-top:12px; font-size:14px; }
-    .message.error { color:var(--danger); }
-    .message.success { color:var(--success); }
-    .list { display:grid; gap:12px; margin-top:14px; }
-    .card { border:1px solid var(--border); border-radius:10px; padding:14px; background:var(--surface-alt); }
-    .card-head { display:flex; justify-content:space-between; gap:12px; margin-bottom:10px; }
-    .badge { border:1px solid var(--border); border-radius:999px; padding:3px 8px; font-size:12px; color:var(--muted); }
-    .checkbox { display:flex; align-items:center; gap:8px; margin-top:12px; }
-    .checkbox input { width:auto; }
+
+    body {
+      font-family: 'JetBrains Mono', 'Courier New', monospace;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      font-size: 13px;
+    }
+
+    header {
+      border-bottom: 1px solid var(--border2);
+      padding: 0 28px;
+      height: 56px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .logo { display: flex; align-items: baseline; gap: 10px; }
+    .logo-mark { font-family: 'Bebas Neue', sans-serif; font-size: 30px; letter-spacing: 0.06em; color: var(--amber); line-height: 1; }
+    .logo-sub { font-size: 9px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.2em; }
+
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+    nav {
+      border-bottom: 1px solid var(--border);
+      padding: 0 28px;
+      display: flex;
+    }
+
+    nav a, nav button {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      color: var(--muted);
+      text-decoration: none;
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+      padding: 13px 16px;
+      border: none;
+      border-bottom: 2px solid transparent;
+      background: none;
+      cursor: pointer;
+      transition: color 120ms, border-color 120ms;
+    }
+
+    nav a:hover, nav button:hover { color: var(--text); }
+    nav a.active { color: var(--amber); border-bottom-color: var(--amber); }
+
+    main {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 24px 28px;
+      display: grid;
+      gap: 14px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .panel {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 2px;
+      padding: 18px 20px;
+    }
+
+    .panel h2 {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 18px;
+      letter-spacing: 0.06em;
+      color: var(--muted);
+      margin-bottom: 14px;
+    }
+
+    .panel-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 10px;
+    }
+
+    .panel-head h2 { margin-bottom: 0; }
+
+    p, .muted { color: var(--muted); font-size: 12px; margin-bottom: 4px; }
+
+    label {
+      display: block;
+      font-size: 10px;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      margin-bottom: 5px;
+      margin-top: 12px;
+    }
+
+    label:first-of-type { margin-top: 0; }
+
+    input, select, textarea {
+      width: 100%;
+      padding: 9px 11px;
+      border-radius: 2px;
+      border: 1px solid var(--border);
+      background: var(--surf2);
+      color: var(--text);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+    }
+
+    input:focus, select:focus, textarea:focus {
+      outline: none;
+      border-color: var(--amber);
+    }
+
+    select option { background: var(--surface); }
+
+    textarea {
+      min-height: 320px;
+      resize: vertical;
+      font-size: 11px;
+      line-height: 1.6;
+    }
+
+    .row {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 12px;
+    }
+
+    .actions {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      flex-wrap: wrap;
+      margin-top: 14px;
+    }
+
+    button {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      cursor: pointer;
+      border-radius: 2px;
+      border: 1px solid transparent;
+      padding: 9px 14px;
+      transition: background 120ms, color 120ms, border-color 120ms;
+    }
+
+    button:disabled { opacity: 0.4; cursor: not-allowed; }
+
+    button.primary {
+      background: var(--amber);
+      color: #0d0b08;
+      border-color: var(--amber);
+      font-weight: 600;
+    }
+
+    button.primary:hover { background: #d4911a; border-color: #d4911a; }
+
+    button.secondary {
+      background: var(--surf2);
+      color: var(--text);
+      border-color: var(--border2);
+    }
+
+    button.secondary:hover { background: var(--border); }
+
+    button.danger {
+      background: transparent;
+      color: var(--red);
+      border-color: #6a2a2a;
+    }
+
+    button.danger:hover { background: rgba(232,64,64,0.08); }
+
+    .message {
+      min-height: 20px;
+      margin-top: 12px;
+      font-size: 12px;
+    }
+
+    .message.error   { color: var(--red); }
+    .message.success { color: var(--green); }
+
+    .list { display: grid; gap: 10px; margin-top: 14px; }
+
+    .card {
+      border: 1px solid var(--border);
+      border-radius: 2px;
+      padding: 14px;
+      background: var(--surf2);
+    }
+
+    .card-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 10px;
+    }
+
+    .card-head strong {
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .badge {
+      border: 1px solid var(--border2);
+      border-radius: 2px;
+      padding: 2px 8px;
+      font-size: 9px;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--muted);
+    }
+
+    .checkbox {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 12px;
+      font-size: 12px;
+      color: var(--muted);
+      cursor: pointer;
+    }
+
+    .checkbox input { width: auto; accent-color: var(--amber); }
+
+    .device-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 12px;
+      margin-top: 14px;
+    }
+
+    .device-card {
+      border: 1px solid var(--border);
+      border-left: 3px solid var(--border2);
+      border-radius: 2px;
+      padding: 14px 16px;
+      background: var(--surf2);
+    }
+
+    .device-card-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    .device-card-title {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 18px;
+      letter-spacing: 0.04em;
+      color: var(--text);
+      line-height: 1.1;
+    }
+
+    .device-card-sub {
+      font-size: 9px;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin-top: 2px;
+    }
+
+    .device-card label { margin-top: 10px; }
+    .device-card label:first-of-type { margin-top: 0; }
+
+    details summary {
+      cursor: pointer;
+      font-size: 10px;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      padding: 8px 0;
+      user-select: none;
+      list-style: none;
+    }
+
+    details summary::before { content: '▶ '; }
+    details[open] summary::before { content: '▼ '; }
+
+    .config-actions {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .status-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 10px;
+      color: var(--muted);
+    }
+
+    .status-pill.ok::before { content: '●'; color: var(--green); }
+    .status-pill.err::before { content: '●'; color: var(--red); }
+
     @media (max-width: 900px) { .grid, .row { grid-template-columns: 1fr; } }
+
+    /* ── Wizard ──────────────────────────────────────────────────────────── */
+    #wizard-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.72);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+    }
+
+    #wizard-overlay.open { display: flex; }
+
+    #wizard {
+      background: var(--surface);
+      border: 1px solid var(--border2);
+      border-radius: 3px;
+      width: 100%;
+      max-width: 560px;
+      max-height: 90vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    #wizard-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    #wizard-header h3 {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 20px;
+      letter-spacing: 0.06em;
+      color: var(--amber);
+      margin: 0;
+    }
+
+    #wizard-close {
+      background: none;
+      border: none;
+      color: var(--muted);
+      font-size: 18px;
+      cursor: pointer;
+      padding: 4px 8px;
+      border-radius: 2px;
+    }
+
+    #wizard-close:hover { color: var(--text); background: var(--surf2); }
+
+    .wizard-steps {
+      display: flex;
+      gap: 0;
+      padding: 0 20px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .wstep {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--dim);
+      padding: 10px 14px 10px 0;
+      display: flex;
+      align-items: center;
+      gap: 7px;
+    }
+
+    .wstep.active { color: var(--amber); }
+    .wstep.done   { color: var(--green); }
+
+    .wstep-num {
+      width: 18px; height: 18px;
+      border-radius: 50%;
+      border: 1px solid currentColor;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 9px;
+      flex-shrink: 0;
+    }
+
+    .wstep.done .wstep-num::after { content: '✓'; }
+    .wstep:not(.done) .wstep-num { }
+
+    .wstep-sep { color: var(--dim); padding: 10px 4px; font-size: 10px; }
+
+    #wizard-body { padding: 20px; overflow-y: auto; flex: 1; }
+
+    .adapter-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+    }
+
+    .adapter-tile {
+      border: 1px solid var(--border);
+      border-radius: 2px;
+      padding: 14px;
+      cursor: pointer;
+      background: var(--surf2);
+      transition: border-color 120ms, background 120ms;
+      text-align: left;
+    }
+
+    .adapter-tile:hover { border-color: var(--border2); background: var(--border); }
+    .adapter-tile.selected { border-color: var(--amber); background: rgba(240,160,32,0.06); }
+
+    .adapter-tile-icon { font-size: 22px; margin-bottom: 6px; }
+    .adapter-tile-label { font-size: 13px; font-weight: 600; color: var(--text); }
+    .adapter-tile-desc  { font-size: 10px; color: var(--muted); margin-top: 3px; line-height: 1.4; }
+
+    #wizard-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      padding: 14px 20px;
+      border-top: 1px solid var(--border);
+    }
+
+    #wizard-msg { font-size: 11px; min-height: 16px; }
+    #wizard-msg.error { color: var(--red); }
+
+    .yaml-preview {
+      font-size: 11px;
+      line-height: 1.6;
+      background: var(--surf2);
+      border: 1px solid var(--border);
+      border-radius: 2px;
+      padding: 12px;
+      white-space: pre;
+      overflow-x: auto;
+      color: var(--green);
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .sub-device-section {
+      margin-top: 16px;
+      padding-top: 14px;
+      border-top: 1px solid var(--border);
+    }
+
+    .sub-device-section h4 {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 15px;
+      letter-spacing: 0.05em;
+      color: var(--muted);
+      margin-bottom: 10px;
+    }
+
+    .adapter-tile-badge {
+      margin-top: 6px;
+      font-size: 9px;
+      color: var(--amber);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .entity-list {
+      margin-top: 6px;
+      max-height: 180px;
+      overflow-y: auto;
+      border: 1px solid var(--border);
+      border-radius: 2px;
+      background: var(--surf2);
+    }
+
+    .entity-row {
+      display: grid;
+      grid-template-columns: 80px 1fr 1fr 50px;
+      gap: 6px;
+      padding: 7px 10px;
+      cursor: pointer;
+      border-bottom: 1px solid var(--border);
+      font-size: 11px;
+      align-items: center;
+      transition: background 80ms;
+    }
+
+    .entity-row:last-child { border-bottom: none; }
+    .entity-row:hover { background: var(--border); }
+
+    .entity-domain {
+      font-size: 9px;
+      color: var(--amber);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .entity-name { color: var(--text); }
+    .entity-id-small { color: var(--muted); font-size: 10px; }
+    .entity-state { color: var(--dim); font-size: 10px; text-align: right; }
   </style>
 </head>
 <body>
   <header>
-    <div>
-      <h1>Administration</h1>
-      <p>{{ current_user.display_name }} · {{ current_user.username }}</p>
+    <div class="logo">
+      <span class="logo-mark">H15-HUB</span>
+      <span class="logo-sub">Hebewerk e.V. Eberswalde</span>
     </div>
-    <span class="badge">{{ current_user.role.value }}</span>
+    <div class="header-right">
+      <span>{{ current_user.display_name }} · {{ current_user.username }}</span>
+      <span class="badge">{{ current_user.role.value }}</span>
+    </div>
   </header>
   <nav>
     <a href="/">Dashboard</a>
@@ -61,11 +567,43 @@
       </div>
     </section>
     <section class="panel">
-      <div class="card-head"><h2>Systemkonfiguration</h2><span id="config-path" class="badge">Lade…</span></div>
-      <p class="muted">Bearbeite hier die <code>config.yaml</code>. Änderungen werden nach einem Container-Neustart wirksam.</p>
-      <label for="config-editor">config.yaml</label>
-      <textarea id="config-editor" spellcheck="false">Lade Konfiguration…</textarea>
-      <div class="actions"><button class="secondary" type="button" onclick="saveConfig()">Konfiguration speichern</button></div>
+      <div class="panel-head">
+        <h2>Gerätekonfiguration</h2>
+        <div class="config-actions">
+          <span id="config-status" class="status-pill"></span>
+          <button class="secondary" type="button" onclick="openWizard()">+ Gerät hinzufügen</button>
+          <button class="primary" type="button" onclick="saveAndApply()" id="save-apply-btn">Speichern &amp; Anwenden</button>
+        </div>
+      </div>
+
+      <div id="app-settings" style="margin-bottom:16px">
+        <div class="row" style="margin-top:0">
+          <div>
+            <label for="cfg-poll">Poll-Intervall (Sek.)</label>
+            <input id="cfg-poll" type="number" min="1" max="300" value="10">
+          </div>
+          <div>
+            <label for="cfg-title">App-Titel</label>
+            <input id="cfg-title" type="text" value="H15-Hub">
+          </div>
+        </div>
+      </div>
+
+      <div id="device-cards" class="device-grid">
+        <p class="muted">Lade Konfiguration…</p>
+      </div>
+
+      <details style="margin-top:18px">
+        <summary>YAML (Erweitert)</summary>
+        <p class="muted" style="margin:8px 0 6px">Direkte Bearbeitung der config.yaml. Überschreibt die Formularwerte oben beim Speichern.</p>
+        <textarea id="config-editor" spellcheck="false" style="min-height:280px;margin-top:4px">Lade…</textarea>
+        <div class="actions" style="margin-top:8px">
+          <button class="secondary" type="button" onclick="syncCardsToYaml(); setMessage('config-message','Formular → YAML synchronisiert.','success')">Formular → YAML</button>
+          <button class="secondary" type="button" onclick="syncYamlToCards()">YAML → Formular</button>
+        </div>
+      </details>
+
+      <span id="config-path" class="badge" style="display:none"></span>
       <div id="config-message" class="message"></div>
     </section>
     <div class="grid">
@@ -102,12 +640,51 @@
       </section>
     </div>
   </main>
+  <script>window.HA_ENTITIES = {{ ha_entities | tojson }};</script>
+
+  <!-- ── Wizard Modal ─────────────────────────────────────────────────── -->
+  <div id="wizard-overlay">
+    <div id="wizard">
+      <div id="wizard-header">
+        <h3>Gerät hinzufügen</h3>
+        <button id="wizard-close" onclick="closeWizard()" title="Abbrechen">✕</button>
+      </div>
+      <div class="wizard-steps">
+        <div class="wstep" id="ws1"><span class="wstep-num">1</span>Typ</div>
+        <span class="wstep-sep">›</span>
+        <div class="wstep" id="ws2"><span class="wstep-num">2</span>Details</div>
+        <span class="wstep-sep">›</span>
+        <div class="wstep" id="ws3"><span class="wstep-num">3</span>Bestätigen</div>
+      </div>
+      <div id="wizard-body"></div>
+      <div id="wizard-footer">
+        <div id="wizard-msg"></div>
+        <div style="display:flex;gap:8px">
+          <button class="secondary" id="wizard-back-btn" onclick="wizardBack()">Zurück</button>
+          <button class="primary" id="wizard-next-btn" onclick="wizardNext()">Weiter</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <script>
     let users = [];
     let groups = [];
+    let currentCfg = {};  // geparste Konfiguration, immer aktuell
 
-    function escapeHtml(value) {
-      return String(value ?? '').replace(/[&<>"']/g, (char) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[char]));
+    // Welche Felder werden für welchen Adapter angezeigt
+    const ADAPTER_FIELDS = {
+      bambuddy:      [{ k: 'url', l: 'URL', t: 'text' }, { k: 'api_key', l: 'API-Key', t: 'password' }],
+      homeassistant: [{ k: 'url', l: 'URL', t: 'text' }, { k: 'token', l: 'Token', t: 'password' }],
+      labelprinter:  [{ k: 'device', l: 'Gerät (Pfad)', t: 'text' }, { k: 'model', l: 'Modell', t: 'text' }, { k: 'public', l: 'Öffentlich zugänglich', t: 'checkbox' }],
+      laserprinter:  [{ k: 'host', l: 'Host / IP', t: 'text' }, { k: 'port', l: 'Port', t: 'number' }],
+      lasercutter:   [{ k: 'host', l: 'Host / IP', t: 'text' }, { k: 'port', l: 'Port', t: 'number' }],
+    };
+
+    const ADAPTER_LABEL = { bambuddy: '3D-Drucker', homeassistant: 'Home Assistant', labelprinter: 'Etikettendrucker', laserprinter: 'Laserdrucker', lasercutter: 'Lasercutter' };
+
+    function escapeHtml(v) {
+      return String(v ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
     }
 
     function setMessage(id, text, type = '') {
@@ -115,6 +692,152 @@
       el.className = `message ${type}`.trim();
       el.textContent = text || '';
     }
+
+    function setStatus(text, type = '') {
+      const el = document.getElementById('config-status');
+      el.className = `status-pill ${type}`.trim();
+      el.textContent = text;
+    }
+
+    // ── Config-Karten ────────────────────────────────────────────────────────
+
+    function renderDeviceCards(cfg) {
+      const root = document.getElementById('device-cards');
+      const devices = cfg.devices || {};
+      if (!Object.keys(devices).length) {
+        root.innerHTML = '<p class="muted">Keine Geräte konfiguriert.</p>';
+        return;
+      }
+
+      root.innerHTML = Object.entries(devices).map(([key, dev]) => {
+        const adapter = dev.adapter || '';
+        const fields  = ADAPTER_FIELDS[adapter] || [];
+        const title   = escapeHtml(key.replace(/_/g, ' ').toUpperCase());
+
+        const fieldHtml = fields.map(f => {
+          const val = dev[f.k];
+          if (f.t === 'checkbox') {
+            return `<label class="checkbox" style="margin-top:10px">
+              <input type="checkbox" data-dev="${escapeHtml(key)}" data-field="${f.k}" ${val ? 'checked' : ''}> ${f.l}
+            </label>`;
+          }
+          return `<label style="margin-top:10px">${f.l}</label>
+            <input type="${f.t}" data-dev="${escapeHtml(key)}" data-field="${f.k}"
+              value="${escapeHtml(val ?? '')}" autocomplete="off">`;
+        }).join('');
+
+        return `<div class="device-card">
+          <div class="device-card-head">
+            <div>
+              <div class="device-card-title">${title}</div>
+              <div class="device-card-sub">${ADAPTER_LABEL[adapter] || adapter}</div>
+            </div>
+            <span class="badge">${escapeHtml(adapter)}</span>
+          </div>
+          ${fieldHtml || '<p class="muted" style="font-size:11px">Keine Felder konfigurierbar.</p>'}
+        </div>`;
+      }).join('');
+    }
+
+    function readCardsIntoCfg(cfg) {
+      cfg.app = cfg.app || {};
+      cfg.app.poll_interval_seconds = parseInt(document.getElementById('cfg-poll').value) || 10;
+      cfg.app.title = document.getElementById('cfg-title').value || 'H15-Hub';
+
+      document.querySelectorAll('[data-dev][data-field]').forEach(el => {
+        const dev   = el.dataset.dev;
+        const field = el.dataset.field;
+        if (!cfg.devices?.[dev]) return;
+        cfg.devices[dev][field] = el.type === 'checkbox' ? el.checked
+                                : el.type === 'number'   ? (Number(el.value) || 0)
+                                : el.value;
+      });
+      return cfg;
+    }
+
+    function syncCardsToYaml() {
+      try {
+        readCardsIntoCfg(currentCfg);
+        document.getElementById('config-editor').value = jsyaml.dump(currentCfg, { lineWidth: 120 });
+      } catch (e) { setMessage('config-message', 'YAML-Fehler: ' + e.message, 'error'); }
+    }
+
+    function syncYamlToCards() {
+      try {
+        currentCfg = jsyaml.load(document.getElementById('config-editor').value) || {};
+        renderDeviceCards(currentCfg);
+        document.getElementById('cfg-poll').value  = currentCfg.app?.poll_interval_seconds ?? 10;
+        document.getElementById('cfg-title').value = currentCfg.app?.title ?? 'H15-Hub';
+        setMessage('config-message', 'YAML → Formular synchronisiert.', 'success');
+      } catch (e) { setMessage('config-message', 'YAML-Fehler: ' + e.message, 'error'); }
+    }
+
+    async function loadConfig() {
+      const res  = await fetch('/api/admin/config');
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        setStatus('Ladefehler', 'err');
+        setMessage('config-message', data.detail || 'Konfiguration konnte nicht geladen werden.', 'error');
+        return;
+      }
+      document.getElementById('config-path').textContent = data.path;
+      document.getElementById('config-editor').value = data.content;
+
+      try {
+        currentCfg = jsyaml.load(data.content) || {};
+        renderDeviceCards(currentCfg);
+        document.getElementById('cfg-poll').value  = currentCfg.app?.poll_interval_seconds ?? 10;
+        document.getElementById('cfg-title').value = currentCfg.app?.title ?? 'H15-Hub';
+        setStatus('Geladen', 'ok');
+      } catch (e) {
+        setMessage('config-message', 'YAML-Fehler: ' + e.message, 'error');
+      }
+    }
+
+    async function saveAndApply() {
+      const btn = document.getElementById('save-apply-btn');
+      btn.disabled = true;
+      setStatus('Speichern…', '');
+      setMessage('config-message', '');
+
+      // Formular → YAML
+      try {
+        readCardsIntoCfg(currentCfg);
+        document.getElementById('config-editor').value = jsyaml.dump(currentCfg, { lineWidth: 120 });
+      } catch (e) {
+        setMessage('config-message', 'YAML-Fehler: ' + e.message, 'error');
+        btn.disabled = false; return;
+      }
+
+      // Speichern
+      const saveRes = await fetch('/api/admin/config', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ content: document.getElementById('config-editor').value }),
+      });
+      const saveData = await saveRes.json().catch(() => ({}));
+      if (!saveRes.ok) {
+        setMessage('config-message', saveData.detail || 'Speichern fehlgeschlagen.', 'error');
+        setStatus('Fehler', 'err');
+        btn.disabled = false; return;
+      }
+
+      // Reload
+      setStatus('Anwenden…', '');
+      const reloadRes = await fetch('/api/admin/reload', { method: 'POST' });
+      const reloadData = await reloadRes.json().catch(() => ({}));
+      if (!reloadRes.ok) {
+        setMessage('config-message', reloadData.detail || 'Reload fehlgeschlagen.', 'error');
+        setStatus('Gespeichert (Reload fehlgeschlagen)', 'err');
+        btn.disabled = false; return;
+      }
+
+      setStatus(`Aktiv · ${reloadData.devices} Geräte`, 'ok');
+      setMessage('config-message', 'Konfiguration gespeichert und aktiviert.', 'success');
+      btn.disabled = false;
+    }
+
+    // ── Benutzer ─────────────────────────────────────────────────────────────
 
     function renderUsers() {
       const root = document.getElementById('users-list');
@@ -151,19 +874,6 @@
       const res = await fetch('/api/auth/me');
       const data = await res.json();
       document.getElementById('current-user-summary').textContent = `${data.display_name} ist angemeldet. Rechte: ${data.permissions.join(', ')}`;
-    }
-
-    async function loadConfig() {
-      const res = await fetch('/api/admin/config');
-      const data = await res.json().catch(() => ({}));
-      if (!res.ok) {
-        document.getElementById('config-path').textContent = 'Fehler';
-        setMessage('config-message', data.detail || 'Konfiguration konnte nicht geladen werden.', 'error');
-        return;
-      }
-      document.getElementById('config-path').textContent = data.path;
-      document.getElementById('config-editor').value = data.content;
-      setMessage('config-message', 'Konfiguration geladen. Änderungen werden nach Neustart aktiv.', 'success');
     }
 
     async function loadUsers() {
@@ -238,19 +948,6 @@
       await loadGroups();
     }
 
-    async function saveConfig() {
-      const res = await fetch('/api/admin/config', {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ content: document.getElementById('config-editor').value }),
-      });
-      const data = await res.json().catch(() => ({}));
-      if (!res.ok) { setMessage('config-message', data.detail || 'Konfiguration konnte nicht gespeichert werden.', 'error'); return; }
-      document.getElementById('config-path').textContent = data.path;
-      document.getElementById('config-editor').value = data.content;
-      setMessage('config-message', 'Konfiguration gespeichert. Bitte den Container neu starten.', 'success');
-    }
-
     async function deleteGroup(groupId) {
       if (!confirm('Gruppe inklusive Projekte und Karten wirklich löschen?')) return;
       const res = await fetch(`/api/admin/groups/${groupId}`, { method: 'DELETE' });
@@ -262,6 +959,414 @@
       await fetch('/api/auth/logout', { method: 'POST' });
       location.href = '/login';
     }
+
+    // ── Wizard ────────────────────────────────────────────────────────────
+
+    const WIZARD_ADAPTERS = [
+      {
+        id: 'bambuddy', label: '3D-Drucker', icon: '⬡',
+        desc: 'Bambu Lab Drucker via Bambuddy',
+        keyHint: 'bambu',
+        fields: [
+          { k: 'url',     l: 'Bambuddy-URL', t: 'text',     ph: 'http://192.168.1.x:8000', req: true },
+          { k: 'api_key', l: 'API-Key',       t: 'password', ph: '', req: false },
+        ],
+        sub: {
+          key: 'printers', label: 'Drucker',
+          fields: [
+            { k: 'id',   l: 'Geräte-ID (intern)', t: 'text', ph: 'bambu-p1s', req: true },
+            { k: 'name', l: 'Anzeigename',         t: 'text', ph: 'P1S AMS',  req: true },
+          ],
+        },
+      },
+      {
+        id: 'homeassistant', label: 'Home Assistant', icon: '⌂',
+        desc: 'Sensoren & Schalter aus HA',
+        keyHint: 'homeassistant',
+        fields: [
+          { k: 'url',   l: 'HA-URL',          t: 'text',     ph: 'http://192.168.1.x:8123', req: true },
+          { k: 'token', l: 'Long-Lived Token', t: 'password', ph: '',                        req: true },
+        ],
+        sub: {
+          key: 'entities', label: 'Entität',
+          fields: [
+            { k: 'id',        l: 'Geräte-ID',   t: 'text',   ph: 'werkstatt-sensor',   req: true },
+            { k: 'name',      l: 'Anzeigename',  t: 'text',   ph: 'Werkstatt Sensor',   req: true },
+            { k: 'entity_id', l: 'HA Entity ID', t: 'ha-entity', ph: 'binary_sensor.xyz', req: true },
+            { k: 'type', l: 'Typ', t: 'select', options: ['sensor','switch','select'], req: true },
+          ],
+        },
+      },
+      {
+        id: 'labelprinter', label: 'Etikettendrucker', icon: '◫',
+        desc: 'Brother QL (USB)',
+        keyHint: 'labelprinter',
+        fields: [
+          { k: 'device', l: 'Gerätepfad', t: 'text',     ph: '/dev/usb/lp0', req: true },
+          { k: 'model',  l: 'Modell',     t: 'text',     ph: 'QL-500',       req: true },
+          { k: 'public', l: 'Öffentlich zugänglich', t: 'checkbox', req: false },
+        ],
+      },
+      {
+        id: 'laserprinter', label: 'Laserdrucker', icon: '▤',
+        desc: 'Netzwerk-Laserdrucker (IPP)',
+        keyHint: 'laserprinter',
+        fields: [
+          { k: 'host',  l: 'Host / IP', t: 'text',   ph: '192.168.1.x', req: true },
+          { k: 'port',  l: 'Port',      t: 'number', ph: '631',         req: false },
+          { k: 'model', l: 'Modell',    t: 'text',   ph: 'HP LaserJet', req: false },
+        ],
+      },
+      {
+        id: 'lasercutter', label: 'Lasercutter', icon: '✦',
+        desc: 'Lasercutter (Lightburn / GRBL)',
+        keyHint: 'lasercutter',
+        fields: [
+          { k: 'host', l: 'Host / IP', t: 'text',   ph: '192.168.1.x', req: true },
+          { k: 'port', l: 'Port',      t: 'number', ph: '23',          req: false },
+        ],
+      },
+    ];
+
+    let wStep = 1;
+    let wAdapter = null;
+    // mode: 'create' | 'add_to_existing'
+    // existingKey: config-key of existing adapter to extend
+    const wData = { mode: 'create', existingKey: null, key: '', fields: {}, sub: {} };
+    // HA-Entitäten werden beim Seitenload vom Server mitgeliefert
+    let haEntities = window.HA_ENTITIES || [];
+
+    function getExistingAdapterKey(adapterId) {
+      return Object.entries(currentCfg.devices || {}).find(([, v]) => v.adapter === adapterId)?.[0] ?? null;
+    }
+
+    function openWizard() {
+      wStep = 1; wAdapter = null; haEntities = [];
+      Object.assign(wData, { mode: 'create', existingKey: null, key: '', fields: {}, sub: {} });
+      renderWizardStep();
+      document.getElementById('wizard-overlay').classList.add('open');
+    }
+
+    function closeWizard() {
+      document.getElementById('wizard-overlay').classList.remove('open');
+    }
+
+    function setWizardMsg(text, type = '') {
+      const el = document.getElementById('wizard-msg');
+      el.className = type; el.textContent = text;
+    }
+
+    function updateStepIndicator() {
+      [1,2,3].forEach(n => {
+        const el = document.getElementById(`ws${n}`);
+        el.className = 'wstep' + (n < wStep ? ' done' : n === wStep ? ' active' : '');
+        const num = el.querySelector('.wstep-num');
+        num.textContent = n < wStep ? '' : n;
+      });
+      document.getElementById('wizard-back-btn').style.visibility = wStep > 1 ? 'visible' : 'hidden';
+      document.getElementById('wizard-next-btn').textContent = wStep === 3 ? 'Hinzufügen' : 'Weiter';
+    }
+
+    // ── HA entity picker ──────────────────────────────────────────────────
+
+    function loadHaEntities() {
+      // Entitäten sind bereits beim Seitenload als window.HA_ENTITIES geladen
+      if (!haEntities.length) {
+        setWizardMsg('Keine HA-Entitäten verfügbar. Bitte Seite neu laden.', 'error');
+        return;
+      }
+      setWizardMsg('');
+      renderEntityList('');
+    }
+
+    function renderEntityList(query) {
+      const list = document.getElementById('entity-list');
+      if (!list) return;
+      const q = query.toLowerCase();
+      const filtered = haEntities.filter(e =>
+        !q || e.entity_id.toLowerCase().includes(q) || e.name.toLowerCase().includes(q)
+      ).slice(0, 80);
+
+      list.innerHTML = filtered.length
+        ? filtered.map(e => `
+          <div class="entity-row" onclick="pickEntity(${escapeHtml(JSON.stringify(e.entity_id))}, ${escapeHtml(JSON.stringify(e.name))})">
+            <span class="entity-domain">${escapeHtml(e.domain)}</span>
+            <span class="entity-name">${escapeHtml(e.name)}</span>
+            <span class="entity-id-small">${escapeHtml(e.entity_id)}</span>
+            <span class="entity-state">${escapeHtml(e.state ?? '')}</span>
+          </div>`).join('')
+        : '<div style="padding:10px;color:var(--dim);font-size:11px">Keine Treffer</div>';
+    }
+
+    function pickEntity(entityId, name) {
+      const idEl   = document.getElementById('wsf-entity_id');
+      const nameEl = document.getElementById('wsf-name');
+      const devEl  = document.getElementById('wsf-id');
+      if (idEl)   idEl.value   = entityId;
+      if (nameEl && !nameEl.value) nameEl.value = name;
+      if (devEl  && !devEl.value)  devEl.value  = entityId.replace(/\./g, '-');
+      // auto-set type from domain
+      const domain = entityId.split('.')[0];
+      const typeEl = document.getElementById('wsf-type');
+      if (typeEl) {
+        const mapped = { binary_sensor: 'sensor', sensor: 'sensor', switch: 'switch', input_select: 'select', select: 'select' };
+        if (mapped[domain]) typeEl.value = mapped[domain];
+      }
+      renderEntityList(entityId);
+    }
+
+    // ── Step rendering ────────────────────────────────────────────────────
+
+    function renderWizardStep() {
+      setWizardMsg('');
+      updateStepIndicator();
+      const body = document.getElementById('wizard-body');
+
+      // ── Step 1: Typ wählen ──
+      if (wStep === 1) {
+        body.innerHTML = `<div class="adapter-grid">
+          ${WIZARD_ADAPTERS.map(a => {
+            const existKey = getExistingAdapterKey(a.id);
+            const badge = existKey && a.sub
+              ? `<div class="adapter-tile-badge">+ zu ${escapeHtml(existKey)}</div>` : '';
+            return `<button class="adapter-tile${wAdapter?.id === a.id ? ' selected' : ''}" onclick="selectAdapter('${a.id}')">
+              <div class="adapter-tile-icon">${a.icon}</div>
+              <div class="adapter-tile-label">${a.label}</div>
+              <div class="adapter-tile-desc">${a.desc}</div>
+              ${badge}
+            </button>`;
+          }).join('')}
+        </div>`;
+        return;
+      }
+
+      // ── Step 2: Details ──
+      if (wStep === 2) {
+        const a = wAdapter;
+
+        if (wData.mode === 'add_to_existing') {
+          // Only sub-device fields; adapter-level fields pre-filled from existing config
+          const sub = a.sub;
+          const subFields = sub.fields.map(f => renderField(f, 'wsf-', wData.sub)).join('');
+          const haPickerHtml = a.id === 'homeassistant' ? `
+            <div style="margin-top:10px">
+              <label style="margin-top:0">Suche</label>
+              <input id="entity-search" type="text" placeholder="Name oder Entity ID…"
+                oninput="renderEntityList(this.value)" autocomplete="off">
+            </div>
+            <div id="entity-list" class="entity-list">
+              <div style="padding:10px;color:var(--dim);font-size:11px">Lade…</div>
+            </div>` : '';
+
+          body.innerHTML = `
+            <p class="muted" style="margin-bottom:14px">
+              Wird zu <strong>${escapeHtml(wData.existingKey)}</strong> hinzugefügt.
+            </p>
+            <div class="sub-device-section" style="border-top:none;padding-top:0;margin-top:0">
+              <h4>${sub.label}</h4>
+              ${haPickerHtml}
+              ${subFields}
+            </div>`;
+
+          if (a.id === 'homeassistant') loadHaEntities();
+          return;
+        }
+
+        // create mode: show all adapter fields + first sub-device
+        const uniqueKey = suggestKey(a.keyHint);
+        const fieldHtml = a.fields.map(f => renderField(f, 'wf-', wData.fields)).join('');
+        let subHtml = '';
+        if (a.sub) {
+          subHtml = `<div class="sub-device-section"><h4>${a.sub.label}</h4>
+            ${a.sub.fields.map(f => renderField(f, 'wsf-', wData.sub)).join('')}
+          </div>`;
+        }
+        body.innerHTML = `
+          <label style="margin-top:0">Config-Schlüssel <span style="color:var(--red)">*</span></label>
+          <input id="wf-key" value="${escapeHtml(wData.key||uniqueKey)}" placeholder="${uniqueKey}" autocomplete="off">
+          <p class="muted" style="font-size:10px;margin-top:4px">Eindeutiger interner Name (Buchstaben, Zahlen, _ und -)</p>
+          ${fieldHtml}${subHtml}`;
+        return;
+      }
+
+      // ── Step 3: Bestätigen ──
+      if (wStep === 3) {
+        body.innerHTML = `
+          <p class="muted" style="margin-bottom:12px">Folgendes wird zur Konfiguration hinzugefügt:</p>
+          <div class="yaml-preview">${escapeHtml(buildYamlSnippet())}</div>
+          <p class="muted" style="margin-top:10px;font-size:11px">Danach wird die Konfiguration sofort aktiviert.</p>`;
+      }
+    }
+
+    function renderField(f, prefix, store) {
+      const id = `${prefix}${f.k}`;
+      if (f.t === 'checkbox') {
+        return `<label class="checkbox" style="margin-top:12px">
+          <input type="checkbox" id="${id}" ${store[f.k] ? 'checked' : ''}> ${escapeHtml(f.l)}
+        </label>`;
+      }
+      if (f.t === 'select') {
+        const opts = (f.options||[]).map(o => `<option value="${o}" ${store[f.k]===o?'selected':''}>${o}</option>`).join('');
+        return `<label style="margin-top:12px">${escapeHtml(f.l)}${f.req?' <span style="color:var(--red)">*</span>':''}</label>
+          <select id="${id}">${opts}</select>`;
+      }
+      if (f.t === 'ha-entity') {
+        return `<label style="margin-top:12px">${escapeHtml(f.l)}${f.req?' <span style="color:var(--red)">*</span>':''}</label>
+          <input type="text" id="${id}" value="${escapeHtml(store[f.k]??'')}" placeholder="${escapeHtml(f.ph??'')}"
+            oninput="renderEntityList(this.value)" autocomplete="off">`;
+      }
+      return `<label style="margin-top:12px">${escapeHtml(f.l)}${f.req?' <span style="color:var(--red)">*</span>':''}</label>
+        <input type="${f.t}" id="${id}" value="${escapeHtml(store[f.k]??'')}" placeholder="${escapeHtml(f.ph??'')}" autocomplete="off">`;
+    }
+
+    function selectAdapter(id) {
+      wAdapter = WIZARD_ADAPTERS.find(a => a.id === id);
+      document.querySelectorAll('.adapter-tile').forEach(t => t.classList.remove('selected'));
+      event.currentTarget.classList.add('selected');
+    }
+
+    function suggestKey(hint) {
+      try {
+        const cfg = jsyaml.load(document.getElementById('config-editor').value) || {};
+        const existing = Object.keys(cfg.devices || {});
+        if (!existing.includes(hint)) return hint;
+        let i = 2;
+        while (existing.includes(`${hint}_${i}`)) i++;
+        return `${hint}_${i}`;
+      } catch { return hint; }
+    }
+
+    function collectStep2() {
+      if (wData.mode === 'add_to_existing') {
+        // collect only sub-device fields
+        for (const f of wAdapter.sub.fields) {
+          if (f.t === 'ha-entity') {
+            wData.sub[f.k] = document.getElementById(`wsf-${f.k}`)?.value ?? '';
+          } else {
+            const el = document.getElementById(`wsf-${f.k}`);
+            if (!el) continue;
+            wData.sub[f.k] = f.t === 'select' ? el.value : el.value;
+          }
+          if (f.req && f.t !== 'checkbox' && !wData.sub[f.k]) {
+            setWizardMsg(`Feld „${f.l}" ist erforderlich.`, 'error'); return false;
+          }
+        }
+        return true;
+      }
+
+      // create mode
+      const keyEl = document.getElementById('wf-key');
+      const key = keyEl?.value.trim() ?? '';
+      if (!key || !/^[\w-]+$/.test(key)) { setWizardMsg('Bitte einen gültigen Config-Schlüssel eingeben.', 'error'); return false; }
+      try {
+        const cfg = jsyaml.load(document.getElementById('config-editor').value) || {};
+        if ((cfg.devices || {})[key] && key !== wData.key) {
+          setWizardMsg(`Schlüssel „${key}" existiert bereits.`, 'error'); return false;
+        }
+      } catch {}
+      wData.key = key;
+
+      for (const f of wAdapter.fields) {
+        const el = document.getElementById(`wf-${f.k}`);
+        if (!el) continue;
+        wData.fields[f.k] = f.t === 'checkbox' ? el.checked : f.t === 'number' ? (Number(el.value)||null) : el.value;
+        if (f.req && f.t !== 'checkbox' && !wData.fields[f.k]) {
+          setWizardMsg(`Feld „${f.l}" ist erforderlich.`, 'error'); return false;
+        }
+      }
+      if (wAdapter.sub) {
+        for (const f of wAdapter.sub.fields) {
+          const el = document.getElementById(`wsf-${f.k}`);
+          if (!el) continue;
+          wData.sub[f.k] = el.value;
+          if (f.req && !wData.sub[f.k]) {
+            setWizardMsg(`Feld „${f.l}" ist erforderlich.`, 'error'); return false;
+          }
+        }
+      }
+      return true;
+    }
+
+    function buildYamlSnippet() {
+      if (wData.mode === 'add_to_existing') {
+        const key = wAdapter.sub.key;
+        return jsyaml.dump({ [wData.existingKey]: { [key]: [{ ...wData.sub }] } }, { lineWidth: 100, indent: 2 })
+          .replace(/^[^\n]+\n/, `# Wird zu ${wData.existingKey}.${key} hinzugefügt:\n`);
+      }
+      const dev = { adapter: wAdapter.id, ...wData.fields };
+      if (wAdapter.sub && Object.keys(wData.sub).length) {
+        dev[wAdapter.sub.key] = [{ ...wData.sub }];
+      }
+      return jsyaml.dump({ [wData.key]: dev }, { lineWidth: 100, indent: 2 });
+    }
+
+    async function wizardNext() {
+      setWizardMsg('');
+      if (wStep === 1) {
+        if (!wAdapter) { setWizardMsg('Bitte einen Gerätetyp auswählen.', 'error'); return; }
+        // Detect existing adapter for types with sub-devices
+        const existKey = wAdapter.sub ? getExistingAdapterKey(wAdapter.id) : null;
+        if (existKey) {
+          wData.mode = 'add_to_existing';
+          wData.existingKey = existKey;
+        } else {
+          wData.mode = 'create';
+          wData.existingKey = null;
+        }
+        wStep = 2;
+      } else if (wStep === 2) {
+        if (!collectStep2()) return;
+        wStep = 3;
+      } else if (wStep === 3) {
+        await wizardFinish(); return;
+      }
+      renderWizardStep();
+    }
+
+    function wizardBack() {
+      if (wStep <= 1) return;
+      wStep--;
+      renderWizardStep();
+    }
+
+    async function wizardFinish() {
+      const btn = document.getElementById('wizard-next-btn');
+      btn.disabled = true;
+      setWizardMsg('Speichern…');
+
+      try {
+        currentCfg.devices = currentCfg.devices || {};
+
+        if (wData.mode === 'add_to_existing') {
+          const existing = currentCfg.devices[wData.existingKey];
+          if (!existing) throw new Error(`Adapter „${wData.existingKey}" nicht gefunden`);
+          const subKey = wAdapter.sub.key;
+          existing[subKey] = existing[subKey] || [];
+          existing[subKey].push({ ...wData.sub });
+        } else {
+          const dev = { adapter: wAdapter.id, ...wData.fields };
+          if (wAdapter.sub && Object.keys(wData.sub).length) {
+            dev[wAdapter.sub.key] = [{ ...wData.sub }];
+          }
+          currentCfg.devices[wData.key] = dev;
+        }
+
+        document.getElementById('config-editor').value = jsyaml.dump(currentCfg, { lineWidth: 120 });
+        renderDeviceCards(currentCfg);
+      } catch (e) {
+        setWizardMsg('Fehler: ' + e.message, 'error');
+        btn.disabled = false; return;
+      }
+
+      await saveAndApply();
+      btn.disabled = false;
+      closeWizard();
+    }
+
+    // Overlay-Klick schließt Wizard
+    document.getElementById('wizard-overlay').addEventListener('click', e => {
+      if (e.target === document.getElementById('wizard-overlay')) closeWizard();
+    });
 
     Promise.all([loadMe(), loadConfig(), loadUsers(), loadGroups()]);
   </script>

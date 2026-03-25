@@ -22,6 +22,7 @@ class DeviceRegistry:
     def __init__(self, poll_interval: int = 5) -> None:
         self._adapters: dict[str, DeviceAdapter] = {}
         self._current_state: dict[str, Device] = {}
+        self._device_adapter: dict[str, DeviceAdapter] = {}
         self._poll_interval = poll_interval
         self._callbacks: list[StatusChangeCallback] = []
         self._task: asyncio.Task | None = None
@@ -56,6 +57,7 @@ class DeviceRegistry:
                 for device in devices:
                     old = self._current_state.get(device.id)
                     self._current_state[device.id] = device
+                    self._device_adapter[device.id] = adapter
                     if old and old.status != device.status:
                         await self._notify_change(old, device)
             except Exception as e:
@@ -75,10 +77,9 @@ class DeviceRegistry:
         return self._current_state.get(device_id)
 
     async def execute_action(self, device_id: str, action: str, params: dict) -> ActionResult:
-        for adapter in self._adapters.values():
-            devices = await adapter.get_status()
-            if any(d.id == device_id for d in devices):
-                return await adapter.execute_action(device_id, action, params)
+        adapter = self._device_adapter.get(device_id)
+        if adapter:
+            return await adapter.execute_action(device_id, action, params)
         return ActionResult(success=False, message=f"Gerät nicht gefunden: {device_id}")
 
 

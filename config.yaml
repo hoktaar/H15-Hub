@@ -1,39 +1,53 @@
 app:
-  title: "H15-Hub"
-  description: "Hebewerk e.V. Makerspace Integration Hub"
+  title: H15-Hub
+  description: Hebewerk e.V. Makerspace Integration Hub
   poll_interval_seconds: 5
-
 devices:
   bambu:
     adapter: bambuddy
-    url: http://bambuddy:8080
+    url: http://makerspace:8000
+    api_key: bb_W1H9eh55gOIkOlE5ZKXED3ScJlexwTrOke67xC5YxTI
     printers:
-      - id: bambu-p1s-1
-        name: "Bambu P1S #1"
-      - id: bambu-p1s-2
-        name: "Bambu P1S #2"
-
+      - id: bambu-p1s-ams
+        name: P1S AMS
+      - id: bambu-p1p
+        name: P1P
   homeassistant:
     adapter: homeassistant
-    url: http://homeassistant:8123
-    token: "YOUR_LONG_LIVED_TOKEN"
+    url: http://192.168.181.111:8123
+    token: >-
+      eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiIzNTg5ZTBhMDY4ZjU0OTk5YjJlYzM4NTI5NTk0M2FjMiIsImlhdCI6MTc3MzA1MTA5OCwiZXhwIjoyMDg4NDExMDk4fQ.ACG88loH_-qyQ9xprj8xroIJiqPQrPQsBI62qU2luSs
     entities:
-      - entity_id: switch.lasercutter_power
-        name: Lasercutter
-        type: lasercutter
+      - entity_id: select.kombi_kuhlschrank_einschaltzustand
+        name: Kühlschrank
+        type: Schalter
       - entity_id: binary_sensor.werkstatt_besetzt
         name: Offene Werkstatt
         type: sensor
-
+      - id: sensor-3d_drucker_energie_gesamt
+        name: Bambu P1S AMS Energie gesamt
+        entity_id: sensor.3d_drucker_energie_gesamt
+        type: sensor
   labelprinter:
     adapter: labelprinter
-    model: QL-800
+    model: QL-500
     device: /dev/usb/lp0
-    name: "Labeldrucker"
-
-  laserprinter:
+    name: Labeldrucker
+    public: true
+  laserprinter_color:
     adapter: laserprinter
-    url: ipp://192.168.1.50/ipp/print
-    name: "Büro Laserdrucker"
-
+    id: laserprinter-color
+    url: ipp://192.168.181.172/ipp/print
+    web_url: http://192.168.181.172
+    name: Farb-Laserdrucker
+    host: ''
+    port: 0
+  laserprinter_bw:
+    adapter: laserprinter
+    id: laserprinter-bw
+    url: ipp://192.168.181.132/ipp/print
+    web_url: http://192.168.181.132
+    name: SW-Laserdrucker
+    host: ''
+    port: 0
 automations: []

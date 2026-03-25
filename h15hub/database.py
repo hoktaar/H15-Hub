@@ -13,6 +13,7 @@ class Base(DeclarativeBase):
 
 
 async def init_db() -> None:
+    import h15hub.models.settings  # noqa: F401 — register DeviceSettings table
     os.makedirs("data", exist_ok=True)
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)

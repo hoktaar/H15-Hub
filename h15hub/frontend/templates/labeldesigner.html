@@ -1,0 +1,922 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Label Designer – H15-Hub</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg:        #0d0b08;
+      --surface:   #161310;
+      --surf2:     #1d1a15;
+      --border:    #2e2519;
+      --border2:   #4a3c28;
+      --text:      #ede8dd;
+      --muted:     #887a64;
+      --dim:       #524638;
+      --amber:     #f0a020;
+      --green:     #5ecc80;
+      --red:       #e84040;
+      --yellow:    #f0c040;
+      --accent:        var(--amber);
+      --success:       var(--green);
+      --danger:        var(--red);
+      --warning:       var(--yellow);
+      --surface-alt:   var(--surf2);
+      --border-strong: var(--border2);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'JetBrains Mono', 'Courier New', monospace;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      font-size: 13px;
+    }
+
+    header {
+      border-bottom: 1px solid var(--border2);
+      padding: 0 28px;
+      height: 56px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .logo { display: flex; align-items: baseline; gap: 10px; }
+    .logo-mark { font-family: 'Bebas Neue', sans-serif; font-size: 30px; letter-spacing: 0.06em; color: var(--amber); line-height: 1; }
+    .logo-sub { font-size: 9px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.2em; }
+
+    nav {
+      border-bottom: 1px solid var(--border);
+      padding: 0 28px;
+      display: flex;
+    }
+
+    nav a {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      color: var(--muted);
+      text-decoration: none;
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+      padding: 13px 16px;
+      border-bottom: 2px solid transparent;
+      transition: color 120ms, border-color 120ms;
+    }
+
+    nav a:hover { color: var(--text); }
+    nav a.active { color: var(--amber); border-bottom-color: var(--amber); }
+
+    main {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 24px 28px;
+    }
+
+    .page-title {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 22px;
+      letter-spacing: 0.06em;
+      color: var(--muted);
+      text-transform: uppercase;
+      margin-bottom: 20px;
+    }
+
+    /* ── 3-Spalten Grid ── */
+    .designer-grid {
+      display: grid;
+      grid-template-columns: 280px 1fr 300px;
+      gap: 16px;
+      align-items: start;
+    }
+
+    @media (max-width: 900px) {
+      .designer-grid { grid-template-columns: 1fr; }
+    }
+
+    /* ── Panels ── */
+    .panel {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 2px;
+      overflow: hidden;
+    }
+
+    .panel + .panel { margin-top: 10px; }
+
+    .panel-header {
+      padding: 10px 14px;
+      font-size: 10px;
+      font-weight: 600;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      border-bottom: 1px solid var(--border);
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      user-select: none;
+    }
+
+    .panel-header:hover { color: var(--text); }
+    .panel-header .chevron { transition: transform 200ms; }
+    .panel-header.collapsed .chevron { transform: rotate(-90deg); }
+    .panel-header.collapsed + .panel-body { display: none; }
+
+    .panel-body { padding: 14px 16px; display: flex; flex-direction: column; gap: 10px; }
+
+    /* ── Form elements ── */
+    .field { display: flex; flex-direction: column; gap: 5px; }
+
+    label.field-label, .field-label {
+      font-size: 10px;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+    }
+
+    input[type=text], input[type=number], textarea, select {
+      width: 100%;
+      background: var(--surf2);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 9px 11px;
+      border-radius: 2px;
+      font-size: 12px;
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    input:focus, textarea:focus, select:focus {
+      outline: none;
+      border-color: var(--amber);
+    }
+
+    textarea { resize: vertical; min-height: 120px; line-height: 1.5; }
+    select option { background: var(--surface); }
+
+    input[type=range] {
+      width: 100%;
+      accent-color: var(--amber);
+      padding: 4px 0;
+    }
+
+    /* ── Segment buttons ── */
+    .seg-row { display: flex; gap: 3px; }
+
+    .seg-btn {
+      flex: 1;
+      padding: 7px 6px;
+      border-radius: 2px;
+      font-size: 11px;
+      background: var(--surf2);
+      color: var(--muted);
+      border: 1px solid var(--border);
+      cursor: pointer;
+      text-align: center;
+      font-family: 'JetBrains Mono', monospace;
+      transition: background 120ms, color 120ms, border-color 120ms;
+      white-space: nowrap;
+    }
+
+    .seg-btn:hover { color: var(--text); border-color: var(--border2); }
+    .seg-btn.active { background: var(--amber); color: #0d0b08; border-color: var(--amber); }
+
+    .tog-btn {
+      padding: 7px 14px;
+      border-radius: 2px;
+      font-size: 11px;
+      font-weight: 700;
+      background: var(--surf2);
+      color: var(--muted);
+      border: 1px solid var(--border);
+      cursor: pointer;
+      font-family: 'JetBrains Mono', monospace;
+      transition: background 120ms, color 120ms, border-color 120ms;
+    }
+
+    .tog-btn.active { background: var(--amber); color: #0d0b08; border-color: var(--amber); }
+
+    /* ── Checkbox ── */
+    .checkbox-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+      cursor: pointer;
+    }
+
+    .checkbox-row input[type=checkbox] { width: 15px; height: 15px; accent-color: var(--amber); cursor: pointer; }
+
+    .sub-fields { display: flex; flex-direction: column; gap: 8px; }
+    .sub-fields.hidden { display: none; }
+
+    /* ── Icon Picker ── */
+    .icon-grid { display: flex; flex-wrap: wrap; gap: 5px; }
+
+    .icon-btn {
+      width: 34px;
+      height: 34px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 2px;
+      cursor: pointer;
+      font-size: 17px;
+      background: var(--surf2);
+      border: 1px solid var(--border);
+      color: var(--muted);
+      transition: background 100ms, color 100ms, border-color 100ms;
+      position: relative;
+    }
+
+    .icon-btn:hover { color: var(--text); border-color: var(--border2); }
+    .icon-btn.active { background: var(--amber); color: #0d0b08; border-color: var(--amber); }
+
+    .icon-btn[title]:hover::after {
+      content: attr(title);
+      position: absolute;
+      bottom: 100%;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #000;
+      color: #fff;
+      padding: 3px 6px;
+      border-radius: 2px;
+      font-size: 9px;
+      white-space: nowrap;
+      pointer-events: none;
+      margin-bottom: 4px;
+      z-index: 10;
+    }
+
+    .icon-none-btn {
+      padding: 5px 8px;
+      font-size: 10px;
+      border-radius: 2px;
+      cursor: pointer;
+      background: var(--surf2);
+      border: 1px solid var(--border);
+      color: var(--muted);
+      font-family: 'JetBrains Mono', monospace;
+      margin-bottom: 4px;
+      transition: background 100ms, color 100ms, border-color 100ms;
+    }
+
+    .icon-none-btn.active { background: var(--amber); color: #0d0b08; border-color: var(--amber); }
+
+    /* ── Middle column ── */
+    .col-mid { display: flex; flex-direction: column; gap: 14px; }
+
+    .info-bar {
+      display: flex;
+      gap: 12px;
+      font-size: 11px;
+      color: var(--muted);
+      padding: 8px 12px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 2px;
+    }
+
+    .info-bar strong { color: var(--text); }
+
+    /* ── Right column ── */
+    .col-right { display: flex; flex-direction: column; gap: 12px; }
+
+    .preview-box {
+      background: #0a0908;
+      border: 1px solid var(--border);
+      border-radius: 2px;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+      min-height: 140px;
+      justify-content: center;
+    }
+
+    #label-preview {
+      display: block;
+      max-width: 100%;
+      max-height: 280px;
+      border-radius: 2px;
+      image-rendering: pixelated;
+      box-shadow: 0 2px 12px rgba(0,0,0,.6);
+    }
+
+    #preview-status { font-size: 11px; color: var(--muted); text-align: center; }
+
+    .btn-print {
+      width: 100%;
+      padding: 12px;
+      background: var(--amber);
+      color: #0d0b08;
+      border: 1px solid var(--amber);
+      border-radius: 2px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 150ms, border-color 150ms;
+    }
+
+    .btn-print:hover { background: #d4911a; border-color: #d4911a; }
+    .btn-print:disabled { opacity: 0.45; cursor: not-allowed; }
+
+    .result {
+      padding: 10px 12px;
+      border-radius: 2px;
+      font-size: 12px;
+      display: none;
+      border: 1px solid transparent;
+    }
+
+    .result.ok  { background: #152017; color: var(--green); border-color: #2a4030; display: block; }
+    .result.err { background: #1e1010; color: var(--red);   border-color: #4a2020; display: block; }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="logo">
+      <span class="logo-mark">H15-HUB</span>
+      <span class="logo-sub">Hebewerk e.V. Eberswalde</span>
+    </div>
+  </header>
+  <nav>
+    <a href="/">Dashboard</a>
+    <a href="/bookings">Buchungen</a>
+    <a href="/boards">Boards</a>
+    <a href="/labeldesigner" class="active">Label Designer</a>
+    {% if current_user and current_user.role.value == 'admin' %}
+    <a href="/admin">Admin</a>
+    {% endif %}
+  </nav>
+
+  <main>
+    <div class="page-title">Label Designer</div>
+
+    <div class="designer-grid">
+
+      <!-- ── Linke Spalte: Einstellungen ── -->
+      <div class="col-left">
+
+        <!-- Labelgröße -->
+        <div class="panel">
+          <div class="panel-header" onclick="togglePanel(this)">
+            Labelgröße <span class="chevron">▾</span>
+          </div>
+          <div class="panel-body">
+            <div class="field">
+              <select id="label-size">
+                <option value="62">62 mm Endlos</option>
+                <option value="29">29 mm Endlos</option>
+                <option value="38">38 mm Endlos</option>
+                <option value="50">50 mm Endlos</option>
+                <option value="54">54 mm Endlos</option>
+                <option value="62x29">62 × 29 mm</option>
+                <option value="62x100">62 × 100 mm</option>
+                <option value="29x90">29 × 90 mm</option>
+                <option value="23x23">23 × 23 mm</option>
+              </select>
+            </div>
+            <div class="field">
+              <div class="field-label">Orientierung</div>
+              <div class="seg-row">
+                <button class="seg-btn rotate-btn active" data-rotate="0">Standard</button>
+                <button class="seg-btn rotate-btn"        data-rotate="90">Gedreht</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Schrift -->
+        <div class="panel">
+          <div class="panel-header" onclick="togglePanel(this)">
+            Schrift <span class="chevron">▾</span>
+          </div>
+          <div class="panel-body">
+            <div class="field">
+              <div class="field-label">Schriftart</div>
+              <select id="label-font">
+                <option value="dejavu_sans">DejaVu Sans</option>
+                <option value="dejavu_mono">DejaVu Mono</option>
+                <option value="dejavu_serif">DejaVu Serif</option>
+              </select>
+            </div>
+            <div class="field">
+              <div class="field-label">Größe (px)</div>
+              <input type="number" id="label-fontsize" value="72" min="10" max="400" step="2">
+            </div>
+            <div class="field">
+              <div class="field-label">Ausrichtung</div>
+              <div class="seg-row">
+                <button class="seg-btn align-btn active" data-align="left">Links</button>
+                <button class="seg-btn align-btn"        data-align="center">Mitte</button>
+                <button class="seg-btn align-btn"        data-align="right">Rechts</button>
+              </div>
+            </div>
+            <div class="field">
+              <button id="bold-toggle" class="tog-btn active">B Fett</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Erweitert -->
+        <div class="panel">
+          <div class="panel-header collapsed" onclick="togglePanel(this)">
+            Erweitert <span class="chevron">▾</span>
+          </div>
+          <div class="panel-body">
+            <div class="field">
+              <div class="field-label">Inhalt-Rotation</div>
+              <div class="seg-row">
+                <button class="seg-btn textrotate-btn active" data-textrotate="0">0°</button>
+                <button class="seg-btn textrotate-btn"        data-textrotate="90">90°</button>
+                <button class="seg-btn textrotate-btn"        data-textrotate="180">180°</button>
+                <button class="seg-btn textrotate-btn"        data-textrotate="270">270°</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- QR-Code -->
+        <div class="panel">
+          <div class="panel-header" onclick="togglePanel(this)">
+            QR-Code <span class="chevron">▾</span>
+          </div>
+          <div class="panel-body">
+            <label class="checkbox-row">
+              <input type="checkbox" id="qr-toggle"> QR-Code einbetten
+            </label>
+            <div class="sub-fields hidden" id="qr-fields">
+              <div class="field">
+                <div class="field-label">Typ</div>
+                <select id="qr-type">
+                  <option value="text">Text</option>
+                  <option value="url">URL</option>
+                  <option value="phone">Telefon (tel:)</option>
+                  <option value="sms">SMS (sms:)</option>
+                  <option value="email">E-Mail (mailto:)</option>
+                </select>
+              </div>
+              <input type="text" id="qr-text" placeholder="Inhalt eingeben…">
+              <div class="field">
+                <div class="field-label">Größe (<span id="qr-size-val">80</span>%)</div>
+                <input type="range" id="qr-size" min="20" max="100" value="80" step="5">
+              </div>
+              <div class="field">
+                <div class="field-label">Position</div>
+                <div class="seg-row">
+                  <button class="seg-btn qrpos-btn active" data-qrpos="left">Links</button>
+                  <button class="seg-btn qrpos-btn"        data-qrpos="right">Rechts</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Icon -->
+        <div class="panel">
+          <div class="panel-header collapsed" onclick="togglePanel(this)">
+            Icon <span class="chevron">▾</span>
+          </div>
+          <div class="panel-body">
+            <button class="icon-none-btn active" id="icon-none-btn" onclick="selectIcon('')">Kein Icon</button>
+            <div class="field-label" style="margin-bottom:4px">Schnellauswahl</div>
+            <div class="icon-grid" id="icon-quick">
+              <button class="icon-btn" data-icon="wifi"     title="wifi">     <i class="ti ti-wifi"></i></button>
+              <button class="icon-btn" data-icon="printer"  title="printer">  <i class="ti ti-printer"></i></button>
+              <button class="icon-btn" data-icon="tool"     title="tool">     <i class="ti ti-tool"></i></button>
+              <button class="icon-btn" data-icon="scissors" title="scissors"> <i class="ti ti-scissors"></i></button>
+              <button class="icon-btn" data-icon="home"     title="home">     <i class="ti ti-home"></i></button>
+              <button class="icon-btn" data-icon="qrcode"   title="qrcode">   <i class="ti ti-qrcode"></i></button>
+            </div>
+            <div class="field-label" style="margin:8px 0 4px">Suchen</div>
+            <input type="text" id="icon-search" placeholder="z.B. mail, lock, star …">
+            <div class="icon-grid" id="icon-results" style="max-height:120px;overflow-y:auto"></div>
+            <div class="field" style="margin-top:6px">
+              <div class="field-label">Position</div>
+              <div class="seg-row">
+                <button class="seg-btn iconpos-btn active" data-iconpos="right">Rechts</button>
+                <button class="seg-btn iconpos-btn"        data-iconpos="left">Links</button>
+              </div>
+            </div>
+            <div class="field">
+              <div class="field-label">Größe (<span id="icon-size-val">80</span>%)</div>
+              <input type="range" id="icon-size" min="20" max="100" value="80" step="5">
+            </div>
+          </div>
+        </div>
+
+      </div><!-- /col-left -->
+
+      <!-- ── Mittelspalte: Text ── -->
+      <div class="col-mid">
+        <div class="panel" style="flex:1">
+          <div class="panel-header">Text</div>
+          <div class="panel-body">
+            <textarea id="label-text" placeholder="Hebewerk e.V.&#10;Dein Name" style="min-height:180px"></textarea>
+          </div>
+        </div>
+        <div class="info-bar">
+          <span>Größe: <strong id="info-size">–</strong></span>
+          <span>Auflösung: <strong id="info-res">–</strong></span>
+        </div>
+      </div>
+
+      <!-- ── Rechte Spalte: Preview + Drucken ── -->
+      <div class="col-right">
+        <div class="preview-box">
+          <img id="label-preview" alt="Label-Vorschau" style="display:none">
+          <div id="preview-status">Vorschau wird geladen…</div>
+        </div>
+        <button class="btn-print" id="print-btn" onclick="printLabel()">Drucken</button>
+        <div id="print-result" class="result"></div>
+      </div>
+
+    </div><!-- /designer-grid -->
+  </main>
+
+  <script>
+    const DEVICE_ID  = 'labelprinter';
+    const PUBLIC_API = `/api/public/devices/${DEVICE_ID}`;
+    const LS_KEY     = 'h15hub_labeldesigner';
+
+    const LABEL_INFO = {
+      '62':     { w: 696,  h: 0,    mm: '62 mm Endlos' },
+      '29':     { w: 306,  h: 0,    mm: '29 mm Endlos' },
+      '38':     { w: 413,  h: 0,    mm: '38 mm Endlos' },
+      '50':     { w: 554,  h: 0,    mm: '50 mm Endlos' },
+      '54':     { w: 590,  h: 0,    mm: '54 mm Endlos' },
+      '62x29':  { w: 696,  h: 271,  mm: '62 × 29 mm' },
+      '62x100': { w: 696,  h: 1109, mm: '62 × 100 mm' },
+      '29x90':  { w: 306,  h: 991,  mm: '29 × 90 mm' },
+      '23x23':  { w: 202,  h: 202,  mm: '23 × 23 mm' },
+    };
+
+    // ── State ─────────────────────────────────────────────────────────────
+    let currentAlign      = 'left';
+    let isBold            = true;
+    let currentRotate     = 0;
+    let currentTextRotate = 0;
+    let currentQrPos      = 'left';
+    let currentFont       = 'dejavu_sans';
+    let currentIcon       = '';
+    let currentIconPos    = 'right';
+    let previewDebounce   = null;
+    let saveDebounce      = null;
+
+    // ── Accordion ─────────────────────────────────────────────────────────
+    function togglePanel(header) {
+      header.classList.toggle('collapsed');
+    }
+
+    // ── Einstellungen sammeln / anwenden ──────────────────────────────────
+    function collectSettings() {
+      return {
+        text:       document.getElementById('label-text').value,
+        label:      document.getElementById('label-size').value,
+        fontSize:   document.getElementById('label-fontsize').value,
+        font:       currentFont,
+        align:      currentAlign,
+        bold:       isBold,
+        rotate:     currentRotate,
+        textRotate: currentTextRotate,
+        qrActive:   document.getElementById('qr-toggle').checked,
+        qrText:     document.getElementById('qr-text').value,
+        qrSize:     document.getElementById('qr-size').value,
+        qrPos:      currentQrPos,
+        qrType:     document.getElementById('qr-type').value,
+        icon:       currentIcon,
+        iconPos:    currentIconPos,
+        iconSize:   document.getElementById('icon-size').value,
+      };
+    }
+
+    function applySettings(s) {
+      if (!s || !Object.keys(s).length) return;
+      if (s.text      != null) document.getElementById('label-text').value      = s.text;
+      if (s.label     != null) document.getElementById('label-size').value      = s.label;
+      if (s.fontSize  != null) document.getElementById('label-fontsize').value  = s.fontSize;
+      if (s.font      != null) { document.getElementById('label-font').value = s.font; currentFont = s.font; }
+      if (s.align     != null) { currentAlign = s.align; }
+      if (s.bold      != null) { isBold = s.bold; }
+      if (s.rotate    != null) { currentRotate = s.rotate; }
+      if (s.textRotate != null) { currentTextRotate = s.textRotate; }
+      if (s.qrPos     != null) { currentQrPos = s.qrPos; }
+      if (s.qrType    != null) document.getElementById('qr-type').value = s.qrType;
+      if (s.qrText    != null) document.getElementById('qr-text').value = s.qrText;
+      if (s.qrSize    != null) {
+        document.getElementById('qr-size').value = s.qrSize;
+        document.getElementById('qr-size-val').textContent = s.qrSize;
+      }
+      if (s.qrActive)          {
+        document.getElementById('qr-toggle').checked = true;
+        document.getElementById('qr-fields').classList.remove('hidden');
+      }
+      if (s.icon      != null) { currentIcon = s.icon; _applyIconSelection(s.icon); }
+      if (s.iconPos   != null) { currentIconPos = s.iconPos; }
+      if (s.iconSize  != null) {
+        document.getElementById('icon-size').value = s.iconSize;
+        document.getElementById('icon-size-val').textContent = s.iconSize;
+      }
+      // Buttons aktualisieren
+      activateBtn('.rotate-btn',     'rotate',     currentRotate);
+      activateBtn('.align-btn',      'align',      currentAlign);
+      activateBtn('.textrotate-btn', 'textrotate', currentTextRotate);
+      activateBtn('.qrpos-btn',      'qrpos',      currentQrPos);
+      activateBtn('.iconpos-btn',    'iconpos',    currentIconPos);
+      document.getElementById('bold-toggle').classList.toggle('active', isBold);
+    }
+
+    function activateBtn(selector, dataKey, value) {
+      document.querySelectorAll(selector).forEach(b => {
+        b.classList.toggle('active', b.dataset[dataKey] === String(value));
+      });
+    }
+
+    // ── Settings persistieren (localStorage + Server) ─────────────────────
+    function onChanged() {
+      updateInfoBar();
+      clearTimeout(saveDebounce);
+      saveDebounce = setTimeout(persistSettings, 800);
+      schedulePreview();
+    }
+
+    async function persistSettings() {
+      const s = collectSettings();
+      localStorage.setItem(LS_KEY, JSON.stringify(s));
+      try {
+        await fetch(`${PUBLIC_API}/settings`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(s),
+        });
+      } catch {}
+    }
+
+    async function loadSettings() {
+      // Sofort aus localStorage für schnelles Rendering
+      try {
+        const cached = JSON.parse(localStorage.getItem(LS_KEY) || 'null');
+        if (cached) applySettings(cached);
+      } catch {}
+      // Server hat Vorrang
+      try {
+        const res = await fetch(`${PUBLIC_API}/settings`);
+        if (res.ok) {
+          const srv = await res.json();
+          if (srv && Object.keys(srv).length) {
+            applySettings(srv);
+            localStorage.setItem(LS_KEY, JSON.stringify(srv));
+          }
+        }
+      } catch {}
+      updateInfoBar();
+      schedulePreview();
+    }
+
+    // ── Button-Gruppen verdrahten ──────────────────────────────────────────
+    function makeBtnGroup(selector, dataKey, setter) {
+      document.querySelectorAll(selector).forEach(btn => {
+        btn.addEventListener('click', () => {
+          document.querySelectorAll(selector).forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          setter(btn.dataset[dataKey]);
+          onChanged();
+        });
+      });
+    }
+
+    makeBtnGroup('.rotate-btn',     'rotate',     v => { currentRotate = parseInt(v); });
+    makeBtnGroup('.align-btn',      'align',      v => { currentAlign = v; });
+    makeBtnGroup('.textrotate-btn', 'textrotate', v => { currentTextRotate = parseInt(v); });
+    makeBtnGroup('.qrpos-btn',      'qrpos',      v => { currentQrPos = v; });
+    makeBtnGroup('.iconpos-btn',    'iconpos',    v => { currentIconPos = v; });
+
+    document.getElementById('bold-toggle').addEventListener('click', () => {
+      isBold = !isBold;
+      document.getElementById('bold-toggle').classList.toggle('active', isBold);
+      onChanged();
+    });
+
+    document.getElementById('label-font').addEventListener('change', e => {
+      currentFont = e.target.value;
+      onChanged();
+    });
+
+    document.getElementById('qr-toggle').addEventListener('change', e => {
+      document.getElementById('qr-fields').classList.toggle('hidden', !e.target.checked);
+      onChanged();
+    });
+
+    document.getElementById('qr-size').addEventListener('input', e => {
+      document.getElementById('qr-size-val').textContent = e.target.value;
+      onChanged();
+    });
+
+    document.getElementById('qr-type').addEventListener('change', onChanged);
+
+    document.getElementById('icon-size').addEventListener('input', e => {
+      document.getElementById('icon-size-val').textContent = e.target.value;
+      onChanged();
+    });
+
+    ['label-text', 'label-size', 'label-fontsize', 'qr-text'].forEach(id => {
+      document.getElementById(id).addEventListener('input', onChanged);
+    });
+
+    // ── Icon Picker ───────────────────────────────────────────────────────
+    const ICON_LIST = [
+      'activity','adjustments','alert-circle','alert-triangle','anchor','archive',
+      'arrow-down','arrow-left','arrow-right','arrow-up','at','award',
+      'badge','ban','battery','bell','bluetooth','bolt',
+      'book','bookmark','box','brand-github','brand-instagram','briefcase',
+      'brush','building','bulb','calendar','camera','car',
+      'chart-bar','check','chevron-down','chevron-right','circle','clipboard',
+      'clock','cloud','code','coffee','coin','color-picker',
+      'compass','copy','cpu','credit-card','crop','cut',
+      'dashboard','database','device-desktop','device-mobile','devices','dots',
+      'download','drag-drop','edit','emergency-bed','eye','face-id',
+      'file','filter','fingerprint','flag','flame','flask',
+      'folder','forklift','gauge','gift','globe','hammer',
+      'headphones','heart','help','history','home','info',
+      'key','keyboard','layers','layout','leaf','link',
+      'list','lock','login','logout','mail','map',
+      'map-pin','maximize','menu','message','microphone','minus',
+      'monitor','moon','music','network','news','package',
+      'paint','pencil','phone','photo','plug','plus',
+      'pointer','power','printer','qrcode','refresh','robot',
+      'rocket','ruler','satellite','scissors','search','send',
+      'server','settings','share','shield','shopping-cart','signal',
+      'star','sun','switch','tag','terminal','thumb-up',
+      'ticket','tool','trash','trending-up','truck','upload',
+      'usb','user','users','video','wallet','wifi',
+      'wind','world','wrench','x','zoom-in','zoom-out',
+      '3d-cube-sphere','air-conditioning','ambulance','anchor-off','antenna-bars-5',
+      'atom','backpack','badge-check','battery-charging','bike','biohazard',
+      'blender','bone','brain','bus','calculator','certificate',
+      'chemistry','chess','chefhat','circle-check','circuit-board','code-dots',
+    ];
+
+    function _applyIconSelection(name) {
+      document.querySelectorAll('.icon-btn').forEach(b => b.classList.toggle('active', b.dataset.icon === name));
+      document.getElementById('icon-none-btn').classList.toggle('active', !name);
+    }
+
+    function selectIcon(name) {
+      currentIcon = name;
+      _applyIconSelection(name);
+      onChanged();
+    }
+    window.selectIcon = selectIcon;
+
+    function renderIconGrid(container, names) {
+      container.innerHTML = names.map(n =>
+        `<button class="icon-btn${n === currentIcon ? ' active' : ''}" data-icon="${n}" title="${n}" onclick="selectIcon('${n}')">
+           <i class="ti ti-${n}"></i>
+         </button>`
+      ).join('');
+    }
+
+    document.querySelectorAll('#icon-quick .icon-btn').forEach(btn => {
+      btn.addEventListener('click', () => selectIcon(btn.dataset.icon));
+    });
+
+    const iconSearch  = document.getElementById('icon-search');
+    const iconResults = document.getElementById('icon-results');
+    iconSearch.addEventListener('input', () => {
+      const q = iconSearch.value.trim().toLowerCase();
+      if (!q) { iconResults.innerHTML = ''; return; }
+      renderIconGrid(iconResults, ICON_LIST.filter(n => n.includes(q)).slice(0, 40));
+    });
+
+    // ── Info-Bar ──────────────────────────────────────────────────────────
+    function updateInfoBar() {
+      const id   = document.getElementById('label-size').value;
+      const info = LABEL_INFO[id];
+      if (!info) return;
+      const swapped = currentRotate === 90 || currentRotate === 270;
+      const w = swapped ? (info.h || '?') : info.w;
+      const h = swapped ? info.w : (info.h || 'variabel');
+      document.getElementById('info-size').textContent = info.mm;
+      document.getElementById('info-res').textContent  = `${w} × ${h} px`;
+    }
+
+    // ── Vorschau ──────────────────────────────────────────────────────────
+    function schedulePreview() {
+      clearTimeout(previewDebounce);
+      previewDebounce = setTimeout(fetchPreview, 400);
+    }
+
+    async function fetchPreview() {
+      const previewEl = document.getElementById('label-preview');
+      const status    = document.getElementById('preview-status');
+
+      const qrActive = document.getElementById('qr-toggle').checked;
+      const params = new URLSearchParams({
+        text:        document.getElementById('label-text').value,
+        qr_text:     qrActive ? document.getElementById('qr-text').value : '',
+        qr_type:     document.getElementById('qr-type').value,
+        label:       document.getElementById('label-size').value,
+        font_size:   document.getElementById('label-fontsize').value,
+        font_family: currentFont,
+        align:       currentAlign,
+        bold:        isBold ? 1 : 0,
+        rotate:      currentRotate,
+        text_rotate: currentTextRotate,
+        qr_size:     document.getElementById('qr-size').value,
+        qr_pos:      currentQrPos,
+        icon:        currentIcon,
+        icon_size:   document.getElementById('icon-size').value,
+        icon_pos:    currentIconPos,
+      });
+
+      status.textContent = '…';
+      previewEl.style.display = 'none';
+
+      const tmp = new Image();
+      tmp.onload = () => {
+        previewEl.src = tmp.src;
+        previewEl.style.display = 'block';
+        status.textContent = '';
+      };
+      tmp.onerror = async () => {
+        try {
+          const r   = await fetch(`${PUBLIC_API}/preview?${params}`);
+          const err = await r.json().catch(() => ({}));
+          status.textContent = err.detail || 'Vorschau-Fehler';
+        } catch {
+          status.textContent = 'Nicht verfügbar';
+        }
+      };
+      tmp.src = `${PUBLIC_API}/preview?${params}&_t=${Date.now()}`;
+    }
+
+    // ── Drucken ───────────────────────────────────────────────────────────
+    async function printLabel() {
+      const text   = document.getElementById('label-text').value.trim();
+      const qrActive = document.getElementById('qr-toggle').checked;
+      const qrText = qrActive ? document.getElementById('qr-text').value.trim() : '';
+      if (!text && !qrText) {
+        showResult(false, 'Bitte Text eingeben oder QR-Code aktivieren.');
+        return;
+      }
+
+      const btn = document.getElementById('print-btn');
+      btn.disabled = true;
+      btn.textContent = 'Drucke…';
+
+      try {
+        const res = await fetch(`${PUBLIC_API}/action`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action: 'print', params: {
+            text,
+            qr_text:     qrText,
+            qr_type:     document.getElementById('qr-type').value,
+            label:       document.getElementById('label-size').value,
+            font_size:   parseInt(document.getElementById('label-fontsize').value),
+            font_family: currentFont,
+            align:       currentAlign,
+            bold:        isBold,
+            rotate:      currentRotate,
+            text_rotate: currentTextRotate,
+            qr_size:     parseInt(document.getElementById('qr-size').value),
+            qr_pos:      currentQrPos,
+            icon:        currentIcon,
+            icon_size:   parseInt(document.getElementById('icon-size').value),
+            icon_pos:    currentIconPos,
+          }}),
+        });
+        const data = await res.json();
+        showResult(data.success, data.message);
+      } catch (e) {
+        showResult(false, 'Verbindungsfehler');
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Drucken';
+      }
+    }
+
+    function showResult(ok, msg) {
+      const el = document.getElementById('print-result');
+      el.className = 'result ' + (ok ? 'ok' : 'err');
+      el.textContent = (ok ? '✓ ' : '✗ ') + msg;
+    }
+
+    // ── Init ──────────────────────────────────────────────────────────────
+    loadSettings();
+  </script>
+</body>
+</html>

@@ -18,6 +18,7 @@ from h15hub.engine.automation import AutomationEngine
 from h15hub.api.boards import router as board_router
 from h15hub.api.devices import make_router as make_device_router
 from h15hub.api.bookings import router as booking_router
+from h15hub.api.public import router as public_router
 from h15hub.api.ws import make_ws_router, notify_status_change
 from h15hub.models.user import UserRole
 
@@ -54,6 +55,15 @@ async def lifespan(app: FastAPI):
     await registry.start()
     app.state.registry = registry
 
+    # Öffentlich zugängliche Geräte (kein Login nötig)
+    from h15hub.adapters.labelprinter import LabelprinterAdapter
+    public: set[str] = set()
+    for adapter in registry._adapters.values():
+        if isinstance(adapter, LabelprinterAdapter) and adapter.public:
+            for d in await adapter.get_status():
+                public.add(d.id)
+    app.state.public_devices = public
+
     logger.info(
         "H15-Hub gestartet. %d Adapter registriert.",
         len(config.get("devices", {})),
@@ -76,6 +86,7 @@ app.include_router(admin_router)
 app.include_router(make_device_router())
 app.include_router(booking_router)
 app.include_router(board_router)
+app.include_router(public_router)
 app.include_router(make_ws_router())
 
 
@@ -119,9 +130,41 @@ async def admin_page(request: Request, db: AsyncSession = Depends(get_db)) -> HT
     if isinstance(current_user, RedirectResponse):
         return current_user
 
+    # HA-Entitäten vorausladen (für Wizard-Autocomplete)
+    ha_entities: list[dict] = []
+    try:
+        import httpx as _httpx
+        from h15hub.configuration import load_config as _load_config
+        _cfg = _load_config()
+        _ha = next(
+            (c for c in _cfg.get("devices", {}).values() if c.get("adapter") == "homeassistant"),
+            None,
+        )
+        if _ha:
+            async with _httpx.AsyncClient(timeout=5.0) as _c:
+                _r = await _c.get(
+                    _ha["url"].rstrip("/") + "/api/states",
+                    headers={"Authorization": f"Bearer {_ha.get('token', '')}"},
+                )
+                if _r.status_code == 200:
+                    ha_entities = sorted(
+                        [
+                            {
+                                "entity_id": s["entity_id"],
+                                "name": (s.get("attributes") or {}).get("friendly_name") or s["entity_id"],
+                                "state": s.get("state"),
+                                "domain": s["entity_id"].split(".")[0],
+                            }
+                            for s in _r.json()
+                        ],
+                        key=lambda x: x["entity_id"],
+                    )
+    except Exception:
+        pass  # Wizard zeigt leere Liste, Nutzer kann manuell eingeben
+
     return templates.TemplateResponse(
         "admin.html",
-        template_context(request, current_user=current_user),
+        template_context(request, current_user=current_user, ha_entities=ha_entities),
     )
 
 
@@ -139,9 +182,13 @@ async def dashboard(request: Request, db: AsyncSession = Depends(get_db)) -> HTM
 
 @app.get("/device/{device_id}", response_class=HTMLResponse)
 async def device_detail(request: Request, device_id: str, db: AsyncSession = Depends(get_db)) -> HTMLResponse:
-    current_user = await ensure_page_user(request, db)
-    if isinstance(current_user, RedirectResponse):
-        return current_user
+    public_devices: set[str] = getattr(request.app.state, "public_devices", set())
+    if device_id in public_devices:
+        current_user = await get_current_user_from_request(request, db)
+    else:
+        current_user = await ensure_page_user(request, db)
+        if isinstance(current_user, RedirectResponse):
+            return current_user
 
     registry = request.app.state.registry
     device = registry.get(device_id)
@@ -150,6 +197,17 @@ async def device_detail(request: Request, device_id: str, db: AsyncSession = Dep
     return templates.TemplateResponse(
         "device.html",
         template_context(request, current_user=current_user, device=device),
+    )
+
+
+@app.get("/labeldesigner", response_class=HTMLResponse)
+async def labeldesigner_page(request: Request, db: AsyncSession = Depends(get_db)) -> HTMLResponse:
+    current_user = await ensure_page_user(request, db)
+    if isinstance(current_user, RedirectResponse):
+        return current_user
+    return templates.TemplateResponse(
+        "labeldesigner.html",
+        template_context(request, current_user=current_user),
     )
 
 
