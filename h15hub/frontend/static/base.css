@@ -119,7 +119,7 @@ nav button.nav-danger:hover { color: var(--red); }
   background: var(--amber);
   color: var(--bg);
   cursor: pointer;
-  transition: background 120ms, border-color 120ms;
+  transition: background 120ms, border-color 120ms, transform 80ms;
   text-align: center;
   text-decoration: none;
   display: inline-flex;
@@ -143,7 +143,7 @@ nav button.nav-danger:hover { color: var(--red); }
   background: transparent;
   color: var(--muted);
   cursor: pointer;
-  transition: color 120ms, border-color 120ms;
+  transition: color 120ms, border-color 120ms, transform 80ms;
   text-decoration: none;
   display: inline-flex;
   align-items: center;
@@ -165,7 +165,7 @@ nav button.nav-danger:hover { color: var(--red); }
   background: transparent;
   color: var(--dim);
   cursor: pointer;
-  transition: color 120ms, border-color 120ms, background 120ms;
+  transition: color 120ms, border-color 120ms, background 120ms, transform 80ms;
   display: inline-flex;
   align-items: center;
 }

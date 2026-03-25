@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Dashboard – H15-Hub</title>
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90' fill='%23f0a020'>⚙</text></svg>">
-  <link rel="stylesheet" href="/static/base.css?v=7c414d34">
+  <link rel="stylesheet" href="/static/base.css?v=130e85b5">
   <style>
     main {
       max-width: 1380px;
@@ -49,6 +49,11 @@
     @keyframes card-in {
       from { opacity: 0; transform: translateY(10px); }
       to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .card-anim {
+      animation: card-in 320ms cubic-bezier(0.25, 1, 0.5, 1) both;
+      animation-delay: var(--delay, 0ms);
     }
 
     @keyframes status-flash {
@@ -282,7 +287,7 @@
       const grid = document.getElementById('device-grid');
       if (!devices.length) { grid.innerHTML = '<div class="empty">Keine Geräte gefunden.</div>'; return; }
       grid.innerHTML = devices.map((d, i) => `
-        <a class="card ${d.status}" href="/device/${d.id}" style="animation:card-in 320ms var(--ease-out-quart) both;animation-delay:${i * 45}ms">
+        <a class="card ${d.status} card-anim" href="/device/${d.id}" style="--delay:${i * 45}ms">
           <div class="card-header">
             <div class="status-dot ${d.status}"></div>
             <div>

@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Boards – H15-Hub</title>
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90' fill='%23f0a020'>⚙</text></svg>">
-  <link rel="stylesheet" href="/static/base.css?v=7c414d34">
+  <link rel="stylesheet" href="/static/base.css?v=130e85b5">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css">
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
   <style>
@@ -432,6 +432,11 @@
     @keyframes board-card-in {
       from { opacity: 0; transform: translateY(6px); }
       to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .board-card {
+      animation: board-card-in 280ms cubic-bezier(0.25, 1, 0.5, 1) both;
+      animation-delay: var(--delay, 0ms);
     }
 
     @keyframes quick-add-in {
@@ -1665,7 +1670,7 @@
           class="board-card"
           data-card-id="${card.id}"
           draggable="true"
-          style="animation:board-card-in 280ms var(--ease-out-quart) both;animation-delay:${idx * 35}ms"
+          style="--delay:${idx * 35}ms"
           ondragstart="onDragStart(event,${card.id})"
           ondragend="onDragEnd(event)"
           ondragover="event.preventDefault()"
